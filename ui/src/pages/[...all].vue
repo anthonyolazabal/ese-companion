@@ -1,15 +1,8 @@
 <script setup lang="ts">
-import misc404 from '@/assets/images/pages/bee-3.png'
-import miscMaskDark from '@/assets/images/pages/misc-mask-dark.png'
-import miscMaskLight from '@/assets/images/pages/misc-mask-light.png'
+import misc404 from '@/assets/images/pages/404.png'
 import { useTheme } from 'vuetify'
 
 const vuetifyTheme = useTheme()
-const authThemeMask = computed(() => {
-  return vuetifyTheme.global.name.value === 'light'
-    ? miscMaskLight
-    : miscMaskDark
-})
 </script>
 
 <template>
@@ -24,9 +17,6 @@ const authThemeMask = computed(() => {
         Back to Home
       </VBtn>
     </div>
-
-    <!-- 👉 Footer -->
-    <VImg :src="authThemeMask" class="misc-footer-img d-none d-md-block" />
   </div>
 </template>
 

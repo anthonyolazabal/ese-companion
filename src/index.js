@@ -212,7 +212,7 @@ require('./rest_api/rest_api_statistics')(app);
 https.createServer({
   key: fs.readFileSync('./certificates/server.key'),
   cert: fs.readFileSync('./certificates/server.cert')
-}, app).listen(4000)
+}, app).listen(4001)
 
 // Start HTTP server
 app.listen(3001, () => {

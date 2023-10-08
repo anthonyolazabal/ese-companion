@@ -5,17 +5,19 @@
   <meta charset="UTF-8" />
   <link rel="icon" href="/favicon.png" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>HiveMQ ESE Editor</title>
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src * 'unsafe-inline' 'unsafe-eval' 'self'; script-src * 'sha256-tezux1grMlSQiCdVXTxh5iPVNZvuFDfmFSbCP0AZsZQ=' 'unsafe-inline' 'unsafe-eval' 'self'; connect-src * 'unsafe-inline' 'self'; img-src * data: blob: 'unsafe-inline'; frame-src *; style-src * 'unsafe-inline';">
+  <title>ESE Companion</title>
   <link rel="stylesheet" type="text/css" href="/loader.css" />
-  <script type="module" crossorigin src="/assets/index.16be124a.js"></script>
-  <link rel="stylesheet" href="/assets/index.84f06c8a.css">
+  <script type="module" crossorigin src="/assets/index.ddc7c489.js"></script>
+  <link rel="stylesheet" href="/assets/index.48a8109e.css">
 </head>
 
 <body>
   <div id="app">
     <div id="loading-bg">
       <div class="loading-logo">
-        <img src="/bee.png" height="80" alt="Logo" />
+        <img src="/logo.png" height="60" alt="Logo" />
       </div>
       <div class="loading">
         <div class="effect-1 effects"></div>
@@ -24,17 +26,7 @@
       </div>
     </div>
   </div>
-
-  <!-- <script>
-    const loaderColor = '#FFFFFF'
-    const primaryColor = '#ffc000'
-
-    if (loaderColor)
-      document.documentElement.style.setProperty('--initial-loader-bg', loaderColor)
-    if (primaryColor)
-      document.documentElement.style.setProperty('--initial-loader-color', primaryColor)
-
-  </script> -->
+  
 </body>
 
 </html>

@@ -1,8 +1,8 @@
 <script lang="ts">
 import { useTheme } from 'vuetify'
 import type { VForm } from 'vuetify/components/VForm'
-import bee2 from '@/assets/images/pages/bee-2.png'
-import bee1 from '@/assets/images/pages/bee-1.png'
+import simple from '@/assets/images/pages/simple.png'
+import logo from '@/assets/logo.png'
 import type { AxiosInstance } from 'axios'
 import router from '@/router'
 import { userStore } from '../plugins/auth/userStore'
@@ -73,14 +73,16 @@ const isPasswordVisible = ref(false)
   <div class="auth-wrapper d-flex align-center justify-center pa-4">
     <VCard class="auth-card pa-4 pt-7" max-width="448">
       <VCardItem class="justify-center">
+        <VImg style="margin-left: auto; margin-right: auto;" :src="logo" :width="100" />
+        <br/>
         <VCardTitle class="font-weight-semibold text-2xl text-uppercase">
-          ESE Editor
+          ESE Companion
         </VCardTitle>
       </VCardItem>
 
-      <VCardText class="pt-2">
+      <VCardText class="pt-2 text-center">
         <p class="mb-0">
-          Please sign-in with an account allowed on the ESE Api
+          Please sign-in with an account allowed on the Enterprise Security Extension Rest Api
         </p>
       </VCardText>
 
@@ -114,10 +116,7 @@ const isPasswordVisible = ref(false)
         </VForm>
       </VCardText>
     </VCard>
-
-    <VImg class="auth-footer-start-tree d-none d-md-block" :src="bee1" :width="250" />
-
-    <VImg :src="bee2" class="auth-footer-end-tree d-none d-md-block" :width="350" />
+    <VImg :src="simple" class="auth-footer-end-tree d-none d-md-block" :width="550" />
   </div>
 </template>
 

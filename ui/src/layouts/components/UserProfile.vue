@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import avatar from '@/assets/bee.png';
+import router from '@/router'
+import avatar from '@/assets/user.png';
 import { userStore } from '../../plugins/auth/userStore'
 import type { Anchor } from 'vuetify/lib/components'
 
@@ -11,6 +12,10 @@ const avatarBadgeProps = {
   offsetY: 3,
   color: 'success',
   bordered: true,
+}
+
+function logout(){
+  router.push('/');
 }
 
 const store = userStore()
@@ -43,16 +48,6 @@ const store = userStore()
             <VListItemSubtitle class="text-disabled">
               Admin
             </VListItemSubtitle>
-          </VListItem>
-
-          <VDivider class="my-2" />
-
-          <!-- 👉 Logout -->
-          <VListItem to="/login">
-            <template #prepend>
-              <VIcon class="me-2" icon="mdi-logout-variant" size="22" />
-            </template>
-            <VListItemTitle>Logout</VListItemTitle>
           </VListItem>
         </VList>
       </VMenu>

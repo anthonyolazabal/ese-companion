@@ -90,7 +90,7 @@ export default {
           <EasyDataTable theme-color="#ffc000" buttons-pagination :headers="headers" :items="items" :loading="loading"
             table-class-name="customize-table" sort-by="id">
             <template #loading>
-              <img src="@/assets/images/loading-bee.webp" style="width: 6.25rem; height: 6.25rem" alt="Bee" />
+              <img src="@/assets/images/database-table.gif" style="width: 6.25rem; height: 6.25rem" alt="loader" />
             </template>
             <template #item-publish_allowed="{ publish_allowed }">
               <div v-if="publish_allowed == true">

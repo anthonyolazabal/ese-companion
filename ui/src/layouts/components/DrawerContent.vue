@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import logo from '@/assets/bee.png';
+import logo from '@/assets/logo.png';
 import { VerticalNavLink, VerticalNavSectionTitle } from '@layouts';
 import { useTheme } from 'vuetify';
 
@@ -15,7 +15,7 @@ const vuetifyTheme = useTheme()
 
       <Transition name="vertical-nav-app-title">
         <h1 class="font-weight-semibold leading-normal text-xl text-uppercase">
-          ESE Editor
+          ESE Companion
         </h1>
       </Transition>
     </RouterLink>
@@ -28,8 +28,8 @@ const vuetifyTheme = useTheme()
       to: 'index',
       icon: { icon: 'mdi-home-outline' }
     }" />
-    <!-- 👉 MQTT Users -->
-    <VerticalNavSectionTitle :item="{ heading: 'MQTT Users' }" />
+    <!-- 👉 MQTT -->
+    <VerticalNavSectionTitle :item="{ heading: 'MQTT' }" />
     <VerticalNavLink :item="{
       title: 'Accounts',
       to: 'mqtt-accounts',
