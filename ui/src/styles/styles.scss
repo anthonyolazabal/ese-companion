@@ -1,0 +1,26 @@
+// Write your overrides
+.buttons-pagination .item.button.active .easy-data-table__rows-selector ul.select-items li.selected {
+    background-color: #ffc000 !important;
+    border-color: #ffc000 !important;
+}
+
+.buttons-pagination .item.button.active[data-v-4c681fa2] {
+    background-color: #ffc000 !important;
+    border-color: #fff !important;
+}
+
+.v-tab.v-tab.v-tab {
+    border-radius: 5px !important;
+}
+
+
+// Override dark theme
+.v-theme--dark {
+
+    .v-card--variant-elevated,
+    .v-card--variant-flat {
+        background: #707070;
+    }
+}
+
+// Yellow from HiveMQ = #ffc000

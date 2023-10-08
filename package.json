@@ -1,0 +1,32 @@
+{
+  "name": "ESE_Editor",
+  "version": "1.0.0",
+  "description": "ESE Api and UI for HiveMQ ESE Database",
+  "main": "index.js",
+  "scripts": {
+    "build-app": "npm run build-client && npm install && npm start",
+    "build-client": "mkdir -p public && cd ui && pwd && npm run build-app && cd ..",
+    "start": "node ./src/index.js",
+    "dev": "nodemon ./src/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@prisma/client": "^4.16.2",
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "helmet": "^7.0.0",
+    "jsonwebtoken": "^9.0.0",
+    "morgan": "^1.10.0",
+    "prisma": "^4.16.2",
+    "prisma-client": "^0.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.22"
+  }
+}
