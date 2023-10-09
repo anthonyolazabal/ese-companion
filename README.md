@@ -140,7 +140,7 @@ docker build -t ese-companion --platform linux/amd64 .
 
 ## Run Docker image
 ```
-docker run --env=TOKEN_KEY=@JwTT0k3nK3y!!!@JwTT0k3nK3y!!! --env=DATABASE_URL=postgresql://hivemq:hivemq@192.168.69.230:5432/hivemq-ese-dev?schema=public -p 3301:3001 -d ese-api:latest
+docker run --env=TOKEN_KEY=@JwTT0k3nK3y!!!@JwTT0k3nK3y!!! --env=DATABASE_URL=postgresql://hivemq:hivemq@192.168.69.230:5432/hivemq-ese-dev?schema=public -p 3301:3001 -d ese-companion:latest
 ```
 
 Two important environment variables are needed :
