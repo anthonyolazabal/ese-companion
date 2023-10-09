@@ -1,16 +1,12 @@
 // importing the dependencies
 require("dotenv").config();
 const express = require('express');
-const fs = require('fs');
-const https = require('https');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
-const bcrypt = require("bcryptjs");
 const auth = require("./middleware/auth");
 const jwt = require("jsonwebtoken");
-const encryptPassword = require("./helpers/cryptoHelper").encryptPassword;
 const { generateHash } = require("./helpers/cryptoHelper");
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
@@ -111,8 +107,6 @@ app.post("/api/login", async (req, res) => {
             hasRole = true;
           }
         });
-
-        // let testPassword = encryptPassword(password, result.password_salt, result.password_iterations, result.algorithm);
         let testPassword = await generateHash(password, result.password_salt, result.password_iterations, result.algorithm);
 
         // Create token
@@ -207,12 +201,6 @@ require('./rest_api/rest_api_permissions')(app);
 
 //// REST API Statistics ////
 require('./rest_api/rest_api_statistics')(app);
-
-// Start HTTPS Server 
-https.createServer({
-  key: fs.readFileSync('./certificates/server.key'),
-  cert: fs.readFileSync('./certificates/server.cert')
-}, app).listen(4001)
 
 // Start HTTP server
 app.listen(3001, () => {

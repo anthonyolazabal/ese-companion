@@ -1,8 +1,0 @@
-Initialize prisma
-npx prisma generete
-
-Get the db schema in Prisma
-npx prisma db pull
-
-Sync schema to db
-npx prisma migrate dev

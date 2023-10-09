@@ -21,11 +21,6 @@ app.use(vuetify)
 app.use(pinia)
 app.use(router)
 
-// Local dev instance
-app.use(axios, {
-    baseUrl: 'http://localhost:3001',
-})
-
 app.use(axios, {})
 
 app.mount('#app')

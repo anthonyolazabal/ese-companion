@@ -1,0 +1,3180 @@
+{
+	"info": {
+		"_postman_id": "164c15c8-6467-41c1-8be3-ade06da9e18e",
+		"name": "ESE COMPANION API",
+		"description": "Postman collection to manipulate ESE Companion API.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "29208515"
+	},
+	"item": [
+		{
+			"name": "Analytics",
+			"item": [
+				{
+					"name": "Get global statistics",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "{{api-url}}/global",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"global"
+							],
+							"query": [
+								{
+									"key": "x-access-token",
+									"value": "{{auth-token}}",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get global timeline trends",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "{{api-url}}/timelined_trends",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"timelined_trends"
+							],
+							"query": [
+								{
+									"key": "x-access-token",
+									"value": "{{auth-token}}",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Rest Api Users",
+			"item": [
+				{
+					"name": "Get Rest Api Users",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "{{api-url}}/rest_api_users",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"rest_api_users"
+							],
+							"query": [
+								{
+									"key": "x-access-token",
+									"value": "{{auth-token}}",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Get all Rest Api users"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Rest Api User By Id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "{{api-url}}/rest_api_user/20?extend=true",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"rest_api_user",
+								"20"
+							],
+							"query": [
+								{
+									"key": "extend",
+									"value": "true"
+								}
+							]
+						},
+						"description": "Get details on a user. Possibility to extend it with roles, permissions and direct permissions with param extend."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Rest Api User By Id",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"apiadmin7\",\n\t\"password\": \"supersecurepassword\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api-url}}/rest_api_user/20",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"rest_api_user",
+								"20"
+							]
+						},
+						"description": "Update a Rest Api user."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Rest Api User By Id",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{api-url}}/rest_api_user/20",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"rest_api_user",
+								"20"
+							]
+						},
+						"description": "Delete a Rest Api user."
+					},
+					"response": []
+				},
+				{
+					"name": "Create Rest Api User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"aol2\",\n\t\"password\": \"aol2\",\n    \"algorithm\": \"SHA512\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api-url}}/rest_api_user",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"rest_api_user"
+							]
+						},
+						"description": "Create a Rest Api user."
+					},
+					"response": []
+				}
+			],
+			"description": "Methods to update Rest Api Users table."
+		},
+		{
+			"name": "Rest Api User Roles",
+			"item": [
+				{
+					"name": "Get Rest Api User Roles",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3001/rest_api_user_roles",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"rest_api_user_roles"
+							],
+							"query": [
+								{
+									"key": "x-access-token",
+									"value": "{{auth-token}}",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Get all Rest Api user roles mapping."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Rest Api User Role By Id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "{{api-url}}/rest_api_user_role/2/3?extend=true",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"rest_api_user_role",
+								"2",
+								"3"
+							],
+							"query": [
+								{
+									"key": "extend",
+									"value": "true"
+								}
+							]
+						},
+						"description": "Get details on a Rest Api user role. Get details on user and permissions with param extend."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Rest Api User Role By Id",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"user_id\": 2,\n    \"role_id\": 3\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/rest_api_user_role/2/4",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"rest_api_user_role",
+								"2",
+								"4"
+							]
+						},
+						"description": "Update a Rest Api user role mapping."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Rest Api User Role",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3001/rest_api_user_role/2/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"rest_api_user_role",
+								"2",
+								"1"
+							]
+						},
+						"description": "Delete a Rest Api user role mapping."
+					},
+					"response": []
+				},
+				{
+					"name": "Create Rest Api User Role",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"user_id\": 33,\n    \"role_id\": 3\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api-url}}/rest_api_user_role",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"rest_api_user_role"
+							]
+						},
+						"description": "Create a Rest Api user role mapping."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Rest Api User Permissions",
+			"item": [
+				{
+					"name": "Get Rest Api User Permissions",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3001/rest_api_user_permissions",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"rest_api_user_permissions"
+							],
+							"query": [
+								{
+									"key": "x-access-token",
+									"value": "{{auth-token}}",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Rest Api User Permission By Id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3001/rest_api_user_permission/14/21?extend=true",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"rest_api_user_permission",
+								"14",
+								"21"
+							],
+							"query": [
+								{
+									"key": "extend",
+									"value": "true"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Rest Api User Permission By Id",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"user_id\": 14,\n    \"permission\": 21\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/rest_api_user_permission/14/20",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"rest_api_user_permission",
+								"14",
+								"20"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Rest Api User Permission",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3001/rest_api_user_permission/14/21",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"rest_api_user_permission",
+								"14",
+								"21"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Rest Api User Permission",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"user_id\": 20,\n    \"permission\": 2\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/rest_api_user_permission",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"rest_api_user_permission"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Rest Api Roles",
+			"item": [
+				{
+					"name": "Get Rest Api Roles",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "{{api-url}}/rest_api_roles",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"rest_api_roles"
+							],
+							"query": [
+								{
+									"key": "x-access-token",
+									"value": "{{auth-token}}",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Rest Api Role By Id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3001/rest_api_role/3?extend=true",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"rest_api_role",
+								"3"
+							],
+							"query": [
+								{
+									"key": "extend",
+									"value": "true"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Rest Api Role By Id",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"mycustomrolename\",\n    \"description\": \"My custom Rest API role modified again and again\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/rest_api_role/4",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"rest_api_role",
+								"4"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Rest Api Role By Id",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3001/rest_api_role/5",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"rest_api_role",
+								"5"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Rest Api Role",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"mycustomrolename 2\",\n\t\"description\": \"My custom Rest API role\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/rest_api_role",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"rest_api_role"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Rest Api Role Permissions",
+			"item": [
+				{
+					"name": "Get Rest Api Role Permissions",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3001/rest_api_role_permissions",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"rest_api_role_permissions"
+							],
+							"query": [
+								{
+									"key": "x-access-token",
+									"value": "{{auth-token}}",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Rest Api Role Permission By Id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3001/rest_api_role_permission/4/20?extend=true",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"rest_api_role_permission",
+								"4",
+								"20"
+							],
+							"query": [
+								{
+									"key": "extend",
+									"value": "true"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Rest Api Role Permission By Id",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"role\": 4,\n    \"permission\": 20\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/rest_api_role_permission/4/18",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"rest_api_role_permission",
+								"4",
+								"18"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Rest Api Role Permission",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3001/rest_api_role_permission/4/20",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"rest_api_role_permission",
+								"4",
+								"20"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Rest Api Role Permissions",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"role\": 4,\n    \"permission\": 20\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/rest_api_role_permission",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"rest_api_role_permission"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Rest Api Permissions",
+			"item": [
+				{
+					"name": "Get Rest Api Permissions",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3001/rest_api_permissions",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"rest_api_permissions"
+							],
+							"query": [
+								{
+									"key": "x-access-token",
+									"value": "{{auth-token}}",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Rest Api Permission By Id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3001/rest_api_permission/21",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"rest_api_permission",
+								"21"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Rest Api Permission By Id",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": 21,\n    \"permission_string\": \"MY PERMISSION\",\n    \"description\": \"My permission description udpated\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/rest_api_permission/21",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"rest_api_permission",
+								"21"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Rest Api Permission By Id",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3001/rest_api_permission/21",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"rest_api_permission",
+								"21"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Rest Api Permission",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"permission_string\": \"MY PERMISSION 2\",                \n    \"description\": \"My permission description\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/rest_api_permission",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"rest_api_permission"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Rest Api Statistics",
+			"item": [
+				{
+					"name": "Get Rest Api Statistics",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "{{api-url}}/rest_api_statistics",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"rest_api_statistics"
+							],
+							"query": [
+								{
+									"key": "x-access-token",
+									"value": "{{auth-token}}",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "MQTT Users",
+			"item": [
+				{
+					"name": "Get MQTT Users",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "{{api-url}}/users",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"users"
+							],
+							"query": [
+								{
+									"key": "x-access-token",
+									"value": "{{auth-token}}",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get MQTT User By Id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "{{api-url}}/user/1?extend=true",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"user",
+								"1"
+							],
+							"query": [
+								{
+									"key": "extend",
+									"value": "true"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete MQTT User By Id",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3001/user/7",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"user",
+								"7"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create MQTT User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"doejohn1AA44\",\n\t\"password\": \"supersecurepassword\",\n    \"algorithm\": \"SHA512\",\n    \"password_iterations\": 50\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api-url}}/user",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"user"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update User By Id",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": 18,\n    \"username\": \"john\",\n    \"password\": \"\",\n    \"password_iterations\": 100,\n    \"password_salt\": \"4jTcO1Rn61PWagq3HjBuqQ==\",\n    \"algorithm\": \"SHA512\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api-url}}/user/18",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"user",
+								"18"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "MQTT Statistics",
+			"item": [
+				{
+					"name": "Get MQTT Statistics",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "{{api-url}}/statistics",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"statistics"
+							],
+							"query": [
+								{
+									"key": "x-access-token",
+									"value": "{{auth-token}}",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "MQTT User Roles",
+			"item": [
+				{
+					"name": "Get MQTT User Roles",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "{{api-url}}/user_roles",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"user_roles"
+							],
+							"query": [
+								{
+									"key": "x-access-token",
+									"value": "{{auth-token}}",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get MQTT User Role By Id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3001/user_role/5/3?extend=true",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"user_role",
+								"5",
+								"3"
+							],
+							"query": [
+								{
+									"key": "extend",
+									"value": "true"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update MQTT User Role By Id",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"user_id\": 5,\n    \"role_id\": 3\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/user_role/5/2",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"user_role",
+								"5",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete MQTT User Role",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3001/user_role/5/3",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"user_role",
+								"5",
+								"3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create MQTT User Role",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"user_id\": 18,\n    \"role_id\": 3\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api-url}}/user_role",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"user_role"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "MQTT User Permissions",
+			"item": [
+				{
+					"name": "Get MQTT User Permissions",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3001/user_permissions",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"user_permissions"
+							],
+							"query": [
+								{
+									"key": "x-access-token",
+									"value": "{{auth-token}}",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get MQTT User Permission By Id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3001/user_permission/1/3?extend=true",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"user_permission",
+								"1",
+								"3"
+							],
+							"query": [
+								{
+									"key": "extend",
+									"value": "true"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update MQTT User Permission By Id",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"user_id\": 1,\n    \"permission\": 3\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/user_permission/1/2",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"user_permission",
+								"1",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete MQTT User Permission",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3001/user_permission/1/3",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"user_permission",
+								"1",
+								"3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create MQTT User Permission",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"user_id\": 1,\n    \"permission\": 2\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/user_permission",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"user_permission"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "MQTT Roles",
+			"item": [
+				{
+					"name": "Get MQTT Roles",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "{{api-url}}/roles",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"roles"
+							],
+							"query": [
+								{
+									"key": "x-access-token",
+									"value": "{{auth-token}}",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get MQTT Role By Id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "{{api-url}}/role/3?extend=true",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"role",
+								"3"
+							],
+							"query": [
+								{
+									"key": "extend",
+									"value": "true"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete MQTT Role By Id",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{api-url}}/role/4",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"role",
+								"4"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create MQTT Role",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"mycustomrole\",\n\t\"description\": \"This is my custom role\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api-url}}/role",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"role"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update MQTT Role By Id",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"mycustomrolename\",\n    \"description\": \"My custom Rest API role modified again and again\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api-url}}/role/4",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"role",
+								"4"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "MQTT Role Permissions",
+			"item": [
+				{
+					"name": "Get MQTT Role Permissions",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3001/role_permissions",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"role_permissions"
+							],
+							"query": [
+								{
+									"key": "x-access-token",
+									"value": "{{auth-token}}",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get MQTT Role Permission By Id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3001/role_permission/1/2?extend=true",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"role_permission",
+								"1",
+								"2"
+							],
+							"query": [
+								{
+									"key": "extend",
+									"value": "true"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update MQTT Role Permission By Id",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"role\": 1,\n    \"permission\": 2\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/role_permission/1/3",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"role_permission",
+								"1",
+								"3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete CC Role Permission",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3001/role_permission/1/2",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"role_permission",
+								"1",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create MQTT Role Permissions",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"role\": 2,\n    \"permission\": 4\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api-url}}/role_permission",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"role_permission"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "MQTT Permissions",
+			"item": [
+				{
+					"name": "Get MQTT Permissions",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "{{api-url}}/permissions",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"permissions"
+							],
+							"query": [
+								{
+									"key": "x-access-token",
+									"value": "{{auth-token}}",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get MQTT Permission By Id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "{{api-url}}/permission/1",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"permission",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete MQTT Permission By Id",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{api-url}}/permission/4",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"permission",
+								"4"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create MQTT Permission",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"topic\": \"topic\",                \n    \"publish_allowed\": true,\n    \"subscribe_allowed\": true,\n    \"qos_0_allowed\": true,\n    \"qos_1_allowed\": true,\n    \"qos_2_allowed\": true,\n    \"retained_msgs_allowed\": true,\n    \"shared_sub_allowed\": false,\n    \"shared_group\": \"\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api-url}}/permission",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"permission"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update MQTT Permission By Id",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"topic\": \"topic/+/status\",\n    \"publish_allowed\": true,\n    \"subscribe_allowed\": true,\n    \"qos_0_allowed\": true,\n    \"qos_1_allowed\": true,\n    \"qos_2_allowed\": true,\n    \"retained_msgs_allowed\": false,\n    \"shared_sub_allowed\": false,\n    \"shared_group\": \"\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api-url}}/permission/1",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"permission",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "CC Users",
+			"item": [
+				{
+					"name": "Get CC Users",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "{{api-url}}/cc_users",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"cc_users"
+							],
+							"query": [
+								{
+									"key": "x-access-token",
+									"value": "{{auth-token}}",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get CC User By Id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "{{api-url}}/cc_user/1?extend=true",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"cc_user",
+								"1"
+							],
+							"query": [
+								{
+									"key": "extend",
+									"value": "true"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete CC User By Id",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{api-url}}/cc_user/4",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"cc_user",
+								"4"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create CC User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"doejohn60az\",\n\t\"password\": \"supersecurepassword\",\n    \"algorithm\": \"SHA512\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api-url}}/cc_user",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"cc_user"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update CC User By Id",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"apiadmin7\",\n\t\"password\": \"supersecurepassword\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api-url}}/cc_user/20",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"cc_user",
+								"20"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "CC User Roles",
+			"item": [
+				{
+					"name": "Get CC User Roles",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3001/cc_user_roles",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"cc_user_roles"
+							],
+							"query": [
+								{
+									"key": "x-access-token",
+									"value": "{{auth-token}}",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get CC User Role By Id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3001/cc_user_role/1/2?extend=true",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"cc_user_role",
+								"1",
+								"2"
+							],
+							"query": [
+								{
+									"key": "extend",
+									"value": "true"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update CC User Role By Id",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"user_id\": 2,\n    \"role_id\": 2\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/cc_user_role/2/3",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"cc_user_role",
+								"2",
+								"3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete CC User Role",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3001/cc_user_role/2/2",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"cc_user_role",
+								"2",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create CC User Role",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"user_id\": 1,\n    \"role_id\": 2\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api-url}}/cc_user_role",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"cc_user_role"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "CC User Permissions",
+			"item": [
+				{
+					"name": "Get CC User Permissions",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3001/cc_user_permissions",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"cc_user_permissions"
+							],
+							"query": [
+								{
+									"key": "x-access-token",
+									"value": "{{auth-token}}",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get CC User Permission By Id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3001/cc_user_permission/1/27?extend=true",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"cc_user_permission",
+								"1",
+								"27"
+							],
+							"query": [
+								{
+									"key": "extend",
+									"value": "true"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update CC User Permission By Id",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"user_id\": 1,                \n    \"permission\": 24\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/cc_user_permission/1/27",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"cc_user_permission",
+								"1",
+								"27"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete CC User Permission By Id",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3001/cc_user_permission/1/24",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"cc_user_permission",
+								"1",
+								"24"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create CC User Permission",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"user_id\": 1,                \n    \"permission\": 27\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/cc_user_permission",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"cc_user_permission"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "CC Roles",
+			"item": [
+				{
+					"name": "Get CC Roles",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "{{api-url}}/cc_roles",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"cc_roles"
+							],
+							"query": [
+								{
+									"key": "x-access-token",
+									"value": "{{auth-token}}",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get CC Role By Id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3001/cc_role/2?extend=true",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"cc_role",
+								"2"
+							],
+							"query": [
+								{
+									"key": "extend",
+									"value": "true"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete CC Role By Id",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3001/cc_role/3",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"cc_role",
+								"3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create CC Role",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"mycustomrole\",\n\t\"description\": \"My custom CC role\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/cc_role",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"cc_role"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update CC Role By Id Copy",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"mycustomrolename\",\n    \"description\": \"My custom Rest API role modified again and again\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/cc_role/4",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"cc_role",
+								"4"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "CC Role Permissions",
+			"item": [
+				{
+					"name": "Get CC Role Permissions",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3001/cc_role_permissions",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"cc_role_permissions"
+							],
+							"query": [
+								{
+									"key": "x-access-token",
+									"value": "{{auth-token}}",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get CC Role Permission By Id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3001/cc_role_permission/1/28?extend=true",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"cc_role_permission",
+								"1",
+								"28"
+							],
+							"query": [
+								{
+									"key": "extend",
+									"value": "true"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update CC Role Permission By Id",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"role\": 4,\n    \"permission\": 20\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/cc_role_permission/1/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"cc_role_permission",
+								"1",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete CC Role Permission",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3001/cc_role_permission/1/28",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"cc_role_permission",
+								"1",
+								"28"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create CC Role Permissions",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"role\": 1,\n    \"permission\": 28\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/cc_role_permission",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"cc_role_permission"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "CC Permissions",
+			"item": [
+				{
+					"name": "Get CC Permissions",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "{{api-url}}/cc_permissions",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"cc_permissions"
+							],
+							"query": [
+								{
+									"key": "x-access-token",
+									"value": "{{auth-token}}",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get CC Permission By Id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3001/cc_permission/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"cc_permission",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete CC Permission By Id",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3001/cc_permission/27",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"cc_permission",
+								"27"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create CC Permission",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"permission_string\": \"MY TOPIC\",                \n    \"description\": \"My topic description\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/cc_permission",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"cc_permission"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update CC Permission By Id Copy",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": 21,\n    \"permission_string\": \"MY PERMISSION\",\n    \"description\": \"My permission description udpated\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/cc_permission/21",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"cc_permission",
+								"21"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "CC Statistics",
+			"item": [
+				{
+					"name": "Get CC Statistics",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{auth-token}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "{{api-url}}/cc_statistics",
+							"host": [
+								"{{api-url}}"
+							],
+							"path": [
+								"cc_statistics"
+							],
+							"query": [
+								{
+									"key": "x-access-token",
+									"value": "{{auth-token}}",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Login",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const jsonResponse = pm.response.json();",
+							"pm.collectionVariables.set(\"auth-token\", jsonResponse.token);",
+							"console.log(jsonResponse.token);",
+							"console.log(\"auth-token = \" + pm.collectionVariables.get(\"auth-token\"));"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"username\": \"eseapiadmin\",\n\t\"password\": \"supersecurepassword\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{api-url}}/login",
+					"host": [
+						"{{api-url}}"
+					],
+					"path": [
+						"login"
+					]
+				},
+				"description": "Authentication for the API.\n\nPOST the JSON Payload with username and password for the API."
+			},
+			"response": []
+		},
+		{
+			"name": "Root",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-access-token",
+						"value": "{{auth-token}}",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "{{api-url}}",
+					"host": [
+						"{{api-url}}"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "auth-token",
+			"value": "No token",
+			"type": "default"
+		},
+		{
+			"key": "api-url",
+			"value": "http://localhost:3001",
+			"type": "string"
+		}
+	]
+}

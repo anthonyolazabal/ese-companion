@@ -1,0 +1,9 @@
+README.md
+node_modules
+UI/node_modules
+images
+deployments
+postman
+.DS_Store
+.env
+.git
