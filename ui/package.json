@@ -1,5 +1,5 @@
 {
-  "name": "hivemq-ese-editor",
+  "name": "ese-companion",
   "version": "0.0.0",
   "scripts": {
     "build-app": "npm ci && npm run build:icons && vite build",

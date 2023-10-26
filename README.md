@@ -78,6 +78,11 @@ Sync dev to DB (need to have a valid connection string in the DATABASE_URL envir
 ```
 npx prisma migrate dev
 ```
+
+Based on the database needed, the good prisma schema as to be used (renamed): 
+- schema.prisma.mysql
+- schema.prisma.postgres
+
 ## Database compatibility
 Thanks to Prisma, we can connect to several types of database engine with the same code. Here is the status of tests and validations carried out on the various engines compatible with the security extension.
 [Full list of supported version](https://docs.hivemq.com/ese/4.20/enterprise-security-extension/ese#sql-db-versions)
@@ -85,13 +90,14 @@ Thanks to Prisma, we can connect to several types of database engine with the sa
 | DB            | Tested | Validated |                                               Connection string format                                               | 
 |---------------|:------:|:---------:|:--------------------------------------------------------------------------------------------------------------------:|
 | PostgreSQL    |  YES   |    YES    |                        postgresql://username:password@server:port/database_name?schema=public                        |
-| MariaDB       |   NO   |    NO     |             mysql://USER:PASSWORD@HOST:PORT/DATABASE                                                                                                         |
-| MySQL         |   NO   |    NO     |                                       mysql://USER:PASSWORD@HOST:PORT/DATABASE                                       |
+| MariaDB       |   YES   |    YES     |             mysql://USER:PASSWORD@HOST:PORT/DATABASE                                                                                                         |
+| MySQL         |   YES   |    YES     |                                       mysql://USER:PASSWORD@HOST:PORT/DATABASE                                       |
 | SQL Server    |   NO   |    NO     |                   sqlserver://HOST:PORT;database=DATABASE;user=USER;password=PASSWORD;encrypt=true                   |
 | Azure SQL     |   NO   |    NO     |                   sqlserver://HOST:PORT;database=DATABASE;user=USER;password=PASSWORD;encrypt=true                   |
 | Amazon Aurora |   NO   |    NO     |                                       mysql://USER:PASSWORD@HOST:PORT/DATABASE                                       |
 
 [More details on configuring Prisma connection string](https://www.prisma.io/docs/concepts/database-connectors)
+
 
 ## Database preparation
 The schema of the Enterprise Security Extension remain untouched. The authentication on the API and the UI is done with the accounts that are in the resp_api_users table. 
@@ -134,13 +140,18 @@ where rest_api_users.username = 'eseapiadmin'
 
 ## Build Docker Image
 ```
-docker build -t ese-companion --platform linux/amd64 .
+docker build -t ese-companion-dbflavor --platform linux/amd64 .
 ```
 (Platform is specified when other CPU than AMD64 are used like ARM)
 
 ## Run Docker image
+
+At the moment two DB flavors are available (later on SQL Server is in the roadmap) :
+- [PostgreSQL version](https://hub.docker.com/repository/docker/anthonyolazabal/ese-companion-postgresql/general) 
+- [MySQL version](https://hub.docker.com/repository/docker/anthonyolazabal/ese-companion-mysql/general)
+
 ```
-docker run --env=TOKEN_KEY=@JwTT0k3nK3y!!!@JwTT0k3nK3y!!! --env=DATABASE_URL=postgresql://hivemq:hivemq@192.168.69.230:5432/hivemq-ese-dev?schema=public -p 3301:3001 -d ese-companion:latest
+docker run --env=TOKEN_KEY=@JwTT0k3nK3y!!!@JwTT0k3nK3y!!! --env=DATABASE_URL=postgresql://hivemq:hivemq@192.168.69.230:5432/hivemq-ese-dev?schema=public -p 3301:3001 -d ese-companion-dbflavor:latest
 ```
 
 Two important environment variables are needed :

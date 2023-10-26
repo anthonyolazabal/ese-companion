@@ -1,7 +1,7 @@
 {
-  "name": "ESE_Editor",
+  "name": "ESE_Companion",
   "version": "1.0.0",
-  "description": "ESE Api and UI for HiveMQ ESE Database",
+  "description": "ESE Api and UI for HiveMQ Enterprise Security extension database",
   "main": "index.js",
   "scripts": {
     "build-app": "npm run build-client && npm install && npm start",
