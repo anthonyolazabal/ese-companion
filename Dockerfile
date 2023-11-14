@@ -18,4 +18,5 @@ RUN npm cache clean --force
 RUN npm cache verify
 
 EXPOSE 3001
+EXPOSE 4001
 CMD [ "npm", "start" ]

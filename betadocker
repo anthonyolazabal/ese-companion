@@ -1,0 +1,24 @@
+# Build env
+FROM node:lts-alpine as build-npm-stage
+
+WORKDIR /app
+RUN apk add openjdk11
+
+COPY . .
+RUN npm ci
+RUN npm run build-client
+RUN npm cache clean --force
+RUN npm cache verify
+
+# Run env
+FROM nginx:stable-alpine
+RUN apk add openjdk11
+COPY --from=build-npm-stage /app/package.json /usr/share/nginx/html/package.json
+COPY --from=build-npm-stage /app/package-lock.json /usr/share/nginx/html/package-lock.json
+COPY --from=build-npm-stage /app/node_modules /usr/share/nginx/html/node_modules
+COPY --from=build-npm-stage /app/prisma /usr/share/nginx/html/prisma
+COPY --from=build-npm-stage /app/src /usr/share/nginx/html/src
+COPY --from=build-npm-stage /app/public /usr/share/nginx/html/public
+EXPOSE 3001
+EXPOSE 4001
+CMD [ "npm", "start" ]
