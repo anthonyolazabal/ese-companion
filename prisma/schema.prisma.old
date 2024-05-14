@@ -1,0 +1,228 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model cc_permissions {
+  id                  Int                   @id @unique(map: "id") @default(autoincrement())
+  permission_string   String                @db.Text
+  description         String?               @db.Text
+  created_at          DateTime              @default(now()) @db.Timestamp(0)
+  updated_at          DateTime              @default(now()) @db.Timestamp(0)
+  cc_role_permissions cc_role_permissions[]
+  cc_user_permissions cc_user_permissions[]
+}
+
+model cc_role_permissions {
+  role           Int
+  permission     Int
+  created_at     DateTime       @default(now()) @db.Timestamp(0)
+  updated_at     DateTime       @default(now()) @db.Timestamp(0)
+  cc_permissions cc_permissions @relation(fields: [permission], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "cc_role_permissions_permissions_id_fk")
+  cc_roles       cc_roles       @relation(fields: [role], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "cc_role_permissions_roles_id_fk")
+
+  @@id([role, permission])
+  @@index([permission], map: "cc_role_permissions_permissions_id_fk")
+}
+
+model cc_roles {
+  id                  Int                   @id @unique(map: "id") @default(autoincrement())
+  name                String                @unique(map: "name") @db.VarChar(762)
+  description         String?               @db.Text
+  created_at          DateTime              @default(now()) @db.Timestamp(0)
+  updated_at          DateTime              @default(now()) @db.Timestamp(0)
+  cc_role_permissions cc_role_permissions[]
+  cc_user_roles       cc_user_roles[]
+}
+
+model cc_user_permissions {
+  user_id        Int
+  permission     Int
+  created_at     DateTime       @default(now()) @db.Timestamp(0)
+  updated_at     DateTime       @default(now()) @db.Timestamp(0)
+  cc_permissions cc_permissions @relation(fields: [permission], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "cc_user_permissions_permissions_id_fk")
+  cc_users       cc_users       @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "cc_user_permissions_users_id_fk")
+
+  @@id([user_id, permission])
+  @@index([permission], map: "cc_user_permissions_permissions_id_fk")
+}
+
+model cc_user_roles {
+  user_id    Int
+  role_id    Int
+  created_at DateTime @default(now()) @db.Timestamp(0)
+  updated_at DateTime @default(now()) @db.Timestamp(0)
+  cc_roles   cc_roles @relation(fields: [role_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "cc_user_roles_roles_id_fk")
+  cc_users   cc_users @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "cc_user_roles_users_id_fk")
+
+  @@id([user_id, role_id])
+  @@index([role_id], map: "cc_user_roles_roles_id_fk")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model cc_users {
+  id                  Int                   @id @unique(map: "cc_users_id_uindex") @default(autoincrement())
+  username            String                @unique(map: "cc_users_username_uindex") @db.VarChar(762)
+  password            String?               @db.Text
+  password_iterations Int
+  password_salt       String                @db.Text
+  algorithm           String                @db.VarChar(32)
+  created_at          DateTime              @default(now()) @db.Timestamp(0)
+  updated_at          DateTime              @default(now()) @db.Timestamp(0)
+  cc_user_permissions cc_user_permissions[]
+  cc_user_roles       cc_user_roles[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model permissions {
+  id                    Int                @id @unique(map: "id") @default(autoincrement())
+  topic                 String             @db.Text
+  publish_allowed       Boolean            @default(false)
+  subscribe_allowed     Boolean            @default(false)
+  qos_0_allowed         Boolean            @default(false)
+  qos_1_allowed         Boolean            @default(false)
+  qos_2_allowed         Boolean            @default(false)
+  retained_msgs_allowed Boolean            @default(false)
+  shared_sub_allowed    Boolean            @default(false)
+  shared_group          String?            @db.Text
+  created_at            DateTime           @default(now()) @db.Timestamp(0)
+  updated_at            DateTime           @default(now()) @db.Timestamp(0)
+  role_permissions      role_permissions[]
+  user_permissions      user_permissions[]
+
+  @@index([topic(length: 767)], map: "permissions_topic_index")
+}
+
+model rest_api_permissions {
+  id                        Int                         @id @unique(map: "id") @default(autoincrement())
+  permission_string         String                      @db.Text
+  description               String?                     @db.Text
+  created_at                DateTime                    @default(now()) @db.Timestamp(0)
+  updated_at                DateTime                    @default(now()) @db.Timestamp(0)
+  rest_api_role_permissions rest_api_role_permissions[]
+  rest_api_user_permissions rest_api_user_permissions[]
+}
+
+model rest_api_role_permissions {
+  role                 Int
+  permission           Int
+  created_at           DateTime             @default(now()) @db.Timestamp(0)
+  updated_at           DateTime             @default(now()) @db.Timestamp(0)
+  rest_api_permissions rest_api_permissions @relation(fields: [permission], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "rest_api_role_permissions_permissions_id_fk")
+  rest_api_roles       rest_api_roles       @relation(fields: [role], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "rest_api_role_permissions_roles_id_fk")
+
+  @@id([role, permission])
+  @@index([permission], map: "rest_api_role_permissions_permissions_id_fk")
+}
+
+model rest_api_roles {
+  id                        Int                         @id @unique(map: "id") @default(autoincrement())
+  name                      String                      @unique(map: "name") @db.VarChar(762)
+  description               String?                     @db.Text
+  created_at                DateTime                    @default(now()) @db.Timestamp(0)
+  updated_at                DateTime                    @default(now()) @db.Timestamp(0)
+  rest_api_role_permissions rest_api_role_permissions[]
+  rest_api_user_roles       rest_api_user_roles[]
+}
+
+model rest_api_user_permissions {
+  user_id              Int
+  permission           Int
+  created_at           DateTime             @default(now()) @db.Timestamp(0)
+  updated_at           DateTime             @default(now()) @db.Timestamp(0)
+  rest_api_permissions rest_api_permissions @relation(fields: [permission], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "rest_api_user_permissions_permissions_id_fk")
+  rest_api_users       rest_api_users       @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "rest_api_user_permissions_users_id_fk")
+
+  @@id([user_id, permission])
+  @@index([permission], map: "rest_api_user_permissions_permissions_id_fk")
+}
+
+model rest_api_user_roles {
+  user_id        Int
+  role_id        Int
+  created_at     DateTime       @default(now()) @db.Timestamp(0)
+  updated_at     DateTime       @default(now()) @db.Timestamp(0)
+  rest_api_roles rest_api_roles @relation(fields: [role_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "rest_api_user_roles_roles_id_fk")
+  rest_api_users rest_api_users @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "rest_api_user_roles_users_id_fk")
+
+  @@id([user_id, role_id])
+  @@index([role_id], map: "rest_api_user_roles_roles_id_fk")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model rest_api_users {
+  id                        Int                         @id @unique(map: "id") @default(autoincrement())
+  username                  String                      @unique(map: "rest_api_users_username_uindex") @db.VarChar(762)
+  password                  String?                     @db.Text
+  password_iterations       Int
+  password_salt             String                      @db.Text
+  algorithm                 String                      @db.VarChar(32)
+  created_at                DateTime                    @default(now()) @db.Timestamp(0)
+  updated_at                DateTime                    @default(now()) @db.Timestamp(0)
+  rest_api_user_permissions rest_api_user_permissions[]
+  rest_api_user_roles       rest_api_user_roles[]
+}
+
+model role_permissions {
+  role        Int
+  permission  Int
+  created_at  DateTime    @default(now()) @db.Timestamp(0)
+  updated_at  DateTime    @default(now()) @db.Timestamp(0)
+  permissions permissions @relation(fields: [permission], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "role_permissions_permissions_id_fk")
+  roles       roles       @relation(fields: [role], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "role_permissions_roles_id_fk")
+
+  @@id([role, permission])
+  @@index([permission], map: "role_permissions_permissions_id_fk")
+}
+
+model roles {
+  id               Int                @id @unique(map: "cc_roles_id_uindex") @default(autoincrement())
+  name             String             @unique(map: "cc_roles_name_uindex") @db.VarChar(762)
+  description      String?            @db.Text
+  created_at       DateTime           @default(now()) @db.Timestamp(0)
+  updated_at       DateTime           @default(now()) @db.Timestamp(0)
+  role_permissions role_permissions[]
+  user_roles       user_roles[]
+}
+
+model user_permissions {
+  user_id     Int
+  permission  Int
+  created_at  DateTime    @default(now()) @db.Timestamp(0)
+  updated_at  DateTime    @default(now()) @db.Timestamp(0)
+  permissions permissions @relation(fields: [permission], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "user_permissions_permissions_id_fk")
+  users       users       @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "user_permissions_users_id_fk")
+
+  @@id([user_id, permission])
+  @@index([permission], map: "user_permissions_permissions_id_fk")
+}
+
+model user_roles {
+  user_id    Int
+  role_id    Int
+  created_at DateTime @default(now()) @db.Timestamp(0)
+  updated_at DateTime @default(now()) @db.Timestamp(0)
+  roles      roles    @relation(fields: [role_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "user_roles_roles_id_fk")
+  users      users    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "user_roles_users_id_fk")
+
+  @@id([user_id, role_id])
+  @@index([role_id], map: "user_roles_roles_id_fk")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model users {
+  id                  Int                @id @unique(map: "id") @default(autoincrement())
+  username            String             @unique(map: "username") @db.VarChar(762)
+  password            String?            @db.Text
+  password_iterations Int
+  password_salt       String             @db.Text
+  algorithm           String             @db.VarChar(32)
+  created_at          DateTime           @default(now()) @db.Timestamp(0)
+  updated_at          DateTime           @default(now()) @db.Timestamp(0)
+  user_permissions    user_permissions[]
+  user_roles          user_roles[]
+}

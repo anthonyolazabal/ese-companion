@@ -1,4 +1,4 @@
-FROM node:20
+FROM node:22-slim
 
 WORKDIR /usr/src/app
 
@@ -20,3 +20,4 @@ RUN npm cache verify
 EXPOSE 3001
 EXPOSE 4001
 CMD [ "npm", "start" ]
+

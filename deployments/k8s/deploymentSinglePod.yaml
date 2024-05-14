@@ -18,6 +18,9 @@ spec:
       - name: ui
         containerPort: 3001
         protocol: TCP
+      - name: ui-tls
+        containerPort: 4001
+        protocol: TCP
 
 ---
 apiVersion: v1
@@ -28,10 +31,14 @@ metadata:
     app: ese-companion
 spec:
   ports:
-  - protocol: TCP
-    name: ui
-    port: 80
-    targetPort: ui
+    - protocol: TCP
+      name: ui
+      port: 80
+      targetPort: ui
+    - protocol: TCP
+      name: ui-tls
+      port: 443
+      targetPort: ui-tls
   type: LoadBalancer
   selector:
     app: ese-companion
