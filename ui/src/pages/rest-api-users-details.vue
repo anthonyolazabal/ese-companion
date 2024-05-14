@@ -409,7 +409,7 @@ export default {
           <VRow>
             <VCol cols="12" md="12">
               <VBtn color="secondary" variant="tonal" @click="cancel" block>
-                Back to role list
+                Back to users list
               </VBtn>
             </VCol>
           </VRow>
@@ -546,8 +546,8 @@ export default {
                     <v-card>
                       <v-card-text>
                         Are you sure that you want to remove the assignment of {{
-                          selectedPermissionToDelete.permission_string
-                        }} ?
+            selectedPermissionToDelete.permission_string
+          }} ?
                       </v-card-text>
                       <v-card-actions>
                         <v-btn color="alert" @click="deletePermissionAssignment()">Remove role</v-btn>

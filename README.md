@@ -66,7 +66,7 @@ The UI is generating routes dynamically based on the name of the page.
 ## Working with Prisma
 Initialize prisma
 ```
-npx prisma generete
+npx prisma generate
 ```
 
 Import DB Schema (need to have a valid connection string in the DATABASE_URL environment variable).
@@ -173,12 +173,22 @@ If you prefer to run the API and the UI on a server, you will need to have :
 Local execution has been tested on MacOS and Linux, this should also works under Windows.
 
 Once you have the prerequisites, you can clone the repository, install dependencies and build the local instance.
+(Be sure to have you local environment variables to point to the database or at least a .env file otherwise the prisma generation will not work)
 ```
 git clone https://github.com/anthonyolazabal/ese-companion.git
 npm install
+npx prisma generate
 npm run build-app
 ```
 This will build the UI and embedded it with the API.
+
+## Access ports
+If you plan to use the tool on your computer with Doccker, you will be able to access it with localhost on port 3001 without any problem on the web browser. 
+If you plan to access it remotly, you have two options : 
+- Use the self signed certificate in the container and access port 4001 (You will need to approve the untrusted certificate)
+- Use a reverse proxy solution to manage the HTTPS access and offload it to HTTP on the container. (Client (HTTPS) --> (HTTPS) PROXY (HTTP) --> (HTTP) Container)
+
+Mostly all the new web browsers are preventing API access on HTTP (unsecure) this is why you need to access it with HTTPS.
 
 ## Interact with ESE Companion API
 Before being able to interact with the API, you first need to get a valid JWT Token by calling the /login endpoint.

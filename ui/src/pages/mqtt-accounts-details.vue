@@ -419,7 +419,7 @@ export default {
           <VRow>
             <VCol cols="12" md="12">
               <VBtn color="secondary" variant="tonal" @click="cancel" block>
-                Back to role list
+                Back to accounts list
               </VBtn>
             </VCol>
           </VRow>
@@ -693,18 +693,18 @@ export default {
                       <v-chip variant="outlined" pill v-if="permission.permissions.retained_msgs_allowed == false"
                         color="error" style="margin-left: 10px;"> Retain </v-chip>
 
-                      <v-chip variant="outlined" pill v-if="permission.permissions.qos_0_allowed == true" color="success"
-                        style="margin-left: 10px;"> QOS 0 </v-chip>
+                      <v-chip variant="outlined" pill v-if="permission.permissions.qos_0_allowed == true"
+                        color="success" style="margin-left: 10px;"> QOS 0 </v-chip>
                       <v-chip variant="outlined" pill v-if="permission.permissions.qos_0_allowed == false" color="error"
                         style="margin-left: 10px;"> QOS 0 </v-chip>
 
-                      <v-chip variant="outlined" pill v-if="permission.permissions.qos_1_allowed == true" color="success"
-                        style="margin-left: 10px;"> QOS 1 </v-chip>
+                      <v-chip variant="outlined" pill v-if="permission.permissions.qos_1_allowed == true"
+                        color="success" style="margin-left: 10px;"> QOS 1 </v-chip>
                       <v-chip variant="outlined" pill v-if="permission.permissions.qos_1_allowed == false" color="error"
                         style="margin-left: 10px;"> QOS 1 </v-chip>
 
-                      <v-chip variant="outlined" pill v-if="permission.permissions.qos_2_allowed == true" color="success"
-                        style="margin-left: 10px;"> QOS 2 </v-chip>
+                      <v-chip variant="outlined" pill v-if="permission.permissions.qos_2_allowed == true"
+                        color="success" style="margin-left: 10px;"> QOS 2 </v-chip>
                       <v-chip variant="outlined" pill v-if="permission.permissions.qos_2_allowed == false" color="error"
                         style="margin-left: 10px;"> QOS 2 </v-chip>
 
