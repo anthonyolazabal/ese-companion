@@ -1,0 +1,1 @@
+import{d as a,r as n,h as e,V as o}from"./index.0bb0cce8.js";const s=a({setup(){const t=n("router-view");return()=>e(o,{class:"layout-wrapper layout-blank"},{default:()=>e(t)})}});export{s as default};
