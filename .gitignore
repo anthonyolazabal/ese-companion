@@ -398,3 +398,6 @@ FodyWeavers.xsd
 *.sln.iml
 
 notes.txt
+
+# IntelliJ IDEA IDE settings
+.idea/
