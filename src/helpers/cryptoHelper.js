@@ -1,6 +1,7 @@
 const crypto = require('crypto');
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
+const escape = require('shell-escape');
 
 module.exports = {
   // Below function does not generate same hash than with Java (Bouncy Castle)
@@ -25,7 +26,17 @@ module.exports = {
   },
   generateHash: async function (password, password_salt, password_iterations, algorithm) {
     try {
-      const { stdout, stderr } = await exec("java -jar ./src/helpers/hivemq-ese-helper.jar hash create -a " + algorithm + " -i " + password_iterations + " -p " + password + " -s " + password_salt);
+      //const { stdout, stderr } = await exec("java -jar ./src/helpers/hivemq-ese-helper.jar hash create -a " + algorithm + " -i " + password_iterations + " -p " + password + " -s " + password_salt);
+      const args = escape([
+        'java', '-jar', './src/helpers/hivemq-ese-helper.jar',
+        'hash', 'create',
+        '-a', algorithm,
+        '-i', password_iterations,
+        '-p', password,
+        '-s', password_salt
+      ]);
+
+      const { stdout, stderr } = await exec(args);
       if (stdout) return stdout
       else return stderr
     } catch (e) {

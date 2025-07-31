@@ -1,5 +1,5 @@
 {
-  "name": "ESE_Companion",
+  "name": "ese_companion",
   "version": "1.0.0",
   "description": "ESE Api and UI for HiveMQ Enterprise Security extension database",
   "main": "index.js",
@@ -28,5 +28,14 @@
   },
   "devDependencies": {
     "nodemon": "^2.0.22"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/guinp1n/ese-companion.git"
+  },
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/guinp1n/ese-companion/issues"
+  },
+  "homepage": "https://github.com/guinp1n/ese-companion#readme"
 }
