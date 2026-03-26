@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "ese-companion.fullname" . }}
+  labels:
+    {{- include "ese-companion.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.httpPort }}
+      targetPort: http
+      protocol: TCP
+      name: http
+    {{- if .Values.https.enabled }}
+    - port: {{ .Values.service.httpsPort }}
+      targetPort: https
+      protocol: TCP
+      name: https
+    {{- end }}
+  selector:
+    {{- include "ese-companion.selectorLabels" . | nindent 4 }}

@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "ese-companion.fullname" . }}
+  labels:
+    {{- include "ese-companion.labels" . | nindent 4 }}
+data:
+  ESE_COMPANION_DB_TYPE: {{ .Values.database.type | quote }}
+  ESE_COMPANION_DB_HOST: {{ .Values.database.host | quote }}
+  ESE_COMPANION_DB_PORT: {{ .Values.database.port | quote }}
+  ESE_COMPANION_DB_NAME: {{ .Values.database.name | quote }}
+  ESE_COMPANION_DB_USER: {{ .Values.database.user | quote }}
+  ESE_COMPANION_PORT: {{ .Values.service.httpPort | quote }}
+  ESE_COMPANION_HTTPS_PORT: {{ .Values.service.httpsPort | quote }}
+  ESE_COMPANION_RATE_LIMIT: {{ .Values.rateLimit | quote }}
+  ESE_COMPANION_CORS_ORIGINS: {{ .Values.corsOrigins | quote }}
+  ESE_COMPANION_MAX_REQUEST_SIZE: {{ .Values.maxRequestSize | quote }}
+  ESE_COMPANION_POOL_MAX_PER_DB: {{ .Values.pool.maxPerDb | quote }}
+  ESE_COMPANION_POOL_MAX_TOTAL: {{ .Values.pool.maxTotal | quote }}
+  ESE_COMPANION_POOL_IDLE_TIMEOUT_MINUTES: {{ .Values.pool.idleTimeoutMinutes | quote }}
+  ESE_COMPANION_POOL_ACQUIRE_TIMEOUT_SECONDS: {{ .Values.pool.acquireTimeoutSeconds | quote }}
+  ESE_COMPANION_HEALTH_CHECK_INTERVAL_SECONDS: {{ .Values.healthCheck.intervalSeconds | quote }}
+  ESE_COMPANION_AUDIT_RETENTION_DAYS: {{ .Values.audit.retentionDays | quote }}
+  {{- if .Values.https.enabled }}
+  ESE_COMPANION_HTTPS_ENABLED: "true"
+  {{- if .Values.https.jksPath }}
+  ESE_COMPANION_HTTPS_JKS_PATH: {{ .Values.https.jksPath | quote }}
+  {{- end }}
+  {{- end }}
