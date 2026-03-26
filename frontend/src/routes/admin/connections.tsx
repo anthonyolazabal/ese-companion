@@ -16,45 +16,23 @@ import {
 } from "@tanstack/react-table";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { useAuth } from "../../auth/useAuth";
-import { usersApi } from "../../api/usersApi";
-import type { CompanionUser } from "../../api/types";
-import { CompanionUserDrawer } from "../../components/admin/CompanionUserDrawer";
+import { connectionsApi } from "../../api/connectionsApi";
+import type { Connection } from "../../api/types";
+import { HealthDot } from "../../components/HealthDot";
+import { ConnectionDrawer } from "../../components/admin/ConnectionDrawer";
 
-const columnHelper = createColumnHelper<CompanionUser>();
+const columnHelper = createColumnHelper<Connection>();
 
-function RoleBadge({ role }: { role: string }) {
-  const colorMap: Record<string, string> = {
-    admin: "purple",
-    readwrite: "blue",
-    readonly: "gray",
-  };
-  const c = colorMap[role] ?? "gray";
-  return (
-    <Box
-      as="span"
-      px="2"
-      py="0.5"
-      borderRadius="full"
-      fontSize="xs"
-      fontWeight="bold"
-      bg={`${c}.100`}
-      color={`${c}.700`}
-    >
-      {role}
-    </Box>
-  );
-}
-
-function UsersPage() {
+function ConnectionsPage() {
   const { isAdmin } = useAuth();
   const navigate = useNavigate();
-  const [users, setUsers] = useState<CompanionUser[]>([]);
+  const [connections, setConnections] = useState<Connection[]>([]);
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [editingUser, setEditingUser] = useState<CompanionUser | null>(null);
-  const [deleteTarget, setDeleteTarget] = useState<CompanionUser | null>(null);
+  const [editingConnection, setEditingConnection] = useState<Connection | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Connection | null>(null);
   const [deleting, setDeleting] = useState(false);
   const pageSize = 20;
 
@@ -64,11 +42,11 @@ function UsersPage() {
     }
   }, [isAdmin, navigate]);
 
-  const fetchUsers = useCallback(async () => {
+  const fetchConnections = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await usersApi.list(page, pageSize);
-      setUsers(res.items);
+      const res = await connectionsApi.list(page, pageSize);
+      setConnections(res.items);
       setTotal(res.total);
     } catch {
       // ignore
@@ -78,32 +56,45 @@ function UsersPage() {
   }, [page]);
 
   useEffect(() => {
-    fetchUsers();
-  }, [fetchUsers]);
+    fetchConnections();
+  }, [fetchConnections]);
 
-  const handleSaveUser = async (data: {
+  const handleSave = async (data: {
+    name: string;
+    description: string;
+    dbType: string;
+    host: string;
+    port: number;
+    databaseName: string;
     username: string;
-    email: string;
     password: string;
-    role: string;
+    sslEnabled: boolean;
   }) => {
-    if (editingUser) {
-      const updateData: Record<string, string> = { email: data.email, role: data.role };
+    if (editingConnection) {
+      const updateData: Record<string, unknown> = {
+        name: data.name,
+        description: data.description,
+        host: data.host,
+        port: data.port,
+        databaseName: data.databaseName,
+        username: data.username,
+        sslEnabled: data.sslEnabled,
+      };
       if (data.password) updateData.password = data.password;
-      await usersApi.update(editingUser.id, updateData);
+      await connectionsApi.update(editingConnection.id, updateData as Parameters<typeof connectionsApi.update>[1]);
     } else {
-      await usersApi.create(data);
+      await connectionsApi.create(data);
     }
-    await fetchUsers();
+    await fetchConnections();
   };
 
   const handleDelete = async () => {
     if (!deleteTarget) return;
     setDeleting(true);
     try {
-      await usersApi.delete(deleteTarget.id);
+      await connectionsApi.delete(deleteTarget.id);
       setDeleteTarget(null);
-      await fetchUsers();
+      await fetchConnections();
     } catch {
       // ignore
     } finally {
@@ -112,20 +103,43 @@ function UsersPage() {
   };
 
   const columns = [
-    columnHelper.accessor("username", {
-      header: "Username",
+    columnHelper.accessor("name", {
+      header: "Name",
       cell: (info) => <Text fontWeight="medium">{info.getValue()}</Text>,
     }),
-    columnHelper.accessor("email", {
-      header: "Email",
+    columnHelper.accessor("dbType", {
+      header: "DB Type",
+      cell: (info) => (
+        <Box
+          as="span"
+          px="2"
+          py="0.5"
+          borderRadius="full"
+          fontSize="xs"
+          fontWeight="bold"
+          bg="blue.100"
+          color="blue.700"
+        >
+          {info.getValue()}
+        </Box>
+      ),
     }),
-    columnHelper.accessor("role", {
-      header: "Role",
-      cell: (info) => <RoleBadge role={info.getValue()} />,
+    columnHelper.accessor("host", {
+      header: "Host",
+      cell: (info) => (
+        <Text fontSize="sm">
+          {info.getValue()}:{info.row.original.port}
+        </Text>
+      ),
     }),
-    columnHelper.accessor("createdAt", {
-      header: "Created",
-      cell: (info) => new Date(info.getValue()).toLocaleDateString(),
+    columnHelper.accessor("healthStatus", {
+      header: "Health",
+      cell: (info) => (
+        <Flex align="center" gap="2">
+          <HealthDot status={info.getValue()} />
+          <Text fontSize="sm">{info.getValue()}</Text>
+        </Flex>
+      ),
     }),
     columnHelper.display({
       id: "actions",
@@ -136,7 +150,7 @@ function UsersPage() {
             size="xs"
             variant="ghost"
             onClick={() => {
-              setEditingUser(row.original);
+              setEditingConnection(row.original);
               setDrawerOpen(true);
             }}
           >
@@ -156,7 +170,7 @@ function UsersPage() {
   ];
 
   const table = useReactTable({
-    data: users,
+    data: connections,
     columns,
     getCoreRowModel: getCoreRowModel(),
   });
@@ -168,17 +182,17 @@ function UsersPage() {
   return (
     <Box>
       <Flex justify="space-between" align="center" mb="6">
-        <Heading size="lg">Users</Heading>
+        <Heading size="lg">Connections</Heading>
         <Button
           colorPalette="purple"
           size="sm"
           onClick={() => {
-            setEditingUser(null);
+            setEditingConnection(null);
             setDrawerOpen(true);
           }}
         >
           <Plus size={16} />
-          Create User
+          Add Connection
         </Button>
       </Flex>
 
@@ -208,7 +222,7 @@ function UsersPage() {
                 {table.getRowModel().rows.length === 0 ? (
                   <Table.Row>
                     <Table.Cell colSpan={columns.length} textAlign="center" py="8">
-                      <Text color="gray.500">No users found</Text>
+                      <Text color="gray.500">No connections found</Text>
                     </Table.Cell>
                   </Table.Row>
                 ) : (
@@ -242,14 +256,14 @@ function UsersPage() {
         </>
       )}
 
-      <CompanionUserDrawer
+      <ConnectionDrawer
         isOpen={drawerOpen}
         onClose={() => {
           setDrawerOpen(false);
-          setEditingUser(null);
+          setEditingConnection(null);
         }}
-        user={editingUser}
-        onSave={handleSaveUser}
+        connection={editingConnection}
+        onSave={handleSave}
       />
 
       {/* Delete confirmation modal */}
@@ -277,9 +291,9 @@ function UsersPage() {
             w="400px"
             boxShadow="xl"
           >
-            <Heading size="sm" mb="3">Delete User</Heading>
+            <Heading size="sm" mb="3">Delete Connection</Heading>
             <Text fontSize="sm" mb="4">
-              Are you sure you want to delete user <strong>{deleteTarget.username}</strong>?
+              Are you sure you want to delete connection <strong>{deleteTarget.name}</strong>?
               This action cannot be undone.
             </Text>
             <Flex gap="3" justify="flex-end">
@@ -303,6 +317,6 @@ function UsersPage() {
   );
 }
 
-export const Route = createFileRoute("/admin/users")({
-  component: UsersPage,
+export const Route = createFileRoute("/admin/connections")({
+  component: ConnectionsPage,
 });

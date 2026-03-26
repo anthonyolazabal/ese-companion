@@ -13,6 +13,7 @@ import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminUsersRouteImport } from './routes/admin/users'
+import { Route as AdminConnectionsRouteImport } from './routes/admin/connections'
 import { Route as AdminAuditLogsRouteImport } from './routes/admin/audit-logs'
 
 const SettingsRoute = SettingsRouteImport.update({
@@ -35,6 +36,11 @@ const AdminUsersRoute = AdminUsersRouteImport.update({
   path: '/admin/users',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminConnectionsRoute = AdminConnectionsRouteImport.update({
+  id: '/admin/connections',
+  path: '/admin/connections',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminAuditLogsRoute = AdminAuditLogsRouteImport.update({
   id: '/admin/audit-logs',
   path: '/admin/audit-logs',
@@ -46,6 +52,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/settings': typeof SettingsRoute
   '/admin/audit-logs': typeof AdminAuditLogsRoute
+  '/admin/connections': typeof AdminConnectionsRoute
   '/admin/users': typeof AdminUsersRoute
 }
 export interface FileRoutesByTo {
@@ -53,6 +60,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/settings': typeof SettingsRoute
   '/admin/audit-logs': typeof AdminAuditLogsRoute
+  '/admin/connections': typeof AdminConnectionsRoute
   '/admin/users': typeof AdminUsersRoute
 }
 export interface FileRoutesById {
@@ -61,19 +69,21 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/settings': typeof SettingsRoute
   '/admin/audit-logs': typeof AdminAuditLogsRoute
+  '/admin/connections': typeof AdminConnectionsRoute
   '/admin/users': typeof AdminUsersRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/settings' | '/admin/audit-logs' | '/admin/users'
+  fullPaths: '/' | '/login' | '/settings' | '/admin/audit-logs' | '/admin/connections' | '/admin/users'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/settings' | '/admin/audit-logs' | '/admin/users'
+  to: '/' | '/login' | '/settings' | '/admin/audit-logs' | '/admin/connections' | '/admin/users'
   id:
     | '__root__'
     | '/'
     | '/login'
     | '/settings'
     | '/admin/audit-logs'
+    | '/admin/connections'
     | '/admin/users'
   fileRoutesById: FileRoutesById
 }
@@ -82,6 +92,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   SettingsRoute: typeof SettingsRoute
   AdminAuditLogsRoute: typeof AdminAuditLogsRoute
+  AdminConnectionsRoute: typeof AdminConnectionsRoute
   AdminUsersRoute: typeof AdminUsersRoute
 }
 
@@ -115,6 +126,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminUsersRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/connections': {
+      id: '/admin/connections'
+      path: '/admin/connections'
+      fullPath: '/admin/connections'
+      preLoaderRoute: typeof AdminConnectionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/audit-logs': {
       id: '/admin/audit-logs'
       path: '/admin/audit-logs'
@@ -130,6 +148,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   SettingsRoute: SettingsRoute,
   AdminAuditLogsRoute: AdminAuditLogsRoute,
+  AdminConnectionsRoute: AdminConnectionsRoute,
   AdminUsersRoute: AdminUsersRoute,
 }
 export const routeTree = rootRouteImport
