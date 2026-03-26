@@ -40,24 +40,26 @@ fun Application.configureSecurityPlugins(config: SecurityConfig, httpsEnabled: B
         }
     }
 
-    // 3. CORS
-    install(CORS) {
-        if (config.corsOrigins.contains("*")) {
-            anyHost()
-        } else if (config.corsOrigins.isNotEmpty()) {
-            config.corsOrigins.forEach { origin ->
-                allowHost(
-                    origin.removePrefix("https://").removePrefix("http://"),
-                    schemes = listOf("http", "https")
-                )
+    // 3. CORS — only install if origins are configured
+    if (config.corsOrigins.isNotEmpty()) {
+        install(CORS) {
+            if (config.corsOrigins.contains("*")) {
+                anyHost()
+            } else {
+                config.corsOrigins.forEach { origin ->
+                    allowHost(
+                        origin.removePrefix("https://").removePrefix("http://"),
+                        schemes = listOf("http", "https")
+                    )
+                }
             }
+            allowHeader(HttpHeaders.Authorization)
+            allowHeader(HttpHeaders.ContentType)
+            allowHeader("X-API-Key")
+            allowMethod(HttpMethod.Put)
+            allowMethod(HttpMethod.Delete)
+            allowMethod(HttpMethod.Patch)
         }
-        allowHeader(HttpHeaders.Authorization)
-        allowHeader(HttpHeaders.ContentType)
-        allowHeader("X-API-Key")
-        allowMethod(HttpMethod.Put)
-        allowMethod(HttpMethod.Delete)
-        allowMethod(HttpMethod.Patch)
     }
 
     // 4. Request size limit
