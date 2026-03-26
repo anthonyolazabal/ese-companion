@@ -119,7 +119,7 @@ fun Route.authRoutes(
             call.respond(HttpStatusCode.OK, TokenResponse(accessToken = newAccessToken, refreshToken = newRefreshToken))
         }
 
-        authenticate("auth-jwt") {
+        authenticate("auth-jwt", "auth-apikey", strategy = AuthenticationStrategy.FirstSuccessful) {
             post("/logout") {
                 val principal = call.principal<UserPrincipal>()
                 if (principal != null) {

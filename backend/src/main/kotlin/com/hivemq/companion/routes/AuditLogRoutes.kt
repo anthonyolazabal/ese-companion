@@ -10,7 +10,7 @@ import io.ktor.server.routing.*
 import java.util.*
 
 fun Route.auditLogRoutes(auditLogService: AuditLogService) {
-    authenticate("auth-jwt") {
+    authenticate("auth-jwt", "auth-apikey", strategy = AuthenticationStrategy.FirstSuccessful) {
         route("/api/v1/audit-logs") {
 
             get {

@@ -6,11 +6,8 @@ import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
 import io.ktor.server.response.*
-import io.ktor.util.*
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
-
-val apiKeyPrincipalKey = AttributeKey<UserPrincipal>("ApiKeyPrincipal")
 
 data class UserPrincipal(
     val userId: UUID,
@@ -133,24 +130,22 @@ fun Application.configureAuth(
             }
         }
 
-        // API key authentication provider
-        if (apiKeyService != null) {
-            register(ApiKeyAuthProvider(apiKeyService))
-        }
+        // API key authentication provider (always registered; skips if no service)
+        register(ApiKeyAuthProvider(apiKeyService))
     }
 }
 
 /**
  * Custom authentication provider that checks the X-API-Key header.
  */
-class ApiKeyAuthProvider(private val apiKeyService: ApiKeyService) : AuthenticationProvider(
+class ApiKeyAuthProvider(private val apiKeyService: ApiKeyService?) : AuthenticationProvider(
     object : Config("auth-apikey") {}
 ) {
     override suspend fun onAuthenticate(context: AuthenticationContext) {
         val call = context.call
         val apiKey = call.request.headers["X-API-Key"]
 
-        if (apiKey == null) {
+        if (apiKey == null || apiKeyService == null) {
             context.challenge("ApiKeyAuth", AuthenticationFailedCause.NoCredentials) { challenge, authCall ->
                 authCall.respond(HttpStatusCode.Unauthorized, mapOf("error" to "Missing authentication"))
                 challenge.complete()

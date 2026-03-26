@@ -27,7 +27,7 @@ fun UserRecord.toResponse(createdAt: String = "", updatedAt: String = "") = User
 )
 
 fun Route.userRoutes(userService: UserService) {
-    authenticate("auth-jwt") {
+    authenticate("auth-jwt", "auth-apikey", strategy = AuthenticationStrategy.FirstSuccessful) {
         route("/api/v1/users") {
 
             get {

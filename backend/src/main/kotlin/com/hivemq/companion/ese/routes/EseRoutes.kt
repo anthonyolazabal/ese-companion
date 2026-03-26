@@ -19,7 +19,7 @@ private fun requireReadWrite(principal: UserPrincipal) {
 }
 
 fun Route.eseRoutes(eseService: EseService) {
-    authenticate("auth-jwt") {
+    authenticate("auth-jwt", "auth-apikey", strategy = AuthenticationStrategy.FirstSuccessful) {
         route("/api/v1/ese/{connId}/{domain}") {
 
             // ---------------------------------------------------------------

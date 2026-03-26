@@ -11,7 +11,7 @@ import io.ktor.server.routing.*
 import java.util.*
 
 fun Route.connectionRoutes(connectionService: ConnectionService) {
-    authenticate("auth-jwt") {
+    authenticate("auth-jwt", "auth-apikey", strategy = AuthenticationStrategy.FirstSuccessful) {
         route("/api/v1/connections") {
 
             get {

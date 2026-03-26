@@ -18,7 +18,7 @@ import java.util.*
 private val logger = LoggerFactory.getLogger("DashboardRoutes")
 
 fun Route.dashboardRoutes(companionDatabase: Database, eseConnectionManager: EseConnectionManager) {
-    authenticate("auth-jwt") {
+    authenticate("auth-jwt", "auth-apikey", strategy = AuthenticationStrategy.FirstSuccessful) {
 
         get("/api/v1/dashboard") {
             val principal = call.principal<UserPrincipal>()!!
