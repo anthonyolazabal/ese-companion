@@ -7,6 +7,7 @@ import { RouterProvider } from "@tanstack/react-router";
 import { system } from "./theme";
 import { queryClient } from "./queryClient";
 import { router } from "./router";
+import { AuthProvider } from "./auth/AuthContext";
 import "@fontsource/roboto/400.css";
 import "@fontsource/roboto/700.css";
 import "./index.css";
@@ -15,9 +16,11 @@ createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ChakraProvider value={system}>
       <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
-        <QueryClientProvider client={queryClient}>
-          <RouterProvider router={router} />
-        </QueryClientProvider>
+        <AuthProvider>
+          <QueryClientProvider client={queryClient}>
+            <RouterProvider router={router} />
+          </QueryClientProvider>
+        </AuthProvider>
       </ThemeProvider>
     </ChakraProvider>
   </StrictMode>,

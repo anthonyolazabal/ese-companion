@@ -1,6 +1,7 @@
-import { createRootRoute, Link, Outlet } from "@tanstack/react-router";
+import { createRootRoute, Link, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
 import { Box, Flex, Heading, Text, IconButton } from "@chakra-ui/react";
 import { useTheme } from "next-themes";
+import { useEffect } from "react";
 import {
   LayoutDashboard,
   Cable,
@@ -10,10 +11,51 @@ import {
   Settings,
   Sun,
   Moon,
+  LogOut,
 } from "lucide-react";
+import { useAuth } from "../auth/useAuth";
 
 function RootLayout() {
   const { theme, setTheme } = useTheme();
+  const { isAuthenticated, isLoading, user, logout } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const isLoginPage = location.pathname === "/login";
+
+  useEffect(() => {
+    if (isLoading) return;
+    if (!isAuthenticated && !isLoginPage) {
+      navigate({ to: "/login" });
+    }
+    if (isAuthenticated && isLoginPage) {
+      navigate({ to: "/" });
+    }
+  }, [isAuthenticated, isLoading, isLoginPage, navigate]);
+
+  // Show nothing while loading auth state
+  if (isLoading) {
+    return (
+      <Flex h="100vh" align="center" justify="center">
+        <Text color="gray.500">Loading...</Text>
+      </Flex>
+    );
+  }
+
+  // Login page renders without sidebar
+  if (isLoginPage) {
+    return <Outlet />;
+  }
+
+  // Not authenticated and not on login — will redirect
+  if (!isAuthenticated) {
+    return null;
+  }
+
+  const handleLogout = async () => {
+    await logout();
+    navigate({ to: "/login" });
+  };
 
   return (
     <Flex h="100vh">
@@ -83,6 +125,22 @@ function RootLayout() {
               <Text>Settings</Text>
             </Flex>
           </Link>
+
+          {user && (
+            <Flex
+              align="center"
+              gap="2"
+              p="2"
+              borderRadius="md"
+              cursor="pointer"
+              _hover={{ bg: "gray.200" }}
+              onClick={handleLogout}
+              mt="1"
+            >
+              <LogOut size={18} />
+              <Text fontSize="sm">{user.username}</Text>
+            </Flex>
+          )}
         </Box>
       </Box>
 
