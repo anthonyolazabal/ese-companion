@@ -422,6 +422,15 @@ class EseService(
         }
     }
 
+    fun getPermissionIdsForRole(db: Database, domain: String, roleId: Int): List<Int> {
+        val tables = resolveDomain(domain)
+        val rp = tables.rolePermissions
+        return transaction(db) {
+            rp.table.selectAll().where { rp.role eq roleId }
+                .map { it[rp.permission] }
+        }
+    }
+
     fun removePermissionFromRole(db: Database, domain: String, roleId: Int, permId: Int): Boolean {
         val tables = resolveDomain(domain)
         val rp = tables.rolePermissions

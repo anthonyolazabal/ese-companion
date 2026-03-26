@@ -376,6 +376,19 @@ fun Route.eseRoutes(eseService: EseService, auditLogService: AuditLogService? = 
                     call.respond(HttpStatusCode.OK, AssociationResponse("Role deleted successfully"))
                 }
 
+                // Get permission IDs assigned to a role
+                get("/{id}/permissions") {
+                    call.principal<UserPrincipal>()!!
+                    val (db, domain) = resolveConnAndDomain(call, eseService) ?: return@get
+                    val roleId = call.parameters["id"]?.toIntOrNull()
+                    if (roleId == null) {
+                        call.respond(HttpStatusCode.BadRequest, ErrorResponse("Invalid role ID"))
+                        return@get
+                    }
+                    val permIds = eseService.getPermissionIdsForRole(db, domain, roleId)
+                    call.respond(permIds)
+                }
+
                 // Role-Permission associations
                 post("/{id}/permissions/{permId}") {
                     val principal = call.principal<UserPrincipal>()!!

@@ -186,6 +186,12 @@ export const eseApi = {
       { method: "DELETE" },
     ),
 
+  // Role permission IDs
+  getRolePermissionIds: (connId: string, domain: string, roleId: number) =>
+    apiClient.fetch<number[]>(
+      `/ese/${connId}/${domain}/roles/${roleId}/permissions`,
+    ),
+
   // Stats
   stats: (connId: string) =>
     apiClient.fetch<ConnectionStats>(`/ese/${connId}/stats`),

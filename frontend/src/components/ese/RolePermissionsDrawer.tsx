@@ -47,28 +47,18 @@ export function RolePermissionsDrawer({
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      // Fetch all permissions for this domain
-      const allPerms = await eseApi.listPermissions(connId, domain, 1, 1000);
-
-      // Fetch role details to get assigned permissions
-      // The ESE API doesn't have a direct "get role permissions" endpoint,
-      // so we'll use the role_permissions association table.
-      // For now, we'll try to get permissions via the role endpoint if it returns them,
-      // or we track assigned state locally after assign/revoke operations.
+      const [allPerms, assignedPermIds] = await Promise.all([
+        eseApi.listPermissions(connId, domain, 1, 1000),
+        eseApi.getRolePermissionIds(connId, domain, roleId),
+      ]);
       setAllPermissions(allPerms.items);
-
-      // Try to determine which permissions are assigned
-      // We'll attempt to load them by checking each — but a better approach is
-      // to just show all and let the user toggle. We start with none assigned
-      // and let the user manage from here.
-      // TODO: Backend should return assigned permission IDs with role detail
-      setAssignedIds(new Set());
+      setAssignedIds(new Set(assignedPermIds));
     } catch {
       // ignore
     } finally {
       setLoading(false);
     }
-  }, [connId, domain]);
+  }, [connId, domain, roleId]);
 
   useEffect(() => {
     if (isOpen) {
