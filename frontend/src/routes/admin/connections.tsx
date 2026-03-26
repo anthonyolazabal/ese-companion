@@ -14,7 +14,7 @@ import {
   flexRender,
   createColumnHelper,
 } from "@tanstack/react-table";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Zap, Check, X } from "lucide-react";
 import { useAuth } from "../../auth/useAuth";
 import { connectionsApi } from "../../api/connectionsApi";
 import type { Connection } from "../../api/types";
@@ -34,6 +34,8 @@ function ConnectionsPage() {
   const [editingConnection, setEditingConnection] = useState<Connection | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Connection | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [testingId, setTestingId] = useState<string | null>(null);
+  const [testResults, setTestResults] = useState<Record<string, { success: boolean; message: string }>>({});
   const pageSize = 20;
 
   useEffect(() => {
@@ -102,6 +104,21 @@ function ConnectionsPage() {
     }
   };
 
+  const handleTest = async (connId: string) => {
+    setTestingId(connId);
+    try {
+      const result = await connectionsApi.test(connId);
+      setTestResults((prev) => ({ ...prev, [connId]: result }));
+    } catch (err) {
+      setTestResults((prev) => ({
+        ...prev,
+        [connId]: { success: false, message: err instanceof Error ? err.message : "Test failed" },
+      }));
+    } finally {
+      setTestingId(null);
+    }
+  };
+
   const columns = [
     columnHelper.accessor("name", {
       header: "Name",
@@ -144,28 +161,47 @@ function ConnectionsPage() {
     columnHelper.display({
       id: "actions",
       header: "Actions",
-      cell: ({ row }) => (
-        <Flex gap="2">
-          <Button
-            size="xs"
-            variant="ghost"
-            onClick={() => {
-              setEditingConnection(row.original);
-              setDrawerOpen(true);
-            }}
-          >
-            <Pencil size={14} />
-          </Button>
-          <Button
-            size="xs"
-            variant="ghost"
-            colorPalette="red"
-            onClick={() => setDeleteTarget(row.original)}
-          >
-            <Trash2 size={14} />
-          </Button>
-        </Flex>
-      ),
+      cell: ({ row }) => {
+        const connId = row.original.id;
+        const isTesting = testingId === connId;
+        const testResult = testResults[connId];
+        return (
+          <Flex gap="2" align="center">
+            <Button
+              size="xs"
+              variant="ghost"
+              colorPalette={testResult ? (testResult.success ? "green" : "red") : "blue"}
+              onClick={() => handleTest(connId)}
+              loading={isTesting}
+              title={testResult ? testResult.message : "Test connection"}
+            >
+              {testResult ? (
+                testResult.success ? <Check size={14} /> : <X size={14} />
+              ) : (
+                <Zap size={14} />
+              )}
+            </Button>
+            <Button
+              size="xs"
+              variant="ghost"
+              onClick={() => {
+                setEditingConnection(row.original);
+                setDrawerOpen(true);
+              }}
+            >
+              <Pencil size={14} />
+            </Button>
+            <Button
+              size="xs"
+              variant="ghost"
+              colorPalette="red"
+              onClick={() => setDeleteTarget(row.original)}
+            >
+              <Trash2 size={14} />
+            </Button>
+          </Flex>
+        );
+      },
     }),
   ];
 
