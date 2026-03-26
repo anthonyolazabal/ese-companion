@@ -20,7 +20,7 @@ import {
   flexRender,
   type SortingState,
 } from "@tanstack/react-table";
-import { Plus, Pencil, Trash2, ArrowUp, ArrowDown } from "lucide-react";
+import { Plus, Pencil, Trash2, ArrowUp, ArrowDown, Shield } from "lucide-react";
 import type { EseRole } from "../../api/types";
 
 interface EseRoleTableProps {
@@ -28,6 +28,7 @@ interface EseRoleTableProps {
   onAdd: () => void;
   onEdit: (role: EseRole) => void;
   onDelete: (role: EseRole) => void;
+  onManagePermissions: (role: EseRole) => void;
 }
 
 const columnHelper = createColumnHelper<EseRole>();
@@ -37,6 +38,7 @@ export function EseRoleTable({
   onAdd,
   onEdit,
   onDelete,
+  onManagePermissions,
 }: EseRoleTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
@@ -68,6 +70,18 @@ export function EseRoleTable({
         cell: (info) => (
           <HStack gap="1" justify="flex-end">
             <IconButton
+              aria-label="Manage permissions"
+              variant="ghost"
+              size="sm"
+              colorPalette="purple"
+              onClick={(e) => {
+                e.stopPropagation();
+                onManagePermissions(info.row.original);
+              }}
+            >
+              <Shield size={16} />
+            </IconButton>
+            <IconButton
               aria-label="Edit role"
               variant="ghost"
               size="sm"
@@ -95,7 +109,7 @@ export function EseRoleTable({
         size: 80,
       }),
     ],
-    [onEdit, onDelete],
+    [onEdit, onDelete, onManagePermissions],
   );
 
   const table = useReactTable({
