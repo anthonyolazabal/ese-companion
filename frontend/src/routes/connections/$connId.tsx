@@ -23,6 +23,7 @@ import { EseUserDrawer } from "../../components/ese/EseUserDrawer";
 import { EseRoleDrawer } from "../../components/ese/EseRoleDrawer";
 import { EsePermissionDrawer } from "../../components/ese/EsePermissionDrawer";
 import { RolePermissionsDrawer } from "../../components/ese/RolePermissionsDrawer";
+import { UserRolesDrawer } from "../../components/ese/UserRolesDrawer";
 import { DeleteConfirmModal } from "../../components/DeleteConfirmModal";
 import type {
   EseUser,
@@ -62,6 +63,9 @@ function ConnectionDetailPage() {
   const [permDrawerOpen, setPermDrawerOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<EseUser | null>(null);
   const [editingRole, setEditingRole] = useState<EseRole | null>(null);
+
+  // User roles drawer state
+  const [userRolesTarget, setUserRolesTarget] = useState<EseUser | null>(null);
 
   // Role permissions drawer state
   const [rolePermsTarget, setRolePermsTarget] = useState<EseRole | null>(null);
@@ -379,8 +383,19 @@ function ConnectionDetailPage() {
                 name: user.username,
               })
             }
+            onManageRoles={(user) => setUserRolesTarget(user)}
           />
         )}
+
+        <UserRolesDrawer
+          isOpen={!!userRolesTarget}
+          onClose={() => setUserRolesTarget(null)}
+          connId={connId}
+          domain={activeDomain}
+          userId={userRolesTarget?.id ?? 0}
+          username={userRolesTarget?.username ?? ""}
+          onChanged={invalidateAll}
+        />
 
         {activeEntity === "roles" && (
           <EseRoleTable

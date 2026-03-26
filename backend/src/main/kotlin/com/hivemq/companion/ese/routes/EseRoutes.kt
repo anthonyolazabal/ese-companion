@@ -145,6 +145,19 @@ fun Route.eseRoutes(eseService: EseService, auditLogService: AuditLogService? = 
                     call.respond(HttpStatusCode.OK, AssociationResponse("User deleted successfully"))
                 }
 
+                // Get role IDs assigned to a user
+                get("/{id}/roles") {
+                    call.principal<UserPrincipal>()!!
+                    val (db, domain) = resolveConnAndDomain(call, eseService) ?: return@get
+                    val userId = call.parameters["id"]?.toIntOrNull()
+                    if (userId == null) {
+                        call.respond(HttpStatusCode.BadRequest, ErrorResponse("Invalid user ID"))
+                        return@get
+                    }
+                    val roleIds = eseService.getRoleIdsForUser(db, domain, userId)
+                    call.respond(roleIds)
+                }
+
                 // User-Role associations
                 post("/{id}/roles/{roleId}") {
                     val principal = call.principal<UserPrincipal>()!!

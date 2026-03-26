@@ -21,7 +21,7 @@ import {
   flexRender,
   type SortingState,
 } from "@tanstack/react-table";
-import { Plus, Pencil, Trash2, ArrowUp, ArrowDown } from "lucide-react";
+import { Plus, Pencil, Trash2, ArrowUp, ArrowDown, UserCheck } from "lucide-react";
 import type { EseUser } from "../../api/types";
 
 interface EseUserTableProps {
@@ -29,6 +29,7 @@ interface EseUserTableProps {
   onAdd: () => void;
   onEdit: (user: EseUser) => void;
   onDelete: (user: EseUser) => void;
+  onManageRoles: (user: EseUser) => void;
 }
 
 const columnHelper = createColumnHelper<EseUser>();
@@ -38,6 +39,7 @@ export function EseUserTable({
   onAdd,
   onEdit,
   onDelete,
+  onManageRoles,
 }: EseUserTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
@@ -84,6 +86,18 @@ export function EseUserTable({
         cell: (info) => (
           <HStack gap="1" justify="flex-end">
             <IconButton
+              aria-label="Manage roles"
+              variant="ghost"
+              size="sm"
+              colorPalette="purple"
+              onClick={(e) => {
+                e.stopPropagation();
+                onManageRoles(info.row.original);
+              }}
+            >
+              <UserCheck size={16} />
+            </IconButton>
+            <IconButton
               aria-label="Edit user"
               variant="ghost"
               size="sm"
@@ -111,7 +125,7 @@ export function EseUserTable({
         size: 80,
       }),
     ],
-    [onEdit, onDelete],
+    [onEdit, onDelete, onManageRoles],
   );
 
   const table = useReactTable({

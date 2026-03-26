@@ -372,6 +372,15 @@ class EseService(
         }
     }
 
+    fun getRoleIdsForUser(db: Database, domain: String, userId: Int): List<Int> {
+        val tables = resolveDomain(domain)
+        val ur = tables.userRoles
+        return transaction(db) {
+            ur.table.selectAll().where { ur.userId eq userId }
+                .map { it[ur.roleId] }
+        }
+    }
+
     fun removeRoleFromUser(db: Database, domain: String, userId: Int, roleId: Int): Boolean {
         val tables = resolveDomain(domain)
         val ur = tables.userRoles
