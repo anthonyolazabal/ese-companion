@@ -2,6 +2,8 @@ package com.hivemq.companion
 
 import com.hivemq.companion.auth.*
 import com.hivemq.companion.dto.ErrorResponse
+import com.hivemq.companion.ese.routes.eseRoutes
+import com.hivemq.companion.ese.service.EseService
 import com.hivemq.companion.routes.ForbiddenException
 import com.hivemq.companion.routes.connectionRoutes
 import com.hivemq.companion.routes.userRoutes
@@ -31,6 +33,7 @@ fun Application.module(
     bruteForceProtection: BruteForceProtection? = null,
     tokenRevocationStore: TokenRevocationStore? = null,
     connectionService: ConnectionService? = null,
+    eseService: EseService? = null,
 ) {
     install(ContentNegotiation) {
         json(Json {
@@ -70,6 +73,9 @@ fun Application.module(
         }
         if (connectionService != null) {
             connectionRoutes(connectionService)
+        }
+        if (eseService != null) {
+            eseRoutes(eseService)
         }
     }
 }

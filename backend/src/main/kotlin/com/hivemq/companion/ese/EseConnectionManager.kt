@@ -12,7 +12,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 
-class EseConnectionManager(
+open class EseConnectionManager(
     private val poolConfig: PoolConfig,
     private val companionDatabase: Database,
     private val aesEncryption: AesEncryption
@@ -21,7 +21,7 @@ class EseConnectionManager(
     private val databases = ConcurrentHashMap<UUID, Database>()
     private val lastAccessed = ConcurrentHashMap<UUID, Long>()
 
-    fun getDatabase(connectionId: UUID): Database {
+    open fun getDatabase(connectionId: UUID): Database {
         lastAccessed[connectionId] = System.currentTimeMillis()
 
         val existing = pools[connectionId]
