@@ -15,6 +15,8 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminUsersRouteImport } from './routes/admin/users'
 import { Route as AdminConnectionsRouteImport } from './routes/admin/connections'
 import { Route as AdminAuditLogsRouteImport } from './routes/admin/audit-logs'
+import { Route as ConnectionsConnIdRouteImport } from './routes/connections/$connId'
+import { Route as ConnectionsConnIdSettingsRouteImport } from './routes/connections/$connId.settings'
 
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
@@ -46,6 +48,16 @@ const AdminAuditLogsRoute = AdminAuditLogsRouteImport.update({
   path: '/admin/audit-logs',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ConnectionsConnIdRoute = ConnectionsConnIdRouteImport.update({
+  id: '/connections/$connId',
+  path: '/connections/$connId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConnectionsConnIdSettingsRoute = ConnectionsConnIdSettingsRouteImport.update({
+  id: '/connections/$connId/settings',
+  path: '/connections/$connId/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -54,6 +66,8 @@ export interface FileRoutesByFullPath {
   '/admin/audit-logs': typeof AdminAuditLogsRoute
   '/admin/connections': typeof AdminConnectionsRoute
   '/admin/users': typeof AdminUsersRoute
+  '/connections/$connId': typeof ConnectionsConnIdRoute
+  '/connections/$connId/settings': typeof ConnectionsConnIdSettingsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -62,6 +76,8 @@ export interface FileRoutesByTo {
   '/admin/audit-logs': typeof AdminAuditLogsRoute
   '/admin/connections': typeof AdminConnectionsRoute
   '/admin/users': typeof AdminUsersRoute
+  '/connections/$connId': typeof ConnectionsConnIdRoute
+  '/connections/$connId/settings': typeof ConnectionsConnIdSettingsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -71,12 +87,14 @@ export interface FileRoutesById {
   '/admin/audit-logs': typeof AdminAuditLogsRoute
   '/admin/connections': typeof AdminConnectionsRoute
   '/admin/users': typeof AdminUsersRoute
+  '/connections/$connId': typeof ConnectionsConnIdRoute
+  '/connections/$connId/settings': typeof ConnectionsConnIdSettingsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/settings' | '/admin/audit-logs' | '/admin/connections' | '/admin/users'
+  fullPaths: '/' | '/login' | '/settings' | '/admin/audit-logs' | '/admin/connections' | '/admin/users' | '/connections/$connId' | '/connections/$connId/settings'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/settings' | '/admin/audit-logs' | '/admin/connections' | '/admin/users'
+  to: '/' | '/login' | '/settings' | '/admin/audit-logs' | '/admin/connections' | '/admin/users' | '/connections/$connId' | '/connections/$connId/settings'
   id:
     | '__root__'
     | '/'
@@ -85,6 +103,8 @@ export interface FileRouteTypes {
     | '/admin/audit-logs'
     | '/admin/connections'
     | '/admin/users'
+    | '/connections/$connId'
+    | '/connections/$connId/settings'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -94,6 +114,8 @@ export interface RootRouteChildren {
   AdminAuditLogsRoute: typeof AdminAuditLogsRoute
   AdminConnectionsRoute: typeof AdminConnectionsRoute
   AdminUsersRoute: typeof AdminUsersRoute
+  ConnectionsConnIdRoute: typeof ConnectionsConnIdRoute
+  ConnectionsConnIdSettingsRoute: typeof ConnectionsConnIdSettingsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -140,6 +162,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAuditLogsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/connections/$connId': {
+      id: '/connections/$connId'
+      path: '/connections/$connId'
+      fullPath: '/connections/$connId'
+      preLoaderRoute: typeof ConnectionsConnIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/connections/$connId/settings': {
+      id: '/connections/$connId/settings'
+      path: '/connections/$connId/settings'
+      fullPath: '/connections/$connId/settings'
+      preLoaderRoute: typeof ConnectionsConnIdSettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -150,6 +186,8 @@ const rootRouteChildren: RootRouteChildren = {
   AdminAuditLogsRoute: AdminAuditLogsRoute,
   AdminConnectionsRoute: AdminConnectionsRoute,
   AdminUsersRoute: AdminUsersRoute,
+  ConnectionsConnIdRoute: ConnectionsConnIdRoute,
+  ConnectionsConnIdSettingsRoute: ConnectionsConnIdSettingsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

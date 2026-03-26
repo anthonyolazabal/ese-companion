@@ -17,8 +17,7 @@ export function ConnectionCard({ connection }: ConnectionCardProps) {
   const navigate = useNavigate();
 
   const handleClick = () => {
-    // Route will be registered when connections pages are added
-    navigate({ to: `/connections/${connection.id}` as string });
+    navigate({ to: "/connections/$connId", params: { connId: connection.id } });
   };
 
   const stats = connection.stats;
