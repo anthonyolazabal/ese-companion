@@ -2,15 +2,17 @@ package com.hivemq.companion.routes
 
 import com.hivemq.companion.auth.UserPrincipal
 import com.hivemq.companion.dto.*
+import com.hivemq.companion.service.AuditLogService
 import com.hivemq.companion.service.ConnectionService
 import io.ktor.http.*
 import io.ktor.server.auth.*
+import io.ktor.server.plugins.origin
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import java.util.*
 
-fun Route.connectionRoutes(connectionService: ConnectionService) {
+fun Route.connectionRoutes(connectionService: ConnectionService, auditLogService: AuditLogService? = null) {
     authenticate("auth-jwt", "auth-apikey", strategy = AuthenticationStrategy.FirstSuccessful) {
         route("/api/v1/connections") {
 
@@ -31,6 +33,18 @@ fun Route.connectionRoutes(connectionService: ConnectionService) {
 
                 val request = call.receive<CreateConnectionRequest>()
                 val connection = connectionService.create(request)
+                auditLogService?.log(
+                    actorType = "user",
+                    actorId = principal.userId,
+                    actorName = principal.username,
+                    domain = "companion",
+                    action = "create",
+                    resourceType = "connection",
+                    resourceId = connection.id,
+                    resourceName = connection.name,
+                    ipAddress = call.request.origin.remoteHost,
+                    userAgent = call.request.header("User-Agent") ?: "unknown",
+                )
                 call.respond(HttpStatusCode.Created, connection)
             }
 
@@ -72,6 +86,18 @@ fun Route.connectionRoutes(connectionService: ConnectionService) {
                     return@put
                 }
 
+                auditLogService?.log(
+                    actorType = "user",
+                    actorId = principal.userId,
+                    actorName = principal.username,
+                    domain = "companion",
+                    action = "update",
+                    resourceType = "connection",
+                    resourceId = connId.toString(),
+                    resourceName = updated.name,
+                    ipAddress = call.request.origin.remoteHost,
+                    userAgent = call.request.header("User-Agent") ?: "unknown",
+                )
                 call.respond(HttpStatusCode.OK, updated)
             }
 
@@ -92,6 +118,17 @@ fun Route.connectionRoutes(connectionService: ConnectionService) {
                     return@delete
                 }
 
+                auditLogService?.log(
+                    actorType = "user",
+                    actorId = principal.userId,
+                    actorName = principal.username,
+                    domain = "companion",
+                    action = "delete",
+                    resourceType = "connection",
+                    resourceId = connId.toString(),
+                    ipAddress = call.request.origin.remoteHost,
+                    userAgent = call.request.header("User-Agent") ?: "unknown",
+                )
                 call.respond(HttpStatusCode.OK, mapOf("message" to "Connection deleted successfully"))
             }
 

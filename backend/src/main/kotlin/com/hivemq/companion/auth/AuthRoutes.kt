@@ -1,12 +1,15 @@
 package com.hivemq.companion.auth
 
 import com.hivemq.companion.dto.*
+import com.hivemq.companion.service.AuditLogService
 import com.hivemq.companion.service.UserService
 import io.ktor.http.*
 import io.ktor.server.auth.*
+import io.ktor.server.plugins.origin
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
 class TokenRevocationStore {
@@ -27,6 +30,7 @@ fun Route.authRoutes(
     sessionManager: SessionManager,
     bruteForceProtection: BruteForceProtection,
     tokenRevocationStore: TokenRevocationStore,
+    auditLogService: AuditLogService? = null,
 ) {
     route("/api/v1/auth") {
 
@@ -55,6 +59,19 @@ fun Route.authRoutes(
 
             val accessToken = jwtService.generateAccessToken(user.id, user.username, user.role, sessionId)
             val refreshToken = jwtService.generateRefreshToken(user.id, sessionId)
+
+            auditLogService?.log(
+                actorType = "user",
+                actorId = user.id,
+                actorName = user.username,
+                domain = "companion",
+                action = "create",
+                resourceType = "session",
+                resourceId = sessionId,
+                resourceName = user.username,
+                ipAddress = call.request.origin.remoteHost,
+                userAgent = call.request.header("User-Agent") ?: "unknown",
+            )
 
             call.respond(
                 HttpStatusCode.OK,
@@ -129,6 +146,18 @@ fun Route.authRoutes(
                     if (authHeader != null && authHeader.startsWith("Bearer ")) {
                         tokenRevocationStore.revoke(authHeader.removePrefix("Bearer "))
                     }
+                    auditLogService?.log(
+                        actorType = "user",
+                        actorId = principal.userId,
+                        actorName = principal.username,
+                        domain = "companion",
+                        action = "delete",
+                        resourceType = "session",
+                        resourceId = principal.sessionId,
+                        resourceName = principal.username,
+                        ipAddress = call.request.origin.remoteHost,
+                        userAgent = call.request.header("User-Agent") ?: "unknown",
+                    )
                 }
                 call.respond(HttpStatusCode.OK, mapOf("message" to "Logged out successfully"))
             }

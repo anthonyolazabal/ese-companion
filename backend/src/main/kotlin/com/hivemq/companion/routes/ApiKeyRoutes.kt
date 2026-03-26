@@ -3,14 +3,16 @@ package com.hivemq.companion.routes
 import com.hivemq.companion.auth.UserPrincipal
 import com.hivemq.companion.dto.*
 import com.hivemq.companion.service.ApiKeyService
+import com.hivemq.companion.service.AuditLogService
 import io.ktor.http.*
 import io.ktor.server.auth.*
+import io.ktor.server.plugins.origin
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import java.util.*
 
-fun Route.apiKeyRoutes(apiKeyService: ApiKeyService) {
+fun Route.apiKeyRoutes(apiKeyService: ApiKeyService, auditLogService: AuditLogService? = null) {
     authenticate("auth-jwt", "auth-apikey", strategy = AuthenticationStrategy.FirstSuccessful) {
         route("/api/v1/keys") {
 
@@ -35,6 +37,18 @@ fun Route.apiKeyRoutes(apiKeyService: ApiKeyService) {
                 }
 
                 val created = apiKeyService.create(principal.userId, request)
+                auditLogService?.log(
+                    actorType = "user",
+                    actorId = principal.userId,
+                    actorName = principal.username,
+                    domain = "companion",
+                    action = "create",
+                    resourceType = "api_key",
+                    resourceId = created.id,
+                    resourceName = created.name,
+                    ipAddress = call.request.origin.remoteHost,
+                    userAgent = call.request.header("User-Agent") ?: "unknown",
+                )
                 call.respond(HttpStatusCode.Created, created)
             }
 
@@ -105,6 +119,17 @@ fun Route.apiKeyRoutes(apiKeyService: ApiKeyService) {
                     return@delete
                 }
 
+                auditLogService?.log(
+                    actorType = "user",
+                    actorId = principal.userId,
+                    actorName = principal.username,
+                    domain = "companion",
+                    action = "delete",
+                    resourceType = "api_key",
+                    resourceId = keyId.toString(),
+                    ipAddress = call.request.origin.remoteHost,
+                    userAgent = call.request.header("User-Agent") ?: "unknown",
+                )
                 call.respond(HttpStatusCode.OK, mapOf("message" to "API key revoked successfully"))
             }
         }

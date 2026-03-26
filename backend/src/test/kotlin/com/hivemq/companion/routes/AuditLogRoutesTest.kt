@@ -132,7 +132,9 @@ class AuditLogRoutesTest {
         assertTrue(body.containsKey("size"))
         assertTrue(body.containsKey("total"))
         val items = body["items"]!!.jsonArray
-        assertEquals(1, items.size)
+        // 2 entries: the login audit log + the manually created sample log
+        assertEquals(2, items.size)
+        // Items are ordered by timestamp DESC, so the sample log is first
         assertEquals("testactor", items[0].jsonObject["actorName"]!!.jsonPrimitive.content)
         assertEquals("companion", items[0].jsonObject["domain"]!!.jsonPrimitive.content)
         assertEquals("create", items[0].jsonObject["action"]!!.jsonPrimitive.content)

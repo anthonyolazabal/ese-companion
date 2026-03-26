@@ -2,10 +2,12 @@ package com.hivemq.companion.routes
 
 import com.hivemq.companion.auth.UserPrincipal
 import com.hivemq.companion.dto.*
+import com.hivemq.companion.service.AuditLogService
 import com.hivemq.companion.service.UserRecord
 import com.hivemq.companion.service.UserService
 import io.ktor.http.*
 import io.ktor.server.auth.*
+import io.ktor.server.plugins.origin
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -26,7 +28,7 @@ fun UserRecord.toResponse(createdAt: String = "", updatedAt: String = "") = User
     updatedAt = updatedAt,
 )
 
-fun Route.userRoutes(userService: UserService) {
+fun Route.userRoutes(userService: UserService, auditLogService: AuditLogService? = null) {
     authenticate("auth-jwt", "auth-apikey", strategy = AuthenticationStrategy.FirstSuccessful) {
         route("/api/v1/users") {
 
@@ -80,6 +82,18 @@ fun Route.userRoutes(userService: UserService) {
                 }
 
                 val user = userService.createUser(request.username, request.email, request.password, request.role)
+                auditLogService?.log(
+                    actorType = "user",
+                    actorId = principal.userId,
+                    actorName = principal.username,
+                    domain = "companion",
+                    action = "create",
+                    resourceType = "user",
+                    resourceId = user.id.toString(),
+                    resourceName = user.username,
+                    ipAddress = call.request.origin.remoteHost,
+                    userAgent = call.request.header("User-Agent") ?: "unknown",
+                )
                 call.respond(HttpStatusCode.Created, user.toResponse())
             }
 
@@ -113,6 +127,18 @@ fun Route.userRoutes(userService: UserService) {
                     return@put
                 }
 
+                auditLogService?.log(
+                    actorType = "user",
+                    actorId = principal.userId,
+                    actorName = principal.username,
+                    domain = "companion",
+                    action = "update",
+                    resourceType = "user",
+                    resourceId = userId.toString(),
+                    resourceName = updated.username,
+                    ipAddress = call.request.origin.remoteHost,
+                    userAgent = call.request.header("User-Agent") ?: "unknown",
+                )
                 call.respond(HttpStatusCode.OK, updated.toResponse())
             }
 
@@ -138,6 +164,17 @@ fun Route.userRoutes(userService: UserService) {
                     return@delete
                 }
 
+                auditLogService?.log(
+                    actorType = "user",
+                    actorId = principal.userId,
+                    actorName = principal.username,
+                    domain = "companion",
+                    action = "delete",
+                    resourceType = "user",
+                    resourceId = userId.toString(),
+                    ipAddress = call.request.origin.remoteHost,
+                    userAgent = call.request.header("User-Agent") ?: "unknown",
+                )
                 call.respond(HttpStatusCode.OK, mapOf("message" to "User deleted successfully"))
             }
         }

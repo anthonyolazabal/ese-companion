@@ -201,17 +201,17 @@ fun Application.module(
             }
         }
         if (jwt != null && users != null) {
-            authRoutes(jwt, users, sessions, bruteForce, revocationStore)
-            userRoutes(users)
+            authRoutes(jwt, users, sessions, bruteForce, revocationStore, auditLogService)
+            userRoutes(users, auditLogService)
             if (apiKeys != null) {
-                apiKeyRoutes(apiKeys)
+                apiKeyRoutes(apiKeys, auditLogService)
             }
         }
         if (connectionService != null) {
-            connectionRoutes(connectionService)
+            connectionRoutes(connectionService, auditLogService)
         }
         if (eseService != null) {
-            eseRoutes(eseService)
+            eseRoutes(eseService, auditLogService)
         }
         if (companionDatabase != null && eseConnectionManager != null) {
             dashboardRoutes(companionDatabase, eseConnectionManager)

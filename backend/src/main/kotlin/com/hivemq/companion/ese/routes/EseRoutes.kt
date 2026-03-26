@@ -5,8 +5,10 @@ import com.hivemq.companion.dto.ErrorResponse
 import com.hivemq.companion.ese.dto.*
 import com.hivemq.companion.ese.service.EseService
 import com.hivemq.companion.routes.ForbiddenException
+import com.hivemq.companion.service.AuditLogService
 import io.ktor.http.*
 import io.ktor.server.auth.*
+import io.ktor.server.plugins.origin
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -18,7 +20,12 @@ private fun requireReadWrite(principal: UserPrincipal) {
     if (principal.role == "readonly") throw ForbiddenException("Write access required")
 }
 
-fun Route.eseRoutes(eseService: EseService) {
+private fun mapDomainForAudit(domain: String): String = when (domain) {
+    "rest-api" -> "rest_api"
+    else -> domain
+}
+
+fun Route.eseRoutes(eseService: EseService, auditLogService: AuditLogService? = null) {
     authenticate("auth-jwt", "auth-apikey", strategy = AuthenticationStrategy.FirstSuccessful) {
         route("/api/v1/ese/{connId}/{domain}") {
 
@@ -54,8 +61,23 @@ fun Route.eseRoutes(eseService: EseService) {
                     val principal = call.principal<UserPrincipal>()!!
                     requireReadWrite(principal)
                     val (db, domain) = resolveConnAndDomain(call, eseService) ?: return@post
+                    val connId = call.parameters["connId"]!!
                     val request = call.receive<CreateEseUserRequest>()
                     val user = eseService.createUser(db, domain, request)
+                    auditLogService?.log(
+                        actorType = "user",
+                        actorId = principal.userId,
+                        actorName = principal.username,
+                        connectionId = UUID.fromString(connId),
+                        connectionName = connId,
+                        domain = mapDomainForAudit(domain),
+                        action = "create",
+                        resourceType = "user",
+                        resourceId = user.id.toString(),
+                        resourceName = user.username,
+                        ipAddress = call.request.origin.remoteHost,
+                        userAgent = call.request.header("User-Agent") ?: "unknown",
+                    )
                     call.respond(HttpStatusCode.Created, user)
                 }
 
@@ -63,6 +85,7 @@ fun Route.eseRoutes(eseService: EseService) {
                     val principal = call.principal<UserPrincipal>()!!
                     requireReadWrite(principal)
                     val (db, domain) = resolveConnAndDomain(call, eseService) ?: return@put
+                    val connId = call.parameters["connId"]!!
                     val userId = call.parameters["id"]?.toIntOrNull()
                     if (userId == null) {
                         call.respond(HttpStatusCode.BadRequest, ErrorResponse("Invalid user ID"))
@@ -74,6 +97,20 @@ fun Route.eseRoutes(eseService: EseService) {
                         call.respond(HttpStatusCode.NotFound, ErrorResponse("User not found"))
                         return@put
                     }
+                    auditLogService?.log(
+                        actorType = "user",
+                        actorId = principal.userId,
+                        actorName = principal.username,
+                        connectionId = UUID.fromString(connId),
+                        connectionName = connId,
+                        domain = mapDomainForAudit(domain),
+                        action = "update",
+                        resourceType = "user",
+                        resourceId = userId.toString(),
+                        resourceName = updated.username,
+                        ipAddress = call.request.origin.remoteHost,
+                        userAgent = call.request.header("User-Agent") ?: "unknown",
+                    )
                     call.respond(HttpStatusCode.OK, updated)
                 }
 
@@ -81,6 +118,7 @@ fun Route.eseRoutes(eseService: EseService) {
                     val principal = call.principal<UserPrincipal>()!!
                     requireReadWrite(principal)
                     val (db, domain) = resolveConnAndDomain(call, eseService) ?: return@delete
+                    val connId = call.parameters["connId"]!!
                     val userId = call.parameters["id"]?.toIntOrNull()
                     if (userId == null) {
                         call.respond(HttpStatusCode.BadRequest, ErrorResponse("Invalid user ID"))
@@ -91,6 +129,19 @@ fun Route.eseRoutes(eseService: EseService) {
                         call.respond(HttpStatusCode.NotFound, ErrorResponse("User not found"))
                         return@delete
                     }
+                    auditLogService?.log(
+                        actorType = "user",
+                        actorId = principal.userId,
+                        actorName = principal.username,
+                        connectionId = UUID.fromString(connId),
+                        connectionName = connId,
+                        domain = mapDomainForAudit(domain),
+                        action = "delete",
+                        resourceType = "user",
+                        resourceId = userId.toString(),
+                        ipAddress = call.request.origin.remoteHost,
+                        userAgent = call.request.header("User-Agent") ?: "unknown",
+                    )
                     call.respond(HttpStatusCode.OK, AssociationResponse("User deleted successfully"))
                 }
 
@@ -99,6 +150,7 @@ fun Route.eseRoutes(eseService: EseService) {
                     val principal = call.principal<UserPrincipal>()!!
                     requireReadWrite(principal)
                     val (db, domain) = resolveConnAndDomain(call, eseService) ?: return@post
+                    val connId = call.parameters["connId"]!!
                     val userId = call.parameters["id"]?.toIntOrNull()
                     val roleId = call.parameters["roleId"]?.toIntOrNull()
                     if (userId == null || roleId == null) {
@@ -110,6 +162,19 @@ fun Route.eseRoutes(eseService: EseService) {
                         call.respond(HttpStatusCode.Conflict, ErrorResponse("Association already exists"))
                         return@post
                     }
+                    auditLogService?.log(
+                        actorType = "user",
+                        actorId = principal.userId,
+                        actorName = principal.username,
+                        connectionId = UUID.fromString(connId),
+                        connectionName = connId,
+                        domain = mapDomainForAudit(domain),
+                        action = "create",
+                        resourceType = "user_role",
+                        resourceId = "$userId:$roleId",
+                        ipAddress = call.request.origin.remoteHost,
+                        userAgent = call.request.header("User-Agent") ?: "unknown",
+                    )
                     call.respond(HttpStatusCode.Created, AssociationResponse("Role assigned to user"))
                 }
 
@@ -117,6 +182,7 @@ fun Route.eseRoutes(eseService: EseService) {
                     val principal = call.principal<UserPrincipal>()!!
                     requireReadWrite(principal)
                     val (db, domain) = resolveConnAndDomain(call, eseService) ?: return@delete
+                    val connId = call.parameters["connId"]!!
                     val userId = call.parameters["id"]?.toIntOrNull()
                     val roleId = call.parameters["roleId"]?.toIntOrNull()
                     if (userId == null || roleId == null) {
@@ -128,6 +194,19 @@ fun Route.eseRoutes(eseService: EseService) {
                         call.respond(HttpStatusCode.NotFound, ErrorResponse("Association not found"))
                         return@delete
                     }
+                    auditLogService?.log(
+                        actorType = "user",
+                        actorId = principal.userId,
+                        actorName = principal.username,
+                        connectionId = UUID.fromString(connId),
+                        connectionName = connId,
+                        domain = mapDomainForAudit(domain),
+                        action = "delete",
+                        resourceType = "user_role",
+                        resourceId = "$userId:$roleId",
+                        ipAddress = call.request.origin.remoteHost,
+                        userAgent = call.request.header("User-Agent") ?: "unknown",
+                    )
                     call.respond(HttpStatusCode.OK, AssociationResponse("Role removed from user"))
                 }
 
@@ -136,6 +215,7 @@ fun Route.eseRoutes(eseService: EseService) {
                     val principal = call.principal<UserPrincipal>()!!
                     requireReadWrite(principal)
                     val (db, domain) = resolveConnAndDomain(call, eseService) ?: return@post
+                    val connId = call.parameters["connId"]!!
                     val userId = call.parameters["id"]?.toIntOrNull()
                     val permId = call.parameters["permId"]?.toIntOrNull()
                     if (userId == null || permId == null) {
@@ -147,6 +227,19 @@ fun Route.eseRoutes(eseService: EseService) {
                         call.respond(HttpStatusCode.Conflict, ErrorResponse("Association already exists"))
                         return@post
                     }
+                    auditLogService?.log(
+                        actorType = "user",
+                        actorId = principal.userId,
+                        actorName = principal.username,
+                        connectionId = UUID.fromString(connId),
+                        connectionName = connId,
+                        domain = mapDomainForAudit(domain),
+                        action = "create",
+                        resourceType = "user_permission",
+                        resourceId = "$userId:$permId",
+                        ipAddress = call.request.origin.remoteHost,
+                        userAgent = call.request.header("User-Agent") ?: "unknown",
+                    )
                     call.respond(HttpStatusCode.Created, AssociationResponse("Permission assigned to user"))
                 }
 
@@ -154,6 +247,7 @@ fun Route.eseRoutes(eseService: EseService) {
                     val principal = call.principal<UserPrincipal>()!!
                     requireReadWrite(principal)
                     val (db, domain) = resolveConnAndDomain(call, eseService) ?: return@delete
+                    val connId = call.parameters["connId"]!!
                     val userId = call.parameters["id"]?.toIntOrNull()
                     val permId = call.parameters["permId"]?.toIntOrNull()
                     if (userId == null || permId == null) {
@@ -165,6 +259,19 @@ fun Route.eseRoutes(eseService: EseService) {
                         call.respond(HttpStatusCode.NotFound, ErrorResponse("Association not found"))
                         return@delete
                     }
+                    auditLogService?.log(
+                        actorType = "user",
+                        actorId = principal.userId,
+                        actorName = principal.username,
+                        connectionId = UUID.fromString(connId),
+                        connectionName = connId,
+                        domain = mapDomainForAudit(domain),
+                        action = "delete",
+                        resourceType = "user_permission",
+                        resourceId = "$userId:$permId",
+                        ipAddress = call.request.origin.remoteHost,
+                        userAgent = call.request.header("User-Agent") ?: "unknown",
+                    )
                     call.respond(HttpStatusCode.OK, AssociationResponse("Permission removed from user"))
                 }
             }
@@ -185,8 +292,23 @@ fun Route.eseRoutes(eseService: EseService) {
                     val principal = call.principal<UserPrincipal>()!!
                     requireReadWrite(principal)
                     val (db, domain) = resolveConnAndDomain(call, eseService) ?: return@post
+                    val connId = call.parameters["connId"]!!
                     val request = call.receive<CreateEseRoleRequest>()
                     val role = eseService.createRole(db, domain, request)
+                    auditLogService?.log(
+                        actorType = "user",
+                        actorId = principal.userId,
+                        actorName = principal.username,
+                        connectionId = UUID.fromString(connId),
+                        connectionName = connId,
+                        domain = mapDomainForAudit(domain),
+                        action = "create",
+                        resourceType = "role",
+                        resourceId = role.id.toString(),
+                        resourceName = role.name,
+                        ipAddress = call.request.origin.remoteHost,
+                        userAgent = call.request.header("User-Agent") ?: "unknown",
+                    )
                     call.respond(HttpStatusCode.Created, role)
                 }
 
@@ -194,6 +316,7 @@ fun Route.eseRoutes(eseService: EseService) {
                     val principal = call.principal<UserPrincipal>()!!
                     requireReadWrite(principal)
                     val (db, domain) = resolveConnAndDomain(call, eseService) ?: return@put
+                    val connId = call.parameters["connId"]!!
                     val roleId = call.parameters["id"]?.toIntOrNull()
                     if (roleId == null) {
                         call.respond(HttpStatusCode.BadRequest, ErrorResponse("Invalid role ID"))
@@ -205,6 +328,20 @@ fun Route.eseRoutes(eseService: EseService) {
                         call.respond(HttpStatusCode.NotFound, ErrorResponse("Role not found"))
                         return@put
                     }
+                    auditLogService?.log(
+                        actorType = "user",
+                        actorId = principal.userId,
+                        actorName = principal.username,
+                        connectionId = UUID.fromString(connId),
+                        connectionName = connId,
+                        domain = mapDomainForAudit(domain),
+                        action = "update",
+                        resourceType = "role",
+                        resourceId = roleId.toString(),
+                        resourceName = updated.name,
+                        ipAddress = call.request.origin.remoteHost,
+                        userAgent = call.request.header("User-Agent") ?: "unknown",
+                    )
                     call.respond(HttpStatusCode.OK, updated)
                 }
 
@@ -212,6 +349,7 @@ fun Route.eseRoutes(eseService: EseService) {
                     val principal = call.principal<UserPrincipal>()!!
                     requireReadWrite(principal)
                     val (db, domain) = resolveConnAndDomain(call, eseService) ?: return@delete
+                    val connId = call.parameters["connId"]!!
                     val roleId = call.parameters["id"]?.toIntOrNull()
                     if (roleId == null) {
                         call.respond(HttpStatusCode.BadRequest, ErrorResponse("Invalid role ID"))
@@ -222,6 +360,19 @@ fun Route.eseRoutes(eseService: EseService) {
                         call.respond(HttpStatusCode.NotFound, ErrorResponse("Role not found"))
                         return@delete
                     }
+                    auditLogService?.log(
+                        actorType = "user",
+                        actorId = principal.userId,
+                        actorName = principal.username,
+                        connectionId = UUID.fromString(connId),
+                        connectionName = connId,
+                        domain = mapDomainForAudit(domain),
+                        action = "delete",
+                        resourceType = "role",
+                        resourceId = roleId.toString(),
+                        ipAddress = call.request.origin.remoteHost,
+                        userAgent = call.request.header("User-Agent") ?: "unknown",
+                    )
                     call.respond(HttpStatusCode.OK, AssociationResponse("Role deleted successfully"))
                 }
 
@@ -230,6 +381,7 @@ fun Route.eseRoutes(eseService: EseService) {
                     val principal = call.principal<UserPrincipal>()!!
                     requireReadWrite(principal)
                     val (db, domain) = resolveConnAndDomain(call, eseService) ?: return@post
+                    val connId = call.parameters["connId"]!!
                     val roleId = call.parameters["id"]?.toIntOrNull()
                     val permId = call.parameters["permId"]?.toIntOrNull()
                     if (roleId == null || permId == null) {
@@ -241,6 +393,19 @@ fun Route.eseRoutes(eseService: EseService) {
                         call.respond(HttpStatusCode.Conflict, ErrorResponse("Association already exists"))
                         return@post
                     }
+                    auditLogService?.log(
+                        actorType = "user",
+                        actorId = principal.userId,
+                        actorName = principal.username,
+                        connectionId = UUID.fromString(connId),
+                        connectionName = connId,
+                        domain = mapDomainForAudit(domain),
+                        action = "create",
+                        resourceType = "role_permission",
+                        resourceId = "$roleId:$permId",
+                        ipAddress = call.request.origin.remoteHost,
+                        userAgent = call.request.header("User-Agent") ?: "unknown",
+                    )
                     call.respond(HttpStatusCode.Created, AssociationResponse("Permission assigned to role"))
                 }
 
@@ -248,6 +413,7 @@ fun Route.eseRoutes(eseService: EseService) {
                     val principal = call.principal<UserPrincipal>()!!
                     requireReadWrite(principal)
                     val (db, domain) = resolveConnAndDomain(call, eseService) ?: return@delete
+                    val connId = call.parameters["connId"]!!
                     val roleId = call.parameters["id"]?.toIntOrNull()
                     val permId = call.parameters["permId"]?.toIntOrNull()
                     if (roleId == null || permId == null) {
@@ -259,6 +425,19 @@ fun Route.eseRoutes(eseService: EseService) {
                         call.respond(HttpStatusCode.NotFound, ErrorResponse("Association not found"))
                         return@delete
                     }
+                    auditLogService?.log(
+                        actorType = "user",
+                        actorId = principal.userId,
+                        actorName = principal.username,
+                        connectionId = UUID.fromString(connId),
+                        connectionName = connId,
+                        domain = mapDomainForAudit(domain),
+                        action = "delete",
+                        resourceType = "role_permission",
+                        resourceId = "$roleId:$permId",
+                        ipAddress = call.request.origin.remoteHost,
+                        userAgent = call.request.header("User-Agent") ?: "unknown",
+                    )
                     call.respond(HttpStatusCode.OK, AssociationResponse("Permission removed from role"))
                 }
             }
@@ -279,6 +458,7 @@ fun Route.eseRoutes(eseService: EseService) {
                     val principal = call.principal<UserPrincipal>()!!
                     requireReadWrite(principal)
                     val (db, domain) = resolveConnAndDomain(call, eseService) ?: return@post
+                    val connId = call.parameters["connId"]!!
                     val perm = if (domain == "mqtt") {
                         val request = call.receive<CreateMqttPermissionRequest>()
                         eseService.createMqttPermission(db, request)
@@ -286,6 +466,19 @@ fun Route.eseRoutes(eseService: EseService) {
                         val request = call.receive<CreateStringPermissionRequest>()
                         eseService.createStringPermission(db, domain, request)
                     }
+                    auditLogService?.log(
+                        actorType = "user",
+                        actorId = principal.userId,
+                        actorName = principal.username,
+                        connectionId = UUID.fromString(connId),
+                        connectionName = connId,
+                        domain = mapDomainForAudit(domain),
+                        action = "create",
+                        resourceType = "permission",
+                        resourceId = perm.id.toString(),
+                        ipAddress = call.request.origin.remoteHost,
+                        userAgent = call.request.header("User-Agent") ?: "unknown",
+                    )
                     call.respond(HttpStatusCode.Created, perm)
                 }
 
@@ -293,6 +486,7 @@ fun Route.eseRoutes(eseService: EseService) {
                     val principal = call.principal<UserPrincipal>()!!
                     requireReadWrite(principal)
                     val (db, domain) = resolveConnAndDomain(call, eseService) ?: return@put
+                    val connId = call.parameters["connId"]!!
                     val permId = call.parameters["id"]?.toIntOrNull()
                     if (permId == null) {
                         call.respond(HttpStatusCode.BadRequest, ErrorResponse("Invalid permission ID"))
@@ -309,6 +503,19 @@ fun Route.eseRoutes(eseService: EseService) {
                         call.respond(HttpStatusCode.NotFound, ErrorResponse("Permission not found"))
                         return@put
                     }
+                    auditLogService?.log(
+                        actorType = "user",
+                        actorId = principal.userId,
+                        actorName = principal.username,
+                        connectionId = UUID.fromString(connId),
+                        connectionName = connId,
+                        domain = mapDomainForAudit(domain),
+                        action = "update",
+                        resourceType = "permission",
+                        resourceId = permId.toString(),
+                        ipAddress = call.request.origin.remoteHost,
+                        userAgent = call.request.header("User-Agent") ?: "unknown",
+                    )
                     call.respond(HttpStatusCode.OK, updated)
                 }
 
@@ -316,6 +523,7 @@ fun Route.eseRoutes(eseService: EseService) {
                     val principal = call.principal<UserPrincipal>()!!
                     requireReadWrite(principal)
                     val (db, domain) = resolveConnAndDomain(call, eseService) ?: return@delete
+                    val connId = call.parameters["connId"]!!
                     val permId = call.parameters["id"]?.toIntOrNull()
                     if (permId == null) {
                         call.respond(HttpStatusCode.BadRequest, ErrorResponse("Invalid permission ID"))
@@ -326,6 +534,19 @@ fun Route.eseRoutes(eseService: EseService) {
                         call.respond(HttpStatusCode.NotFound, ErrorResponse("Permission not found"))
                         return@delete
                     }
+                    auditLogService?.log(
+                        actorType = "user",
+                        actorId = principal.userId,
+                        actorName = principal.username,
+                        connectionId = UUID.fromString(connId),
+                        connectionName = connId,
+                        domain = mapDomainForAudit(domain),
+                        action = "delete",
+                        resourceType = "permission",
+                        resourceId = permId.toString(),
+                        ipAddress = call.request.origin.remoteHost,
+                        userAgent = call.request.header("User-Agent") ?: "unknown",
+                    )
                     call.respond(HttpStatusCode.OK, AssociationResponse("Permission deleted successfully"))
                 }
             }
