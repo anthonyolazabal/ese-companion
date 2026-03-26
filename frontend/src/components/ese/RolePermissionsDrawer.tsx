@@ -12,6 +12,7 @@ import {
 } from "@chakra-ui/react";
 import { X, Plus, Trash2 } from "lucide-react";
 import { eseApi } from "../../api/eseApi";
+import { toaster } from "../../toaster";
 import type { MqttPermission, StringPermission } from "../../api/types";
 
 interface RolePermissionsDrawerProps {
@@ -72,8 +73,17 @@ export function RolePermissionsDrawer({
       await eseApi.assignPermissionToRole(connId, domain, roleId, permId);
       setAssignedIds((prev) => new Set([...prev, permId]));
       onChanged();
-    } catch {
-      // ignore
+      toaster.create({
+        title: "Permission assigned",
+        description: `Permission added to role "${roleName}"`,
+        type: "success",
+      });
+    } catch (err) {
+      toaster.create({
+        title: "Failed to assign permission",
+        description: err instanceof Error ? err.message : "An error occurred",
+        type: "error",
+      });
     } finally {
       setSaving(null);
     }
@@ -89,8 +99,17 @@ export function RolePermissionsDrawer({
         return next;
       });
       onChanged();
-    } catch {
-      // ignore
+      toaster.create({
+        title: "Permission revoked",
+        description: `Permission removed from role "${roleName}"`,
+        type: "success",
+      });
+    } catch (err) {
+      toaster.create({
+        title: "Failed to revoke permission",
+        description: err instanceof Error ? err.message : "An error occurred",
+        type: "error",
+      });
     } finally {
       setSaving(null);
     }
