@@ -50,6 +50,7 @@ dependencies {
 
     testImplementation(libs.ktor.server.test)
     testImplementation(libs.kotlin.test)
+    testImplementation("com.h2database:h2:2.3.232")
 }
 
 kotlin {
