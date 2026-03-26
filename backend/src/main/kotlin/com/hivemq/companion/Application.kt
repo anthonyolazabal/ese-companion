@@ -26,6 +26,7 @@ import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.response.*
 import com.hivemq.companion.plugins.configureSecurityPlugins
+import com.hivemq.companion.plugins.openApiRoutes
 import io.ktor.server.routing.*
 import kotlinx.serialization.json.Json
 
@@ -85,6 +86,7 @@ fun Application.module(
     }
 
     routing {
+        openApiRoutes()
         get("/health/live") {
             call.respondText("OK")
         }
