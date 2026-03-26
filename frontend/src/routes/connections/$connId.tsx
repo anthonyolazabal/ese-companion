@@ -268,17 +268,30 @@ function ConnectionDetailPage() {
             </Badge>
           </HStack>
           {stats && (
-            <HStack gap="4" fontSize="sm" color="gray.500">
+            <Flex gap="4" flexWrap="wrap">
               {DOMAINS.map((d) => {
                 const ds = domainStats?.[d];
                 if (!ds) return null;
                 return (
-                  <Text key={d}>
-                    {DOMAIN_LABELS[d]}: {ds.userCount}u / {ds.roleCount}r / {ds.permissionCount}p
-                  </Text>
+                  <Box
+                    key={d}
+                    px="3"
+                    py="1.5"
+                    borderRadius="md"
+                    border="1px solid"
+                    borderColor={{ base: "gray.200", _dark: "gray.700" }}
+                    fontSize="xs"
+                  >
+                    <Text fontWeight="bold" mb="0.5">{DOMAIN_LABELS[d]}</Text>
+                    <HStack gap="3" color="gray.500">
+                      <Text>{ds.userCount} users</Text>
+                      <Text>{ds.roleCount} roles</Text>
+                      <Text>{ds.permissionCount} perms</Text>
+                    </HStack>
+                  </Box>
                 );
               })}
-            </HStack>
+            </Flex>
           )}
           {connection.description && (
             <Text color="gray.500" fontSize="sm">
