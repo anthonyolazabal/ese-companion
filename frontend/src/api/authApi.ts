@@ -25,3 +25,13 @@ export async function logout(): Promise<void> {
     method: "POST",
   });
 }
+
+export async function changePassword(
+  currentPassword: string,
+  newPassword: string,
+): Promise<void> {
+  return apiClient.fetch<void>("/auth/change-password", {
+    method: "POST",
+    body: JSON.stringify({ currentPassword, newPassword }),
+  });
+}
