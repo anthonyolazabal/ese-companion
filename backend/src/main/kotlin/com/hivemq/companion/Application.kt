@@ -2,13 +2,20 @@ package com.hivemq.companion
 
 import com.hivemq.companion.auth.*
 import com.hivemq.companion.dto.ErrorResponse
+import com.hivemq.companion.ese.EseConnectionManager
 import com.hivemq.companion.ese.routes.eseRoutes
 import com.hivemq.companion.ese.service.EseService
 import com.hivemq.companion.routes.ForbiddenException
+import com.hivemq.companion.routes.apiKeyRoutes
+import com.hivemq.companion.routes.auditLogRoutes
 import com.hivemq.companion.routes.connectionRoutes
+import com.hivemq.companion.routes.dashboardRoutes
 import com.hivemq.companion.routes.userRoutes
+import com.hivemq.companion.service.ApiKeyService
+import com.hivemq.companion.service.AuditLogService
 import com.hivemq.companion.service.ConnectionService
 import com.hivemq.companion.service.UserService
+import org.jetbrains.exposed.sql.Database
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
@@ -34,6 +41,10 @@ fun Application.module(
     tokenRevocationStore: TokenRevocationStore? = null,
     connectionService: ConnectionService? = null,
     eseService: EseService? = null,
+    companionDatabase: Database? = null,
+    eseConnectionManager: EseConnectionManager? = null,
+    apiKeyService: ApiKeyService? = null,
+    auditLogService: AuditLogService? = null,
 ) {
     install(ContentNegotiation) {
         json(Json {
@@ -59,8 +70,10 @@ fun Application.module(
     val bruteForce = bruteForceProtection ?: BruteForceProtection()
     val revocationStore = tokenRevocationStore ?: TokenRevocationStore()
 
+    val apiKeys = apiKeyService
+
     if (jwt != null) {
-        configureAuth(jwt, sessions)
+        configureAuth(jwt, sessions, apiKeys)
     }
 
     routing {
@@ -70,12 +83,21 @@ fun Application.module(
         if (jwt != null && users != null) {
             authRoutes(jwt, users, sessions, bruteForce, revocationStore)
             userRoutes(users)
+            if (apiKeys != null) {
+                apiKeyRoutes(apiKeys)
+            }
         }
         if (connectionService != null) {
             connectionRoutes(connectionService)
         }
         if (eseService != null) {
             eseRoutes(eseService)
+        }
+        if (companionDatabase != null && eseConnectionManager != null) {
+            dashboardRoutes(companionDatabase, eseConnectionManager)
+        }
+        if (auditLogService != null) {
+            auditLogRoutes(auditLogService)
         }
     }
 }
