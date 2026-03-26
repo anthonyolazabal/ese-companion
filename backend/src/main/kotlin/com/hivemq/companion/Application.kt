@@ -2,6 +2,8 @@ package com.hivemq.companion
 
 import com.hivemq.companion.auth.*
 import com.hivemq.companion.dto.ErrorResponse
+import com.hivemq.companion.routes.ForbiddenException
+import com.hivemq.companion.routes.userRoutes
 import com.hivemq.companion.service.UserService
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
@@ -36,6 +38,9 @@ fun Application.module(
     }
 
     install(StatusPages) {
+        exception<ForbiddenException> { call, cause ->
+            call.respond(HttpStatusCode.Forbidden, ErrorResponse(cause.message ?: "Forbidden"))
+        }
         exception<Throwable> { call, cause ->
             call.application.log.error("Unhandled error", cause)
             call.respond(HttpStatusCode.InternalServerError, ErrorResponse("Internal server error"))
@@ -58,6 +63,7 @@ fun Application.module(
         }
         if (jwt != null && users != null) {
             authRoutes(jwt, users, sessions, bruteForce, revocationStore)
+            userRoutes(users)
         }
     }
 }
