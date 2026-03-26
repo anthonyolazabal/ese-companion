@@ -30,7 +30,7 @@ createRoot(document.getElementById("root")!).render(
             <Portal>
               <Toaster toaster={toaster} insetInline={{ mdDown: "4" }}>
                 {(toast) => (
-                  <Toast.Root>
+                  <Toast.Root width={{ md: "sm" }}>
                     {toast.type === "loading" ? (
                       <Spinner size="sm" color="blue.solid" />
                     ) : (
@@ -42,7 +42,7 @@ createRoot(document.getElementById("root")!).render(
                         <Toast.Description>{toast.description}</Toast.Description>
                       )}
                     </Stack>
-                    <Toast.CloseTrigger />
+                    {toast.meta?.closable && <Toast.CloseTrigger />}
                   </Toast.Root>
                 )}
               </Toaster>
