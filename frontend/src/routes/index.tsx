@@ -53,7 +53,7 @@ function DashboardPage() {
           <Button
             colorPalette="purple"
             size="sm"
-            onClick={() => navigate({ to: "/connections/new" as string })}
+            onClick={() => navigate({ to: "/admin/connections" as string })}
           >
             <Plus size={16} />
             Add Connection
@@ -108,7 +108,7 @@ function DashboardPage() {
             <Button
               colorPalette="purple"
               size="sm"
-              onClick={() => navigate({ to: "/connections/new" as string })}
+              onClick={() => navigate({ to: "/admin/connections" as string })}
             >
               <Plus size={16} />
               Add Connection

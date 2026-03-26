@@ -3,7 +3,6 @@ import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { renderWithProviders } from "../../../test-utils";
 import { AlgorithmPicker } from "../AlgorithmPicker";
-import type { Algorithm } from "../AlgorithmPicker";
 
 describe("AlgorithmPicker", () => {
   it("default value is PKCS5S2", () => {
