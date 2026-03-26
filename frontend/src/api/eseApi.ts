@@ -128,7 +128,7 @@ export const eseApi = {
   ) =>
     apiClient.fetch<void>(
       `/ese/${connId}/${domain}/users/${userId}/roles/${roleId}`,
-      { method: "PUT" },
+      { method: "POST" },
     ),
 
   revokeRoleFromUser: (
@@ -150,7 +150,7 @@ export const eseApi = {
   ) =>
     apiClient.fetch<void>(
       `/ese/${connId}/${domain}/users/${userId}/permissions/${permId}`,
-      { method: "PUT" },
+      { method: "POST" },
     ),
 
   revokePermissionFromUser: (
@@ -172,7 +172,7 @@ export const eseApi = {
   ) =>
     apiClient.fetch<void>(
       `/ese/${connId}/${domain}/roles/${roleId}/permissions/${permId}`,
-      { method: "PUT" },
+      { method: "POST" },
     ),
 
   revokePermissionFromRole: (
