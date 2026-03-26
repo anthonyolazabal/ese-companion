@@ -33,16 +33,31 @@ class EseService(
     ): PaginatedResponse<EseUserResponse> {
         val tables = resolveDomain(domain)
         val u = tables.users
+        val ur = tables.userRoles
+        val r = tables.roles
         return transaction(db) {
             var query = u.table.selectAll()
             if (!search.isNullOrBlank()) {
                 query = query.where { u.username like "%$search%" }
             }
             val total = query.count()
-            val items = query
+            val users = query
                 .orderBy(u.id)
                 .limit(size).offset(((page - 1) * size).toLong())
                 .map { it.toUserResponse(u) }
+
+            // Batch-load role names for all users on this page
+            val userIds = users.map { it.id }
+            val rolesByUser = if (userIds.isNotEmpty()) {
+                (ur.table innerJoin r.table)
+                    .selectAll()
+                    .where { ur.userId inList userIds }
+                    .groupBy({ it[ur.userId] }, { it[r.name] })
+            } else emptyMap()
+
+            val items = users.map { user ->
+                user.copy(roles = rolesByUser[user.id] ?: emptyList())
+            }
             PaginatedResponse(items = items, page = page, size = size, total = total)
         }
     }

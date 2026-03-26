@@ -30,6 +30,7 @@ data class EseUserResponse(
     val iterations: Int,
     val createdAt: String,
     val updatedAt: String,
+    val roles: List<String> = emptyList(),
 )
 
 @Serializable

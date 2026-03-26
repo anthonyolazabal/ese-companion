@@ -80,6 +80,7 @@ export interface EseUser {
   iterations: number;
   createdAt: string;
   updatedAt: string;
+  roles: string[];
 }
 
 export interface CreateEseUserRequest {

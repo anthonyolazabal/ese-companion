@@ -76,6 +76,24 @@ export function EseUserTable({
         header: "Iterations",
         cell: (info) => info.getValue(),
       }),
+      columnHelper.accessor("roles", {
+        header: "Roles",
+        cell: (info) => {
+          const roles = info.getValue();
+          if (!roles || roles.length === 0) {
+            return <Text fontSize="xs" color="gray.400">—</Text>;
+          }
+          return (
+            <HStack gap="1" flexWrap="wrap">
+              {roles.map((role) => (
+                <Badge key={role} colorPalette="purple" variant="subtle" size="sm">
+                  {role}
+                </Badge>
+              ))}
+            </HStack>
+          );
+        },
+      }),
       columnHelper.accessor("createdAt", {
         header: "Created",
         cell: (info) => new Date(info.getValue()).toLocaleDateString(),
