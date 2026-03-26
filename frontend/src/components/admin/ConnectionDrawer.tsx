@@ -28,7 +28,11 @@ interface ConnectionDrawerProps {
   }) => Promise<void>;
 }
 
-const DB_TYPES = ["postgresql", "mysql", "mariadb"] as const;
+const DB_TYPES = [
+  { value: "POSTGRESQL", label: "PostgreSQL", defaultPort: 5432 },
+  { value: "MYSQL", label: "MySQL", defaultPort: 3306 },
+  { value: "SQLSERVER", label: "SQL Server", defaultPort: 1433 },
+] as const;
 
 export function ConnectionDrawer({
   isOpen,
@@ -39,7 +43,7 @@ export function ConnectionDrawer({
   const isEdit = !!connection;
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [dbType, setDbType] = useState<string>("postgresql");
+  const [dbType, setDbType] = useState<string>("POSTGRESQL");
   const [host, setHost] = useState("");
   const [port, setPort] = useState(5432);
   const [databaseName, setDatabaseName] = useState("");
@@ -65,7 +69,7 @@ export function ConnectionDrawer({
     } else {
       setName("");
       setDescription("");
-      setDbType("postgresql");
+      setDbType("POSTGRESQL");
       setHost("");
       setPort(5432);
       setDatabaseName("");
@@ -170,18 +174,17 @@ export function ConnectionDrawer({
               <Flex gap="2">
                 {DB_TYPES.map((t) => (
                   <Button
-                    key={t}
+                    key={t.value}
                     type="button"
                     size="sm"
-                    variant={dbType === t ? "solid" : "outline"}
-                    colorPalette={dbType === t ? "purple" : "gray"}
+                    variant={dbType === t.value ? "solid" : "outline"}
+                    colorPalette={dbType === t.value ? "purple" : "gray"}
                     onClick={() => {
-                      setDbType(t);
-                      if (t === "postgresql") setPort(5432);
-                      else if (t === "mysql" || t === "mariadb") setPort(3306);
+                      setDbType(t.value);
+                      setPort(t.defaultPort);
                     }}
                   >
-                    {t}
+                    {t.label}
                   </Button>
                 ))}
               </Flex>
