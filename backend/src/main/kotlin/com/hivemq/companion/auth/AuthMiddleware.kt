@@ -1,18 +1,23 @@
 package com.hivemq.companion.auth
 
+import com.hivemq.companion.service.ApiKeyService
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
 import io.ktor.server.response.*
+import io.ktor.util.*
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
+
+val apiKeyPrincipalKey = AttributeKey<UserPrincipal>("ApiKeyPrincipal")
 
 data class UserPrincipal(
     val userId: UUID,
     val username: String,
     val role: String,
     val sessionId: String,
+    val scopes: List<String>? = null,
 ) : Principal
 
 class SessionManager {
@@ -93,7 +98,11 @@ class BruteForceProtection {
     }
 }
 
-fun Application.configureAuth(jwtService: JwtService, sessionManager: SessionManager) {
+fun Application.configureAuth(
+    jwtService: JwtService,
+    sessionManager: SessionManager,
+    apiKeyService: ApiKeyService? = null,
+) {
     install(Authentication) {
         jwt("auth-jwt") {
             verifier(
@@ -123,5 +132,48 @@ fun Application.configureAuth(jwtService: JwtService, sessionManager: SessionMan
                 call.respond(HttpStatusCode.Unauthorized, mapOf("error" to "Invalid or expired token"))
             }
         }
+
+        // API key authentication provider
+        if (apiKeyService != null) {
+            register(ApiKeyAuthProvider(apiKeyService))
+        }
+    }
+}
+
+/**
+ * Custom authentication provider that checks the X-API-Key header.
+ */
+class ApiKeyAuthProvider(private val apiKeyService: ApiKeyService) : AuthenticationProvider(
+    object : Config("auth-apikey") {}
+) {
+    override suspend fun onAuthenticate(context: AuthenticationContext) {
+        val call = context.call
+        val apiKey = call.request.headers["X-API-Key"]
+
+        if (apiKey == null) {
+            context.challenge("ApiKeyAuth", AuthenticationFailedCause.NoCredentials) { challenge, authCall ->
+                authCall.respond(HttpStatusCode.Unauthorized, mapOf("error" to "Missing authentication"))
+                challenge.complete()
+            }
+            return
+        }
+
+        val validation = apiKeyService.validateApiKey(apiKey)
+        if (validation == null) {
+            context.challenge("ApiKeyAuth", AuthenticationFailedCause.InvalidCredentials) { challenge, authCall ->
+                authCall.respond(HttpStatusCode.Unauthorized, mapOf("error" to "Invalid or expired API key"))
+                challenge.complete()
+            }
+            return
+        }
+
+        val principal = UserPrincipal(
+            userId = validation.userId,
+            username = validation.username,
+            role = validation.role,
+            sessionId = "api-key",
+            scopes = validation.scopes,
+        )
+        context.principal(principal)
     }
 }
