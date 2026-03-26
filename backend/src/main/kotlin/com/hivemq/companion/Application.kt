@@ -1,6 +1,7 @@
 package com.hivemq.companion
 
 import com.hivemq.companion.auth.*
+import com.hivemq.companion.config.SecurityConfig
 import com.hivemq.companion.dto.ErrorResponse
 import com.hivemq.companion.ese.EseConnectionManager
 import com.hivemq.companion.ese.routes.eseRoutes
@@ -24,6 +25,7 @@ import io.ktor.server.netty.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.response.*
+import com.hivemq.companion.plugins.configureSecurityPlugins
 import io.ktor.server.routing.*
 import kotlinx.serialization.json.Json
 
@@ -45,7 +47,13 @@ fun Application.module(
     eseConnectionManager: EseConnectionManager? = null,
     apiKeyService: ApiKeyService? = null,
     auditLogService: AuditLogService? = null,
+    securityConfig: SecurityConfig? = null,
+    httpsEnabled: Boolean = false,
 ) {
+    if (securityConfig != null) {
+        configureSecurityPlugins(securityConfig, httpsEnabled)
+    }
+
     install(ContentNegotiation) {
         json(Json {
             prettyPrint = false
