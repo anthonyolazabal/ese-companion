@@ -24,15 +24,45 @@ import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.statuspages.*
+import io.ktor.server.request.*
 import io.ktor.server.response.*
+import com.hivemq.companion.config.AppConfig
+import com.hivemq.companion.config.ServerConfig
+import com.hivemq.companion.plugins.buildKeyStore
 import com.hivemq.companion.plugins.configureSecurityPlugins
+import com.hivemq.companion.plugins.keyStorePassword
 import com.hivemq.companion.plugins.openApiRoutes
+import com.hivemq.companion.plugins.privateKeyPassword
+import io.ktor.server.http.content.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.json.Json
+import java.io.File
 
 fun main() {
-    embeddedServer(Netty, port = 8989) {
-        module()
+    val serverConfig = try {
+        AppConfig.fromEnv().server
+    } catch (_: Exception) {
+        ServerConfig()
+    }
+
+    val keyStore = buildKeyStore(serverConfig)
+    val ksPassword = keyStorePassword(serverConfig)
+    val pkPassword = privateKeyPassword(serverConfig)
+
+    embeddedServer(Netty, configure = {
+        connector {
+            port = serverConfig.httpPort
+        }
+        sslConnector(
+            keyStore = keyStore,
+            keyAlias = "ese-companion",
+            keyStorePassword = { ksPassword.toCharArray() },
+            privateKeyPassword = { pkPassword.toCharArray() },
+        ) {
+            port = serverConfig.httpsPort
+        }
+    }) {
+        module(httpsEnabled = true)
     }.start(wait = true)
 }
 
@@ -108,6 +138,22 @@ fun Application.module(
         }
         if (auditLogService != null) {
             auditLogRoutes(auditLogService)
+        }
+
+        // Static files from public/ directory (React SPA build output)
+        staticFiles("/", File("public")) {
+            default("index.html")
+        }
+
+        // SPA fallback: any non-API, non-health path returns index.html
+        get("{...}") {
+            val path = call.request.uri
+            if (!path.startsWith("/api/") && !path.startsWith("/health/")) {
+                val indexFile = File("public/index.html")
+                if (indexFile.exists()) {
+                    call.respondFile(indexFile)
+                }
+            }
         }
     }
 }
