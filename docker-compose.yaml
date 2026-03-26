@@ -1,0 +1,29 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: companion
+      POSTGRES_USER: companion
+      POSTGRES_PASSWORD: companion
+    ports:
+      - "5432:5432"
+    volumes:
+      - companion-data:/var/lib/postgresql/data
+
+  ese-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: hivemq_ese
+      POSTGRES_USER: ese
+      POSTGRES_PASSWORD: ese
+    ports:
+      - "5433:5432"
+    volumes:
+      - ese-data:/var/lib/postgresql/data
+      - ./references/postgresql_create.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ./references/insert/default_permissions_insert.sql:/docker-entrypoint-initdb.d/02-permissions.sql
+      - ./references/insert/default_roles_insert.sql:/docker-entrypoint-initdb.d/03-roles.sql
+
+volumes:
+  companion-data:
+  ese-data:

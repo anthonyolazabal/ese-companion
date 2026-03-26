@@ -4,78 +4,65 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-ESE Companion is a full-stack web application for managing HiveMQ Enterprise Security Extension (ESE) databases. It provides a REST API (Node.js/Express) and a Vue 3 UI for administering three independent security domains: MQTT broker auth, Control Panel auth, and REST API auth.
+ESE Companion v2 is a full-stack application for centrally managing multiple HiveMQ Enterprise Security Extension (ESE) databases. Kotlin/Ktor backend with React/Chakra UI frontend, deployed as a single Docker image.
 
 ## Commands
 
-### Backend (root)
+### Backend (backend/)
 ```bash
-npm install                # Install backend dependencies
-npx prisma generate        # Generate Prisma client (required after schema changes)
-npm run dev                # Start backend with nodemon (HTTP:3001, HTTPS:4001)
-npm start                  # Start backend without hot-reload
+cd backend && ./gradlew build          # Build + test
+cd backend && ./gradlew test           # Run tests only
+cd backend && ./gradlew run            # Start dev server (HTTP:8989, HTTPS:9090)
+cd backend && ./gradlew shadowJar      # Build fat JAR
 ```
 
-### Frontend (ui/)
+### Frontend (frontend/)
 ```bash
-cd ui && npm install       # Install frontend dependencies
-cd ui && npm run dev       # Vite dev server with HMR
-cd ui && npm run build     # Production build (outputs to ../public/)
-cd ui && npm run lint      # ESLint fix for .ts,.js,.vue,.tsx,.jsx
-cd ui && npm run typecheck # Vue TypeScript check (vue-tsc --noEmit)
-```
-
-### Full Build
-```bash
-npm run build-app          # Builds UI into public/, installs deps, starts server
+cd frontend && pnpm install            # Install dependencies
+cd frontend && pnpm dev                # Vite dev server with HMR
+cd frontend && pnpm build              # Production build (outputs to dist/)
+cd frontend && pnpm lint:check         # Biome lint check
+cd frontend && pnpm lint:check:write   # Biome auto-fix
 ```
 
 ### Docker
 ```bash
-docker build -t ese-companion --platform linux/amd64 .
-docker run --env=TOKEN_KEY="secret" --env=DATABASE_URL="mysql://user:pass@host:3306/hivemq" -p 3001:3001 ese-companion
+docker compose up -d                   # Start companion DB + ESE DB for local dev
+docker build -t ese-companion:v2 .     # Build production image
 ```
 
-### Environment Variables
-- `DATABASE_URL` — Prisma connection string (MySQL, PostgreSQL, or MariaDB)
-- `TOKEN_KEY` — JWT signing secret
+### Environment Variables (Required)
+- `ESE_COMPANION_DB_TYPE` — postgresql, mysql, or sqlserver
+- `ESE_COMPANION_DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`
+- `ESE_COMPANION_JWT_SECRET` — JWT signing key
+- `ESE_COMPANION_ENCRYPTION_KEY` — AES key for stored DB passwords
+- `ESE_COMPANION_ADMIN_USER`, `ADMIN_PASSWORD`, `ADMIN_EMAIL` — initial admin (first run)
 
 ## Architecture
 
-### Backend (`src/`)
-Express server with modular route registration. Each module exports `function(app)` that registers routes on the Express instance.
+### Backend (Kotlin/Ktor)
+- **`backend/src/main/kotlin/com/hivemq/companion/`**
+  - `Application.kt` — Entry point, startup sequence, route registration
+  - `config/AppConfig.kt` — All env var loading with defaults
+  - `auth/` — JWT service, auth middleware (JWT + API key), brute force protection
+  - `service/` — UserService, ConnectionService, ApiKeyService, AuditLogService, HealthCheckService
+  - `routes/` — REST routes for users, connections, API keys, audit logs, dashboard
+  - `ese/` — ESE database integration: tables, service, routes, dynamic connection pool manager
+  - `crypto/` — CryptoService (6 ESE hash algorithms), AES encryption for stored passwords
+  - `db/` — CompanionDatabase, Exposed table definitions, Flyway migrations
+  - `plugins/` — Security (rate limiting, CORS, headers), HTTPS, OpenAPI
 
-- **`src/index.js`** — Entry point. Sets up Express, Helmet, CORS, Morgan, static file serving, and imports all route modules.
-- **`src/mqtt/`** — MQTT broker user/role/permission CRUD (routes prefixed `/api/mqtt_*`)
-- **`src/cc/`** — Control Panel user/role/permission CRUD (routes prefixed `/api/cc_*`)
-- **`src/rest_api/`** — REST API user/role/permission CRUD (routes prefixed `/api/rest_api_*`)
-- **`src/analytics/`** — Dashboard statistics aggregation
-- **`src/middleware/auth.js`** — JWT verification middleware (`x-access-token` header)
-- **`src/helpers/cryptoHelper.js`** — HiveMQ ESE password hashing (PBKDF2 via Java helper JAR + Node crypto fallback)
+### Frontend (React/Chakra UI)
+- **`frontend/src/`**
+  - `routes/` — TanStack Router file-based routes (login, dashboard, connections, admin, settings)
+  - `components/` — Reusable UI: Sidebar, HealthDot, ConnectionCard, ESE tables/drawers, admin drawers
+  - `api/` — Typed API client modules for all endpoints
+  - `auth/` — AuthContext, useAuth hook, JWT token management
 
-All three domains (MQTT, CC, REST API) follow identical CRUD patterns for users, roles, permissions, and their associations.
-
-### Frontend (`ui/src/`)
-Vue 3 + Vite + Vuetify 3 + TypeScript application.
-
-- **`pages/`** — File-based routing via `vite-plugin-pages`. Filename = route path (e.g., `mqtt-accounts.vue` → `/mqtt-accounts`).
-- **`layouts/`** — Layout system via `vite-plugin-vue-layouts`
-- **`plugins/`** — Vuetify, Axios (with JWT interceptor), auth helpers, web fonts
-- **`router/`** — Vue Router with auth guards (redirects unauthenticated users to `/login`)
-- **`@core/`**, **`@layouts/`** — Shared components and layout utilities
-
-### Database (`prisma/`)
-Prisma ORM with schema variants for different databases:
-- `schema.prisma` — Active schema (copy from `.mysql` or `.postgres` variant)
-- `schema.prisma.mysql` / `schema.prisma.postgres` — Database-specific schemas
-
-Three parallel table groups (`mqtt_*`, `cc_*`, `rest_api_*`) each containing: users, roles, permissions, user_roles, role_permissions, user_permissions.
-
-### Authentication Flow
-1. `POST /api/login` validates credentials against `rest_api_users` table and checks for `eseapi_admin` role
-2. Returns JWT token (2-hour expiry)
-3. Frontend stores token in Pinia auth store; Axios interceptor attaches it as `x-access-token` header
-4. Password hashing uses HiveMQ ESE's Java-based helper (`ese-file-helper.jar`) with Node crypto as fallback
-
-### Build Output
-The frontend builds into `public/` at the project root, which Express serves as static files. In production, the Docker image includes a JRE for the ESE password hashing helper.
+### Key Patterns
+- ESE routes scoped by `:connId` and `:domain` (mqtt/cc/rest-api)
+- Drawers for all create/edit forms, Modals only for delete confirmations
+- App-level roles: admin, readwrite, readonly (no per-connection scoping)
+- API keys: scoped + expiring, inherit owner's role
+- All timestamps UTC, ISO 8601
+- API versioned at /api/v1/
