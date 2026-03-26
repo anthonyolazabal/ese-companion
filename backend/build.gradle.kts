@@ -47,10 +47,13 @@ dependencies {
     implementation(libs.flyway.sqlserver)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.datetime)
+    implementation(libs.jbcrypt)
 
     testImplementation(libs.ktor.server.test)
     testImplementation(libs.kotlin.test)
     testImplementation("com.h2database:h2:2.3.232")
+    testImplementation("io.ktor:ktor-client-content-negotiation:${libs.versions.ktor.get()}")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
 }
 
 kotlin {
