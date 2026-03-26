@@ -3,7 +3,9 @@ package com.hivemq.companion
 import com.hivemq.companion.auth.*
 import com.hivemq.companion.dto.ErrorResponse
 import com.hivemq.companion.routes.ForbiddenException
+import com.hivemq.companion.routes.connectionRoutes
 import com.hivemq.companion.routes.userRoutes
+import com.hivemq.companion.service.ConnectionService
 import com.hivemq.companion.service.UserService
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
@@ -28,6 +30,7 @@ fun Application.module(
     sessionManager: SessionManager? = null,
     bruteForceProtection: BruteForceProtection? = null,
     tokenRevocationStore: TokenRevocationStore? = null,
+    connectionService: ConnectionService? = null,
 ) {
     install(ContentNegotiation) {
         json(Json {
@@ -64,6 +67,9 @@ fun Application.module(
         if (jwt != null && users != null) {
             authRoutes(jwt, users, sessions, bruteForce, revocationStore)
             userRoutes(users)
+        }
+        if (connectionService != null) {
+            connectionRoutes(connectionService)
         }
     }
 }
