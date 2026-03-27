@@ -2,6 +2,7 @@ package com.hivemq.companion.routes
 
 import com.hivemq.companion.auth.UserPrincipal
 import com.hivemq.companion.dto.*
+import com.hivemq.companion.ese.EseConnectionManager
 import com.hivemq.companion.service.AuditLogService
 import com.hivemq.companion.service.ConnectionService
 import io.ktor.http.*
@@ -12,7 +13,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import java.util.*
 
-fun Route.connectionRoutes(connectionService: ConnectionService, auditLogService: AuditLogService? = null) {
+fun Route.connectionRoutes(connectionService: ConnectionService, auditLogService: AuditLogService? = null, eseConnectionManager: EseConnectionManager? = null) {
     authenticate("auth-jwt", "auth-apikey", strategy = AuthenticationStrategy.FirstSuccessful) {
         route("/api/v1/connections") {
 
@@ -86,6 +87,9 @@ fun Route.connectionRoutes(connectionService: ConnectionService, auditLogService
                     return@put
                 }
 
+                // Evict cached connection pool so next access uses updated credentials
+                eseConnectionManager?.removePool(connId)
+
                 auditLogService?.log(
                     actorType = "user",
                     actorId = principal.userId,
@@ -111,6 +115,9 @@ fun Route.connectionRoutes(connectionService: ConnectionService, auditLogService
                     call.respond(HttpStatusCode.BadRequest, ErrorResponse("Invalid connection ID"))
                     return@delete
                 }
+
+                // Evict cached connection pool before deleting
+                eseConnectionManager?.removePool(connId)
 
                 val deleted = connectionService.delete(connId)
                 if (!deleted) {

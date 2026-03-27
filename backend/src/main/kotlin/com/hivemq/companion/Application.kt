@@ -208,7 +208,7 @@ fun Application.module(
             }
         }
         if (connectionService != null) {
-            connectionRoutes(connectionService, auditLogService)
+            connectionRoutes(connectionService, auditLogService, eseConnectionManager)
         }
         if (eseService != null) {
             eseRoutes(eseService, auditLogService)
