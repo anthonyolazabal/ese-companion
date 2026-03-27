@@ -397,6 +397,8 @@ function ConnectionDetailPage() {
                 name: role.name,
               })
             }
+            connId={connId}
+            domain={activeDomain}
           />
         )}
 
