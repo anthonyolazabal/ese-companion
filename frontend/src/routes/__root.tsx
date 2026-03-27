@@ -61,6 +61,23 @@ function RootLayout() {
           <Outlet />
         </Box>
       </Flex>
+
+      {/* Footer */}
+      <Flex
+        as="footer"
+        align="center"
+        justify="center"
+        px="4"
+        h="10"
+        minH="10"
+        bg="gray.800"
+        color="gray.400"
+        borderTop="1px solid"
+        borderColor="gray.700"
+        fontSize="xs"
+      >
+        <Text>Built by the community for the community</Text>
+      </Flex>
     </Flex>
   );
 }
