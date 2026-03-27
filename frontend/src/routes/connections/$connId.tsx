@@ -327,9 +327,9 @@ function ConnectionDetailPage() {
             variant="ghost"
             size="sm"
             borderBottomWidth="2px"
-            borderBottomColor={activeDomain === d ? "blue.500" : "transparent"}
+            borderBottomColor={activeDomain === d ? "gray.700" : "transparent"}
             borderRadius="0"
-            color={activeDomain === d ? "blue.500" : undefined}
+            color={activeDomain === d ? { base: "gray.800", _dark: "gray.100" } : undefined}
             fontWeight={activeDomain === d ? "bold" : "normal"}
             onClick={() => setActiveDomain(d)}
             px="4"
