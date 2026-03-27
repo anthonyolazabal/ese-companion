@@ -21,7 +21,7 @@ import {
   flexRender,
   type SortingState,
 } from "@tanstack/react-table";
-import { Plus, Trash2, ArrowUp, ArrowDown, Check, X } from "lucide-react";
+import { Plus, Trash2, ArrowUp, ArrowDown } from "lucide-react";
 import type { MqttPermission, StringPermission } from "../../api/types";
 
 type AnyPermission = MqttPermission | StringPermission;
@@ -37,12 +37,15 @@ interface EsePermissionTableProps {
   onDelete: (perm: AnyPermission) => void;
 }
 
-const BoolIcon = ({ value }: { value: boolean }) =>
-  value ? (
-    <Check size={14} color="var(--chakra-colors-green-500)" />
-  ) : (
-    <X size={14} color="var(--chakra-colors-gray-400)" />
-  );
+const BoolBadge = ({ value }: { value: boolean }) => (
+  <Badge
+    size="sm"
+    colorPalette={value ? "green" : "red"}
+    variant="subtle"
+  >
+    {value ? "ALLOW" : "DENIED"}
+  </Badge>
+);
 
 const mqttColumnHelper = createColumnHelper<MqttPermission>();
 const stringColumnHelper = createColumnHelper<StringPermission>();
@@ -75,37 +78,37 @@ export function EsePermissionTable({
       }),
       mqttColumnHelper.accessor("publishAllowed", {
         header: "Pub",
-        cell: (info) => <BoolIcon value={info.getValue()} />,
+        cell: (info) => <BoolBadge value={info.getValue()} />,
         size: 50,
       }),
       mqttColumnHelper.accessor("subscribeAllowed", {
         header: "Sub",
-        cell: (info) => <BoolIcon value={info.getValue()} />,
+        cell: (info) => <BoolBadge value={info.getValue()} />,
         size: 50,
       }),
       mqttColumnHelper.accessor("qos0Allowed", {
         header: "QoS0",
-        cell: (info) => <BoolIcon value={info.getValue()} />,
+        cell: (info) => <BoolBadge value={info.getValue()} />,
         size: 50,
       }),
       mqttColumnHelper.accessor("qos1Allowed", {
         header: "QoS1",
-        cell: (info) => <BoolIcon value={info.getValue()} />,
+        cell: (info) => <BoolBadge value={info.getValue()} />,
         size: 50,
       }),
       mqttColumnHelper.accessor("qos2Allowed", {
         header: "QoS2",
-        cell: (info) => <BoolIcon value={info.getValue()} />,
+        cell: (info) => <BoolBadge value={info.getValue()} />,
         size: 50,
       }),
       mqttColumnHelper.accessor("retainedMsgsAllowed", {
         header: "Retain",
-        cell: (info) => <BoolIcon value={info.getValue()} />,
+        cell: (info) => <BoolBadge value={info.getValue()} />,
         size: 50,
       }),
       mqttColumnHelper.accessor("sharedSubAllowed", {
         header: "Shared",
-        cell: (info) => <BoolIcon value={info.getValue()} />,
+        cell: (info) => <BoolBadge value={info.getValue()} />,
         size: 50,
       }),
       mqttColumnHelper.accessor("sharedGroup", {
