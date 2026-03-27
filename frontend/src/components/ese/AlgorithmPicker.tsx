@@ -14,10 +14,10 @@ export type Algorithm = (typeof ALGORITHMS)[number];
 
 const DEFAULT_ITERATIONS: Record<Algorithm, number> = {
   PLAIN: 0,
-  MD5: 0,
-  SHA512: 0,
-  PKCS5S2: 100_000,
-  BCRYPT: 12,
+  MD5: 100,
+  SHA512: 100,
+  PKCS5S2: 100,
+  BCRYPT: 100,
   ARGON2ID: 3,
 };
 
