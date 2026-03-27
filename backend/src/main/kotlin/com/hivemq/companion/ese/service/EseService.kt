@@ -106,7 +106,7 @@ class EseService(
         val u = tables.users
         val hashed = cryptoService.hashPassword(
             password = request.password,
-            algorithm = request.algorithm,
+            algorithm = request.resolvedAlgorithm,
             iterations = request.iterations,
         )
         val ts = now()
@@ -142,7 +142,7 @@ class EseService(
             u.table.update({ u.id eq userId }) {
                 if (request.username != null) it[u.username] = request.username
                 if (request.password != null) {
-                    val algo = request.algorithm ?: existing[u.algorithm]
+                    val algo = request.resolveAlgorithm(existing[u.algorithm])
                     val iters = request.iterations ?: existing[u.passwordIterations]
                     val hashed = cryptoService.hashPassword(request.password, algo, iters)
                     it[u.password] = hashed.hash

@@ -12,7 +12,12 @@ data class CreateEseUserRequest(
     val password: String,
     val algorithm: String = "PKCS5S2",
     val iterations: Int = 100,
-)
+    val memory: Int? = null,
+) {
+    /** Resolves the full algorithm name (e.g. ARGON2ID -> ARGON2ID_65536KB). */
+    val resolvedAlgorithm: String get() =
+        if (algorithm == "ARGON2ID" && memory != null) "ARGON2ID_${memory}KB" else algorithm
+}
 
 @Serializable
 data class UpdateEseUserRequest(
@@ -20,7 +25,13 @@ data class UpdateEseUserRequest(
     val password: String? = null,
     val algorithm: String? = null,
     val iterations: Int? = null,
-)
+    val memory: Int? = null,
+) {
+    fun resolveAlgorithm(fallback: String): String {
+        val algo = algorithm ?: fallback
+        return if (algo == "ARGON2ID" && memory != null) "ARGON2ID_${memory}KB" else algo
+    }
+}
 
 @Serializable
 data class EseUserResponse(
