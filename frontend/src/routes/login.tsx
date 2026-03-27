@@ -66,7 +66,7 @@ function LoginPage() {
         <VStack gap="6">
           <Image src={logo} alt="ESE Companion" w="80px" h="80px" mx="auto" />
           <Heading size="lg" textAlign="center">
-            ESE Companion
+            ESE Companion v2
           </Heading>
 
           <Text
