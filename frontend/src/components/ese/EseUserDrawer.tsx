@@ -43,9 +43,9 @@ interface EseUserDrawerProps {
     algorithm: string;
     iterations: number;
     memory?: number;
-  }) => void;
+    roleIds?: number[];
+  }) => Promise<void>;
   user?: EseUser | null;
-  isSaving?: boolean;
   connId: string;
   domain: string;
   onRolesChanged?: () => void;
@@ -56,7 +56,6 @@ export function EseUserDrawer({
   onClose,
   onSave,
   user,
-  isSaving = false,
   connId,
   domain,
   onRolesChanged,
@@ -66,12 +65,14 @@ export function EseUserDrawer({
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [algorithm, setAlgorithm] = useState<Algorithm>("PKCS5S2");
-  const [iterations, setIterations] = useState(100_000);
+  const [iterations, setIterations] = useState(100);
   const [memory, setMemory] = useState(65536);
+  const [isSaving, setIsSaving] = useState(false);
 
-  // Role assignment state (only in edit mode)
+  // Role state
   const [allRoles, setAllRoles] = useState<EseRole[]>([]);
   const [assignedRoleIds, setAssignedRoleIds] = useState<Set<number>>(new Set());
+  const [selectedRoleIds, setSelectedRoleIds] = useState<Set<number>>(new Set());
   const [loadingRoles, setLoadingRoles] = useState(false);
   const [savingRoleId, setSavingRoleId] = useState<number | null>(null);
 
@@ -89,21 +90,28 @@ export function EseUserDrawer({
         setAlgorithm("PKCS5S2");
         setIterations(DEFAULT_ITERATIONS.PKCS5S2);
         setMemory(65536);
+        setSelectedRoleIds(new Set());
       }
+      setIsSaving(false);
     }
   }, [isOpen, user]);
 
-  // Fetch roles when editing a user
+  // Fetch roles (both create and edit mode)
   const fetchRoles = useCallback(async () => {
-    if (!isEdit || !user) return;
     setLoadingRoles(true);
     try {
-      const [rolesRes, assignedIds] = await Promise.all([
-        eseApi.listRoles(connId, domain, 1, 1000),
-        eseApi.getUserRoleIds(connId, domain, user.id),
-      ]);
-      setAllRoles(rolesRes.items);
-      setAssignedRoleIds(new Set(assignedIds));
+      if (isEdit && user) {
+        const [rolesRes, assignedIds] = await Promise.all([
+          eseApi.listRoles(connId, domain, 1, 1000),
+          eseApi.getUserRoleIds(connId, domain, user.id),
+        ]);
+        setAllRoles(rolesRes.items);
+        setAssignedRoleIds(new Set(assignedIds));
+      } else {
+        const rolesRes = await eseApi.listRoles(connId, domain, 1, 1000);
+        setAllRoles(rolesRes.items);
+        setAssignedRoleIds(new Set());
+      }
     } catch {
       // ignore
     } finally {
@@ -112,30 +120,63 @@ export function EseUserDrawer({
   }, [isEdit, user, connId, domain]);
 
   useEffect(() => {
-    if (isOpen && isEdit) {
+    if (isOpen) {
       fetchRoles();
     }
-  }, [isOpen, isEdit, fetchRoles]);
+  }, [isOpen, fetchRoles]);
 
   const handleAlgorithmChange = (algo: Algorithm, defaultIterations: number) => {
     setAlgorithm(algo);
     setIterations(defaultIterations);
   };
 
-  const handleSubmit = () => {
-    const data: {
-      username: string;
-      password: string;
-      algorithm: string;
-      iterations: number;
-      memory?: number;
-    } = { username, password, algorithm, iterations };
-    if (algorithm === "ARGON2ID") {
-      data.memory = memory;
+  const handleSubmit = async () => {
+    setIsSaving(true);
+    try {
+      const data: {
+        username: string;
+        password: string;
+        algorithm: string;
+        iterations: number;
+        memory?: number;
+        roleIds?: number[];
+      } = { username, password, algorithm, iterations };
+      if (algorithm === "ARGON2ID") {
+        data.memory = memory;
+      }
+      if (!isEdit && selectedRoleIds.size > 0) {
+        data.roleIds = Array.from(selectedRoleIds);
+      }
+      await onSave(data);
+      toaster.create({
+        title: isEdit ? "User updated" : "User created",
+        type: "success",
+      });
+    } catch (err) {
+      toaster.create({
+        title: isEdit ? "Failed to update user" : "Failed to create user",
+        description: err instanceof Error ? err.message : "An error occurred",
+        type: "error",
+      });
+    } finally {
+      setIsSaving(false);
     }
-    onSave(data);
   };
 
+  // Toggle role selection for create mode
+  const toggleSelectedRole = (roleId: number) => {
+    setSelectedRoleIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(roleId)) {
+        next.delete(roleId);
+      } else {
+        next.add(roleId);
+      }
+      return next;
+    });
+  };
+
+  // Assign/revoke for edit mode
   const handleAssignRole = async (roleId: number) => {
     if (!user) return;
     setSavingRoleId(roleId);
@@ -236,84 +277,127 @@ export function EseUserDrawer({
                 </Box>
               )}
 
-              {/* Role assignment section — only in edit mode */}
-              {isEdit && (
-                <>
-                  <Separator />
-                  <Box>
-                    <Heading size="sm" mb="3">Roles</Heading>
-                    {loadingRoles ? (
-                      <Flex justify="center" py="4">
-                        <Spinner size="sm" />
-                      </Flex>
-                    ) : allRoles.length === 0 ? (
-                      <Text fontSize="sm" color="gray.500">
-                        No roles available. Create roles first.
-                      </Text>
-                    ) : (
-                      <VStack gap="2" align="stretch">
-                        {allRoles.map((role) => {
-                          const isAssigned = assignedRoleIds.has(role.id);
-                          const isSaving = savingRoleId === role.id;
-                          return (
-                            <Flex
-                              key={role.id}
-                              align="center"
-                              gap="3"
-                              p="2.5"
-                              borderRadius="md"
-                              border="1px solid"
-                              borderColor={isAssigned
-                                ? { base: "green.200", _dark: "green.700" }
-                                : { base: "gray.200", _dark: "gray.700" }
-                              }
-                              bg={isAssigned
-                                ? { base: "green.50", _dark: "green.900" }
-                                : "transparent"
-                              }
-                            >
-                              <Box flex="1">
-                                <HStack gap="2">
-                                  <Text fontSize="sm" fontWeight="medium">{role.name}</Text>
-                                  {isAssigned && (
-                                    <Badge size="sm" colorPalette="green" variant="subtle">assigned</Badge>
-                                  )}
-                                </HStack>
-                                {role.description && (
-                                  <Text fontSize="xs" color="gray.500">{role.description}</Text>
-                                )}
-                              </Box>
-                              {isAssigned ? (
-                                <IconButton
-                                  aria-label="Revoke role"
-                                  variant="ghost"
-                                  size="sm"
-                                  colorPalette="red"
-                                  onClick={() => handleRevokeRole(role.id)}
-                                  loading={isSaving}
-                                >
-                                  <Trash2 size={14} />
-                                </IconButton>
-                              ) : (
-                                <IconButton
-                                  aria-label="Assign role"
-                                  variant="ghost"
-                                  size="sm"
-                                  colorPalette="green"
-                                  onClick={() => handleAssignRole(role.id)}
-                                  loading={isSaving}
-                                >
-                                  <Plus size={14} />
-                                </IconButton>
+              {/* Roles section */}
+              <Separator />
+              <Box>
+                <Heading size="sm" mb="3">Roles</Heading>
+                {loadingRoles ? (
+                  <Flex justify="center" py="4">
+                    <Spinner size="sm" />
+                  </Flex>
+                ) : allRoles.length === 0 ? (
+                  <Text fontSize="sm" color="gray.500">
+                    No roles available. Create roles first.
+                  </Text>
+                ) : isEdit ? (
+                  /* Edit mode: assign/revoke with API calls */
+                  <VStack gap="2" align="stretch">
+                    {allRoles.map((role) => {
+                      const isAssigned = assignedRoleIds.has(role.id);
+                      const isSavingRole = savingRoleId === role.id;
+                      return (
+                        <Flex
+                          key={role.id}
+                          align="center"
+                          gap="3"
+                          p="2.5"
+                          borderRadius="md"
+                          border="1px solid"
+                          borderColor={isAssigned
+                            ? { base: "green.200", _dark: "green.700" }
+                            : { base: "gray.200", _dark: "gray.700" }
+                          }
+                          bg={isAssigned
+                            ? { base: "green.50", _dark: "green.900" }
+                            : "transparent"
+                          }
+                        >
+                          <Box flex="1">
+                            <HStack gap="2">
+                              <Text fontSize="sm" fontWeight="medium">{role.name}</Text>
+                              {isAssigned && (
+                                <Badge size="sm" colorPalette="green" variant="subtle">assigned</Badge>
                               )}
-                            </Flex>
-                          );
-                        })}
-                      </VStack>
-                    )}
-                  </Box>
-                </>
-              )}
+                            </HStack>
+                            {role.description && (
+                              <Text fontSize="xs" color="gray.500">{role.description}</Text>
+                            )}
+                          </Box>
+                          {isAssigned ? (
+                            <IconButton
+                              aria-label="Revoke role"
+                              variant="ghost"
+                              size="sm"
+                              colorPalette="red"
+                              onClick={() => handleRevokeRole(role.id)}
+                              loading={isSavingRole}
+                            >
+                              <Trash2 size={14} />
+                            </IconButton>
+                          ) : (
+                            <IconButton
+                              aria-label="Assign role"
+                              variant="ghost"
+                              size="sm"
+                              colorPalette="green"
+                              onClick={() => handleAssignRole(role.id)}
+                              loading={isSavingRole}
+                            >
+                              <Plus size={14} />
+                            </IconButton>
+                          )}
+                        </Flex>
+                      );
+                    })}
+                  </VStack>
+                ) : (
+                  /* Create mode: toggle selection locally */
+                  <VStack gap="2" align="stretch">
+                    <Text fontSize="xs" color="gray.500" mb="1">
+                      Select roles to assign after creation
+                    </Text>
+                    {allRoles.map((role) => {
+                      const isSelected = selectedRoleIds.has(role.id);
+                      return (
+                        <Flex
+                          key={role.id}
+                          align="center"
+                          gap="3"
+                          p="2.5"
+                          borderRadius="md"
+                          border="1px solid"
+                          borderColor={isSelected
+                            ? { base: "yellow.300", _dark: "yellow.700" }
+                            : { base: "gray.200", _dark: "gray.700" }
+                          }
+                          bg={isSelected
+                            ? { base: "yellow.50", _dark: "yellow.950" }
+                            : "transparent"
+                          }
+                          cursor="pointer"
+                          onClick={() => toggleSelectedRole(role.id)}
+                          _hover={{
+                            borderColor: { base: "yellow.300", _dark: "yellow.600" },
+                          }}
+                          transition="all 0.15s"
+                        >
+                          <Box flex="1">
+                            <HStack gap="2">
+                              <Text fontSize="sm" fontWeight="medium">{role.name}</Text>
+                              {isSelected && (
+                                <Badge size="sm" colorPalette="yellow" variant="subtle">selected</Badge>
+                              )}
+                            </HStack>
+                            {role.description && (
+                              <Text fontSize="xs" color="gray.500">{role.description}</Text>
+                            )}
+                          </Box>
+                        </Flex>
+                      );
+                    })}
+                  </VStack>
+                )}
+              </Box>
             </VStack>
           </DrawerBody>
           <DrawerFooter>
@@ -326,6 +410,7 @@ export function EseUserDrawer({
                 onClick={handleSubmit}
                 disabled={!canSave}
                 loading={isSaving}
+                loadingText={isEdit ? "Updating..." : "Creating..."}
               >
                 {isEdit ? "Update" : "Create"}
               </Button>

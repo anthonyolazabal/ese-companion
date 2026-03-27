@@ -23,6 +23,7 @@ import { EseUserDrawer } from "../../components/ese/EseUserDrawer";
 import { EseRoleDrawer } from "../../components/ese/EseRoleDrawer";
 import { EsePermissionDrawer } from "../../components/ese/EsePermissionDrawer";
 import { DeleteConfirmModal } from "../../components/DeleteConfirmModal";
+import { toaster } from "../../toaster";
 import type {
   EseUser,
   EseRole,
@@ -117,7 +118,6 @@ function ConnectionDetailPage() {
       eseApi.createUser(connId, activeDomain, data),
     onSuccess: () => {
       invalidateAll();
-      setUserDrawerOpen(false);
     },
   });
 
@@ -128,8 +128,6 @@ function ConnectionDetailPage() {
     },
     onSuccess: () => {
       invalidateAll();
-      setUserDrawerOpen(false);
-      setEditingUser(null);
     },
   });
 
@@ -176,6 +174,11 @@ function ConnectionDetailPage() {
     onSuccess: () => {
       invalidateAll();
       setPermDrawerOpen(false);
+      setEditingPermission(null);
+      toaster.create({ title: "Permission created", type: "success" });
+    },
+    onError: (err) => {
+      toaster.create({ title: "Failed to create permission", description: err instanceof Error ? err.message : "An error occurred", type: "error" });
     },
   });
 
@@ -185,6 +188,11 @@ function ConnectionDetailPage() {
     onSuccess: () => {
       invalidateAll();
       setPermDrawerOpen(false);
+      setEditingPermission(null);
+      toaster.create({ title: "Permission created", type: "success" });
+    },
+    onError: (err) => {
+      toaster.create({ title: "Failed to create permission", description: err instanceof Error ? err.message : "An error occurred", type: "error" });
     },
   });
 
@@ -202,18 +210,38 @@ function ConnectionDetailPage() {
   }, [activeDomain]);
 
   // Handlers
-  const handleUserSave = (data: { username: string; password: string; algorithm: string; iterations: number }) => {
+  const handleUserSave = async (data: { username: string; password: string; algorithm: string; iterations: number; roleIds?: number[] }) => {
     if (editingUser) {
-      updateUserMutation.mutate({
-        userId: editingUser.id,
-        username: data.username,
-        password: data.password || undefined,
-        algorithm: data.algorithm,
-        iterations: data.iterations,
+      await new Promise<void>((resolve, reject) => {
+        updateUserMutation.mutate({
+          userId: editingUser.id,
+          username: data.username,
+          password: data.password || undefined,
+          algorithm: data.algorithm,
+          iterations: data.iterations,
+        }, { onSuccess: () => resolve(), onError: (err) => reject(err) });
       });
     } else {
-      createUserMutation.mutate(data);
+      const created = await new Promise<{ id: number }>((resolve, reject) => {
+        createUserMutation.mutate(data, {
+          onSuccess: (result) => resolve(result as { id: number }),
+          onError: (err) => reject(err),
+        });
+      });
+      // Assign selected roles after creation
+      if (data.roleIds && data.roleIds.length > 0 && created?.id) {
+        for (const roleId of data.roleIds) {
+          try {
+            await eseApi.assignRoleToUser(connId, activeDomain, created.id, roleId);
+          } catch {
+            // continue with other roles even if one fails
+          }
+        }
+        invalidateAll();
+      }
     }
+    setUserDrawerOpen(false);
+    setEditingUser(null);
   };
 
   const handleRoleSave = (data: { name: string; description?: string }) => {
@@ -455,7 +483,6 @@ function ConnectionDetailPage() {
         }}
         onSave={handleUserSave}
         user={editingUser}
-        isSaving={createUserMutation.isPending || updateUserMutation.isPending}
         connId={connId}
         domain={activeDomain}
         onRolesChanged={invalidateAll}
@@ -489,6 +516,9 @@ function ConnectionDetailPage() {
               invalidateAll();
               setPermDrawerOpen(false);
               setEditingPermission(null);
+              toaster.create({ title: "Permission updated", type: "success" });
+            }).catch((err) => {
+              toaster.create({ title: "Failed to update permission", description: err instanceof Error ? err.message : "An error occurred", type: "error" });
             });
           } else {
             createMqttPermMutation.mutate(data);
@@ -500,6 +530,9 @@ function ConnectionDetailPage() {
               invalidateAll();
               setPermDrawerOpen(false);
               setEditingPermission(null);
+              toaster.create({ title: "Permission updated", type: "success" });
+            }).catch((err) => {
+              toaster.create({ title: "Failed to update permission", description: err instanceof Error ? err.message : "An error occurred", type: "error" });
             });
           } else {
             createStringPermMutation.mutate(data);
