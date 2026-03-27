@@ -37,7 +37,7 @@ class AppConfigTest {
     fun `uses default values for optional config`() {
         val env = requiredEnvVars()
         val config = AppConfig.fromEnv(env)
-        assertEquals(100, config.security.rateLimitPerMinute)
+        assertEquals(500, config.security.rateLimitPerMinute)
         assertEquals(10, config.pool.maxPerDb)
         assertEquals(50, config.pool.maxTotal)
         assertEquals(90, config.audit.retentionDays)

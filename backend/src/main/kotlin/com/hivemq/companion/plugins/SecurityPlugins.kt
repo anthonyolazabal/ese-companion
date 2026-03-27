@@ -20,7 +20,7 @@ fun Application.configureSecurityPlugins(config: SecurityConfig, httpsEnabled: B
             requestKey { call -> call.request.origin.remoteHost }
         }
         register(RateLimitName("auth")) {
-            rateLimiter(limit = 10, refillPeriod = 1.minutes)
+            rateLimiter(limit = 30, refillPeriod = 1.minutes)
             requestKey { call -> call.request.origin.remoteHost }
         }
     }

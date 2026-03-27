@@ -44,7 +44,7 @@ data class ServerConfig(
 data class SecurityConfig(
     val jwtSecret: String,
     val encryptionKey: String,
-    val rateLimitPerMinute: Int = 100,
+    val rateLimitPerMinute: Int = 500,
     val corsOrigins: List<String> = emptyList(),
     val maxRequestSizeBytes: Long = 1L * 1024 * 1024,
 )
@@ -108,7 +108,7 @@ data class AppConfig(
             val security = SecurityConfig(
                 jwtSecret = required("ESE_COMPANION_JWT_SECRET"),
                 encryptionKey = required("ESE_COMPANION_ENCRYPTION_KEY"),
-                rateLimitPerMinute = optionalInt("ESE_COMPANION_RATE_LIMIT", 100),
+                rateLimitPerMinute = optionalInt("ESE_COMPANION_RATE_LIMIT", 500),
                 corsOrigins = optional("ESE_COMPANION_CORS_ORIGINS")
                     ?.split(",")
                     ?.map { it.trim() }
