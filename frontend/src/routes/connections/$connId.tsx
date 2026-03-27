@@ -71,6 +71,19 @@ function ConnectionDetailPage() {
     name: string;
   } | null>(null);
 
+  // Reset state when switching connections
+  useEffect(() => {
+    setActiveDomain("mqtt");
+    setActiveEntity("users");
+    setUserDrawerOpen(false);
+    setRoleDrawerOpen(false);
+    setPermDrawerOpen(false);
+    setEditingUser(null);
+    setEditingRole(null);
+    setEditingPermission(null);
+    setDeleteTarget(null);
+  }, [connId]);
+
   // Connection details
   const connectionQuery = useQuery({
     queryKey: ["connection", connId],
@@ -87,21 +100,21 @@ function ConnectionDetailPage() {
   const usersQuery = useQuery({
     queryKey: ["ese-users", connId, activeDomain],
     queryFn: () => eseApi.listUsers(connId, activeDomain, 1, 1000),
-    staleTime: 30_000,
+    staleTime: 0,
   });
 
   // Roles
   const rolesQuery = useQuery({
     queryKey: ["ese-roles", connId, activeDomain],
     queryFn: () => eseApi.listRoles(connId, activeDomain, 1, 1000),
-    staleTime: 30_000,
+    staleTime: 0,
   });
 
   // Permissions
   const permissionsQuery = useQuery({
     queryKey: ["ese-permissions", connId, activeDomain],
     queryFn: () => eseApi.listPermissions(connId, activeDomain, 1, 1000),
-    staleTime: 30_000,
+    staleTime: 0,
   });
 
   // Invalidation helper — refetchType "all" forces refetch even if not stale
