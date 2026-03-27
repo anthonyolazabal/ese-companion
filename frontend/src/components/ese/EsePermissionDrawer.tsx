@@ -22,7 +22,15 @@ import {
 import type {
   CreateMqttPermissionRequest,
   CreateStringPermissionRequest,
+  MqttPermission,
+  StringPermission,
 } from "../../api/types";
+
+type AnyPermission = MqttPermission | StringPermission;
+
+function isMqttPerm(p: AnyPermission): p is MqttPermission {
+  return "topic" in p;
+}
 
 interface EsePermissionDrawerProps {
   isOpen: boolean;
@@ -31,6 +39,7 @@ interface EsePermissionDrawerProps {
   onSaveString?: (data: CreateStringPermissionRequest) => void;
   domain: string;
   isSaving?: boolean;
+  permission?: AnyPermission | null;
 }
 
 function CheckboxField({
@@ -43,13 +52,7 @@ function CheckboxField({
   onChange: (v: boolean) => void;
 }) {
   return (
-    <Flex
-      as="label"
-      align="center"
-      gap="2"
-      cursor="pointer"
-      userSelect="none"
-    >
+    <Flex as="label" align="center" gap="2" cursor="pointer" userSelect="none">
       <input
         type="checkbox"
         checked={checked}
@@ -67,8 +70,10 @@ export function EsePermissionDrawer({
   onSaveString,
   domain,
   isSaving = false,
+  permission,
 }: EsePermissionDrawerProps) {
   const isMqtt = domain === "mqtt";
+  const isEdit = !!permission;
 
   // MQTT fields
   const [topic, setTopic] = useState("");
@@ -87,19 +92,34 @@ export function EsePermissionDrawer({
 
   useEffect(() => {
     if (isOpen) {
-      setTopic("");
-      setPublishAllowed(false);
-      setSubscribeAllowed(false);
-      setQos0Allowed(true);
-      setQos1Allowed(true);
-      setQos2Allowed(true);
-      setRetainedMsgsAllowed(false);
-      setSharedSubAllowed(false);
-      setSharedGroup("");
-      setPermissionString("");
-      setDescription("");
+      if (permission && isMqttPerm(permission)) {
+        setTopic(permission.topic);
+        setPublishAllowed(permission.publishAllowed);
+        setSubscribeAllowed(permission.subscribeAllowed);
+        setQos0Allowed(permission.qos0Allowed);
+        setQos1Allowed(permission.qos1Allowed);
+        setQos2Allowed(permission.qos2Allowed);
+        setRetainedMsgsAllowed(permission.retainedMsgsAllowed);
+        setSharedSubAllowed(permission.sharedSubAllowed);
+        setSharedGroup(permission.sharedGroup ?? "");
+      } else if (permission && !isMqttPerm(permission)) {
+        setPermissionString(permission.permissionString);
+        setDescription(permission.description ?? "");
+      } else {
+        setTopic("");
+        setPublishAllowed(false);
+        setSubscribeAllowed(false);
+        setQos0Allowed(true);
+        setQos1Allowed(true);
+        setQos2Allowed(true);
+        setRetainedMsgsAllowed(false);
+        setSharedSubAllowed(false);
+        setSharedGroup("");
+        setPermissionString("");
+        setDescription("");
+      }
     }
-  }, [isOpen]);
+  }, [isOpen, permission]);
 
   const handleSubmit = () => {
     if (isMqtt && onSaveMqtt) {
@@ -130,16 +150,14 @@ export function EsePermissionDrawer({
       <DrawerPositioner>
         <DrawerContent>
           <DrawerHeader>
-            <DrawerTitle>Create Permission</DrawerTitle>
+            <DrawerTitle>{isEdit ? "Edit Permission" : "Create Permission"}</DrawerTitle>
           </DrawerHeader>
           <DrawerCloseTrigger />
           <DrawerBody>
             {isMqtt ? (
               <VStack gap="4" align="stretch">
                 <Box>
-                  <Text fontWeight="medium" fontSize="sm" mb="1">
-                    Topic
-                  </Text>
+                  <Text fontWeight="medium" fontSize="sm" mb="1">Topic</Text>
                   <Input
                     value={topic}
                     onChange={(e) => setTopic(e.target.value)}
@@ -149,53 +167,21 @@ export function EsePermissionDrawer({
                 </Box>
 
                 <Box>
-                  <Text fontWeight="medium" fontSize="sm" mb="2">
-                    Flags
-                  </Text>
+                  <Text fontWeight="medium" fontSize="sm" mb="2">Flags</Text>
                   <VStack gap="2" align="stretch">
-                    <CheckboxField
-                      label="Publish Allowed"
-                      checked={publishAllowed}
-                      onChange={setPublishAllowed}
-                    />
-                    <CheckboxField
-                      label="Subscribe Allowed"
-                      checked={subscribeAllowed}
-                      onChange={setSubscribeAllowed}
-                    />
-                    <CheckboxField
-                      label="QoS 0 Allowed"
-                      checked={qos0Allowed}
-                      onChange={setQos0Allowed}
-                    />
-                    <CheckboxField
-                      label="QoS 1 Allowed"
-                      checked={qos1Allowed}
-                      onChange={setQos1Allowed}
-                    />
-                    <CheckboxField
-                      label="QoS 2 Allowed"
-                      checked={qos2Allowed}
-                      onChange={setQos2Allowed}
-                    />
-                    <CheckboxField
-                      label="Retained Messages Allowed"
-                      checked={retainedMsgsAllowed}
-                      onChange={setRetainedMsgsAllowed}
-                    />
-                    <CheckboxField
-                      label="Shared Subscription Allowed"
-                      checked={sharedSubAllowed}
-                      onChange={setSharedSubAllowed}
-                    />
+                    <CheckboxField label="Publish Allowed" checked={publishAllowed} onChange={setPublishAllowed} />
+                    <CheckboxField label="Subscribe Allowed" checked={subscribeAllowed} onChange={setSubscribeAllowed} />
+                    <CheckboxField label="QoS 0 Allowed" checked={qos0Allowed} onChange={setQos0Allowed} />
+                    <CheckboxField label="QoS 1 Allowed" checked={qos1Allowed} onChange={setQos1Allowed} />
+                    <CheckboxField label="QoS 2 Allowed" checked={qos2Allowed} onChange={setQos2Allowed} />
+                    <CheckboxField label="Retained Messages Allowed" checked={retainedMsgsAllowed} onChange={setRetainedMsgsAllowed} />
+                    <CheckboxField label="Shared Subscription Allowed" checked={sharedSubAllowed} onChange={setSharedSubAllowed} />
                   </VStack>
                 </Box>
 
                 {sharedSubAllowed && (
                   <Box>
-                    <Text fontWeight="medium" fontSize="sm" mb="1">
-                      Shared Group
-                    </Text>
+                    <Text fontWeight="medium" fontSize="sm" mb="1">Shared Group</Text>
                     <Input
                       value={sharedGroup}
                       onChange={(e) => setSharedGroup(e.target.value)}
@@ -207,9 +193,7 @@ export function EsePermissionDrawer({
             ) : (
               <VStack gap="4" align="stretch">
                 <Box>
-                  <Text fontWeight="medium" fontSize="sm" mb="1">
-                    Permission String
-                  </Text>
+                  <Text fontWeight="medium" fontSize="sm" mb="1">Permission String</Text>
                   <Input
                     value={permissionString}
                     onChange={(e) => setPermissionString(e.target.value)}
@@ -219,9 +203,7 @@ export function EsePermissionDrawer({
                 </Box>
 
                 <Box>
-                  <Text fontWeight="medium" fontSize="sm" mb="1">
-                    Description
-                  </Text>
+                  <Text fontWeight="medium" fontSize="sm" mb="1">Description</Text>
                   <Textarea
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
@@ -243,7 +225,7 @@ export function EsePermissionDrawer({
                 disabled={!canSave}
                 loading={isSaving}
               >
-                Create
+                {isEdit ? "Update" : "Create"}
               </Button>
             </Flex>
           </DrawerFooter>

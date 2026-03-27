@@ -61,7 +61,7 @@ function ConnectionDetailPage() {
   const [permDrawerOpen, setPermDrawerOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<EseUser | null>(null);
   const [editingRole, setEditingRole] = useState<EseRole | null>(null);
-
+  const [editingPermission, setEditingPermission] = useState<(MqttPermission | StringPermission) | null>(null);
 
   // Delete modal state
   const [deleteTarget, setDeleteTarget] = useState<{
@@ -413,7 +413,14 @@ function ConnectionDetailPage() {
               )[]
             }
             domain={activeDomain}
-            onAdd={() => setPermDrawerOpen(true)}
+            onAdd={() => {
+              setEditingPermission(null);
+              setPermDrawerOpen(true);
+            }}
+            onEdit={(perm) => {
+              setEditingPermission(perm as (MqttPermission | StringPermission));
+              setPermDrawerOpen(true);
+            }}
             onDelete={(perm) =>
               setDeleteTarget({
                 type: "permission",
@@ -459,10 +466,34 @@ function ConnectionDetailPage() {
 
       <EsePermissionDrawer
         isOpen={permDrawerOpen}
-        onClose={() => setPermDrawerOpen(false)}
+        onClose={() => {
+          setPermDrawerOpen(false);
+          setEditingPermission(null);
+        }}
         domain={activeDomain}
-        onSaveMqtt={(data) => createMqttPermMutation.mutate(data)}
-        onSaveString={(data) => createStringPermMutation.mutate(data)}
+        permission={editingPermission}
+        onSaveMqtt={(data) => {
+          if (editingPermission) {
+            eseApi.updateMqttPermission(connId, editingPermission.id, data).then(() => {
+              invalidateAll();
+              setPermDrawerOpen(false);
+              setEditingPermission(null);
+            });
+          } else {
+            createMqttPermMutation.mutate(data);
+          }
+        }}
+        onSaveString={(data) => {
+          if (editingPermission) {
+            eseApi.updateStringPermission(connId, activeDomain, editingPermission.id, data).then(() => {
+              invalidateAll();
+              setPermDrawerOpen(false);
+              setEditingPermission(null);
+            });
+          } else {
+            createStringPermMutation.mutate(data);
+          }
+        }}
         isSaving={
           createMqttPermMutation.isPending || createStringPermMutation.isPending
         }

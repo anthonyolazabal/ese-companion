@@ -113,6 +113,23 @@ export const eseApi = {
       },
     ),
 
+  updateMqttPermission: (connId: string, permId: number, data: CreateMqttPermissionRequest) =>
+    apiClient.fetch<MqttPermission>(`/ese/${connId}/mqtt/permissions/${permId}`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }),
+
+  updateStringPermission: (
+    connId: string,
+    domain: string,
+    permId: number,
+    data: CreateStringPermissionRequest,
+  ) =>
+    apiClient.fetch<StringPermission>(
+      `/ese/${connId}/${domain}/permissions/${permId}`,
+      { method: "PUT", body: JSON.stringify(data) },
+    ),
+
   deletePermission: (connId: string, domain: string, permId: number) =>
     apiClient.fetch<void>(
       `/ese/${connId}/${domain}/permissions/${permId}`,

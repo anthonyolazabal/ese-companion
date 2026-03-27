@@ -21,7 +21,7 @@ import {
   flexRender,
   type SortingState,
 } from "@tanstack/react-table";
-import { Plus, Trash2, ArrowUp, ArrowDown } from "lucide-react";
+import { Plus, Pencil, Trash2, ArrowUp, ArrowDown } from "lucide-react";
 import type { MqttPermission, StringPermission } from "../../api/types";
 
 type AnyPermission = MqttPermission | StringPermission;
@@ -34,6 +34,7 @@ interface EsePermissionTableProps {
   permissions: AnyPermission[];
   domain: string;
   onAdd: () => void;
+  onEdit: (perm: AnyPermission) => void;
   onDelete: (perm: AnyPermission) => void;
 }
 
@@ -54,6 +55,7 @@ export function EsePermissionTable({
   permissions,
   domain,
   onAdd,
+  onEdit,
   onDelete,
 }: EsePermissionTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -63,11 +65,6 @@ export function EsePermissionTable({
 
   const mqttColumns = useMemo(
     () => [
-      mqttColumnHelper.accessor("id", {
-        header: "ID",
-        cell: (info) => info.getValue(),
-        size: 60,
-      }),
       mqttColumnHelper.accessor("topic", {
         header: "Topic",
         cell: (info) => (
@@ -119,32 +116,40 @@ export function EsePermissionTable({
         id: "actions",
         header: "",
         cell: (info) => (
-          <IconButton
-            aria-label="Delete permission"
-            variant="ghost"
-            size="sm"
-            colorPalette="red"
-            onClick={(e) => {
-              e.stopPropagation();
-              onDelete(info.row.original);
-            }}
-          >
-            <Trash2 size={16} />
-          </IconButton>
+          <HStack gap="1" justify="flex-end">
+            <IconButton
+              aria-label="Edit permission"
+              variant="ghost"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit(info.row.original);
+              }}
+            >
+              <Pencil size={16} />
+            </IconButton>
+            <IconButton
+              aria-label="Delete permission"
+              variant="ghost"
+              size="sm"
+              colorPalette="red"
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete(info.row.original);
+              }}
+            >
+              <Trash2 size={16} />
+            </IconButton>
+          </HStack>
         ),
-        size: 50,
+        size: 80,
       }),
     ],
-    [onDelete],
+    [onEdit, onDelete],
   );
 
   const stringColumns = useMemo(
     () => [
-      stringColumnHelper.accessor("id", {
-        header: "ID",
-        cell: (info) => info.getValue(),
-        size: 60,
-      }),
       stringColumnHelper.accessor("permissionString", {
         header: "Permission",
         cell: (info) => (
@@ -165,23 +170,36 @@ export function EsePermissionTable({
         id: "actions",
         header: "",
         cell: (info) => (
-          <IconButton
-            aria-label="Delete permission"
-            variant="ghost"
-            size="sm"
-            colorPalette="red"
-            onClick={(e) => {
-              e.stopPropagation();
-              onDelete(info.row.original);
-            }}
-          >
-            <Trash2 size={16} />
-          </IconButton>
+          <HStack gap="1" justify="flex-end">
+            <IconButton
+              aria-label="Edit permission"
+              variant="ghost"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit(info.row.original);
+              }}
+            >
+              <Pencil size={16} />
+            </IconButton>
+            <IconButton
+              aria-label="Delete permission"
+              variant="ghost"
+              size="sm"
+              colorPalette="red"
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete(info.row.original);
+              }}
+            >
+              <Trash2 size={16} />
+            </IconButton>
+          </HStack>
         ),
-        size: 50,
+        size: 80,
       }),
     ],
-    [onDelete],
+    [onEdit, onDelete],
   );
 
   /* eslint-disable @typescript-eslint/no-explicit-any */
