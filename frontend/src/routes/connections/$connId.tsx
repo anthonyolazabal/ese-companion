@@ -86,18 +86,21 @@ function ConnectionDetailPage() {
   const usersQuery = useQuery({
     queryKey: ["ese-users", connId, activeDomain],
     queryFn: () => eseApi.listUsers(connId, activeDomain, 1, 1000),
+    staleTime: 30_000,
   });
 
   // Roles
   const rolesQuery = useQuery({
     queryKey: ["ese-roles", connId, activeDomain],
     queryFn: () => eseApi.listRoles(connId, activeDomain, 1, 1000),
+    staleTime: 30_000,
   });
 
   // Permissions
   const permissionsQuery = useQuery({
     queryKey: ["ese-permissions", connId, activeDomain],
     queryFn: () => eseApi.listPermissions(connId, activeDomain, 1, 1000),
+    staleTime: 30_000,
   });
 
   // Invalidation helper
@@ -358,7 +361,15 @@ function ConnectionDetailPage() {
 
       {/* Entity Content */}
       <Box>
-        {activeEntity === "users" && (
+        {(activeEntity === "users" && usersQuery.isLoading) ||
+         (activeEntity === "roles" && rolesQuery.isLoading) ||
+         (activeEntity === "permissions" && permissionsQuery.isLoading) ? (
+          <Flex justify="center" align="center" py="12">
+            <Spinner size="lg" colorPalette="yellow" />
+          </Flex>
+        ) : null}
+
+        {activeEntity === "users" && !usersQuery.isLoading && (
           <EseUserTable
             users={usersQuery.data?.items ?? []}
             onAdd={() => {
@@ -381,7 +392,7 @@ function ConnectionDetailPage() {
           />
         )}
 
-        {activeEntity === "roles" && (
+        {activeEntity === "roles" && !rolesQuery.isLoading && (
           <EseRoleTable
             roles={rolesQuery.data?.items ?? []}
             onAdd={() => {
@@ -404,7 +415,7 @@ function ConnectionDetailPage() {
           />
         )}
 
-        {activeEntity === "permissions" && (
+        {activeEntity === "permissions" && !permissionsQuery.isLoading && (
           <EsePermissionTable
             permissions={
               (permissionsQuery.data?.items ?? []) as (
