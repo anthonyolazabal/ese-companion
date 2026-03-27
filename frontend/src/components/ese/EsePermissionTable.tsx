@@ -166,40 +166,8 @@ export function EsePermissionTable({
         header: "Created",
         cell: (info) => new Date(info.getValue()).toLocaleDateString(),
       }),
-      stringColumnHelper.display({
-        id: "actions",
-        header: "",
-        cell: (info) => (
-          <HStack gap="1" justify="flex-end">
-            <IconButton
-              aria-label="Edit permission"
-              variant="ghost"
-              size="sm"
-              onClick={(e) => {
-                e.stopPropagation();
-                onEdit(info.row.original);
-              }}
-            >
-              <Pencil size={16} />
-            </IconButton>
-            <IconButton
-              aria-label="Delete permission"
-              variant="ghost"
-              size="sm"
-              colorPalette="red"
-              onClick={(e) => {
-                e.stopPropagation();
-                onDelete(info.row.original);
-              }}
-            >
-              <Trash2 size={16} />
-            </IconButton>
-          </HStack>
-        ),
-        size: 80,
-      }),
     ],
-    [onEdit, onDelete],
+    [],
   );
 
   /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -229,10 +197,12 @@ export function EsePermissionTable({
           maxW="300px"
           size="sm"
         />
-        <Button size="sm" colorPalette="yellow" onClick={onAdd}>
-          <Plus size={16} />
-          Add Permission
-        </Button>
+        {isMqtt && (
+          <Button size="sm" colorPalette="yellow" onClick={onAdd}>
+            <Plus size={16} />
+            Add Permission
+          </Button>
+        )}
       </Flex>
 
       <Box
