@@ -1,13 +1,15 @@
 import { createRootRoute, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
 import { Box, Flex, Text } from "@chakra-ui/react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "../auth/useAuth";
 import { Sidebar } from "../components/Sidebar";
+import { TopBar } from "../components/TopBar";
 
 function RootLayout() {
   const { isAuthenticated, isLoading } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   const isLoginPage = location.pathname === "/login";
 
@@ -30,7 +32,7 @@ function RootLayout() {
     );
   }
 
-  // Login page renders without sidebar
+  // Login page renders without sidebar/topbar
   if (isLoginPage) {
     return <Outlet />;
   }
@@ -41,19 +43,24 @@ function RootLayout() {
   }
 
   return (
-    <Flex h="100vh" bg={{ base: "gray.50", _dark: "gray.950" }}>
-      <Sidebar />
+    <Flex direction="column" h="100vh">
+      {/* Top Bar */}
+      <TopBar onMenuClick={() => setMobileOpen(true)} />
 
-      {/* Main area */}
-      <Box
-        flex="1"
-        overflow="auto"
-        p="6"
-        pt={{ base: "14", md: "6" }}
-        bg={{ base: "gray.50", _dark: "gray.950" }}
-      >
-        <Outlet />
-      </Box>
+      {/* Body: Sidebar + Content */}
+      <Flex flex="1" overflow="hidden">
+        <Sidebar mobileOpen={mobileOpen} onMobileClose={() => setMobileOpen(false)} />
+
+        {/* Main content */}
+        <Box
+          flex="1"
+          overflow="auto"
+          p="6"
+          bg={{ base: "gray.50", _dark: "gray.950" }}
+        >
+          <Outlet />
+        </Box>
+      </Flex>
     </Flex>
   );
 }

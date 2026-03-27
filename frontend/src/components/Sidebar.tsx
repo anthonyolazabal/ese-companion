@@ -3,7 +3,6 @@ import {
   Box,
   Flex,
   Text,
-  IconButton,
   VStack,
   DrawerRoot,
   DrawerBackdrop,
@@ -12,31 +11,23 @@ import {
   DrawerBody,
   DrawerCloseTrigger,
 } from "@chakra-ui/react";
-import { useTheme } from "next-themes";
 import { useQuery } from "@tanstack/react-query";
 import {
   LayoutDashboard,
   Users,
   FolderCog,
   FileText,
-  Settings,
-  Sun,
-  Moon,
-  LogOut,
-  Menu,
 } from "lucide-react";
 import { useAuth } from "../auth/useAuth";
 import { dashboardApi } from "../api/dashboardApi";
 import { HealthDot } from "./HealthDot";
-import { useState } from "react";
 
 interface SidebarContentProps {
   onNavigate?: () => void;
 }
 
 function SidebarContent({ onNavigate }: SidebarContentProps) {
-  const { theme, setTheme } = useTheme();
-  const { isAdmin, user, logout } = useAuth();
+  const { isAdmin } = useAuth();
   const location = useLocation();
 
   const { data: dashboard } = useQuery({
@@ -44,11 +35,6 @@ function SidebarContent({ onNavigate }: SidebarContentProps) {
     queryFn: dashboardApi.get,
     refetchInterval: 30000,
   });
-
-  const handleLogout = async () => {
-    await logout();
-    onNavigate?.();
-  };
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -75,16 +61,6 @@ function SidebarContent({ onNavigate }: SidebarContentProps) {
 
   return (
     <Flex direction="column" h="100%" p="4" gap="1">
-      {/* Brand */}
-      <Box mb="4" px="2">
-        <Text fontWeight="bold" fontSize="lg">
-          ESE Companion
-        </Text>
-        <Text fontSize="xs" color="gray.500">
-          v2.0
-        </Text>
-      </Box>
-
       {/* Dashboard Link */}
       <Link to="/" style={{ textDecoration: "none" }} onClick={onNavigate}>
         <Flex {...navItemStyles("/")}>
@@ -184,81 +160,22 @@ function SidebarContent({ onNavigate }: SidebarContentProps) {
           </Link>
         </>
       )}
-
-      {/* Spacer */}
-      <Box mt="auto" />
-
-      {/* Footer */}
-      <Link
-        to="/settings"
-        style={{ textDecoration: "none" }}
-        onClick={onNavigate}
-      >
-        <Flex {...navItemStyles("/settings")}>
-          <Settings size={18} />
-          <Text fontSize="sm">Settings</Text>
-        </Flex>
-      </Link>
-
-      {/* Theme Toggle */}
-      <Flex
-        align="center"
-        gap="2"
-        p="2"
-        borderRadius="md"
-        cursor="pointer"
-        transition="all 0.15s ease"
-        _hover={{ bg: { base: "gray.200", _dark: "gray.800" } }}
-        onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-      >
-        {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
-        <Text fontSize="sm">{theme === "dark" ? "Light Mode" : "Dark Mode"}</Text>
-      </Flex>
-
-      {/* Logout */}
-      {user && (
-        <Flex
-          align="center"
-          gap="2"
-          p="2"
-          borderRadius="md"
-          cursor="pointer"
-          transition="all 0.15s ease"
-          _hover={{ bg: { base: "gray.200", _dark: "gray.800" } }}
-          onClick={handleLogout}
-        >
-          <LogOut size={18} />
-          <Text fontSize="sm">{user.username}</Text>
-        </Flex>
-      )}
     </Flex>
   );
 }
 
-export function Sidebar() {
-  const [mobileOpen, setMobileOpen] = useState(false);
+interface SidebarProps {
+  mobileOpen: boolean;
+  onMobileClose: () => void;
+}
 
+export function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
   return (
     <>
-      {/* Mobile hamburger button */}
-      <IconButton
-        aria-label="Open menu"
-        variant="ghost"
-        size="sm"
-        display={{ base: "flex", md: "none" }}
-        position="fixed"
-        top="3"
-        left="3"
-        zIndex="overlay"
-        onClick={() => setMobileOpen(true)}
-      >
-        <Menu size={20} />
-      </IconButton>
-
       {/* Mobile Drawer */}
       <DrawerRoot
         open={mobileOpen}
-        onOpenChange={(e) => setMobileOpen(e.open)}
+        onOpenChange={(e) => !e.open && onMobileClose()}
         placement="start"
       >
         <DrawerBackdrop />
@@ -266,7 +183,7 @@ export function Sidebar() {
           <DrawerContent maxW="240px">
             <DrawerCloseTrigger />
             <DrawerBody p="0">
-              <SidebarContent onNavigate={() => setMobileOpen(false)} />
+              <SidebarContent onNavigate={onMobileClose} />
             </DrawerBody>
           </DrawerContent>
         </DrawerPositioner>
@@ -282,9 +199,6 @@ export function Sidebar() {
         borderColor={{ base: "gray.200", _dark: "gray.700" }}
         display={{ base: "none", md: "flex" }}
         flexDirection="column"
-        h="100vh"
-        position="sticky"
-        top="0"
         overflowY="auto"
       >
         <SidebarContent />

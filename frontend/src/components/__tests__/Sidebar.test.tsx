@@ -80,7 +80,7 @@ describe("Sidebar", () => {
       data: { connections: [], totalConnections: 0, healthyConnections: 0, unreachableConnections: 0 },
     } as ReturnType<typeof useQuery>);
 
-    renderWithProviders(<Sidebar />);
+    renderWithProviders(<Sidebar mobileOpen={false} onMobileClose={() => {}} />);
     expect(screen.getByText("Dashboard")).toBeInTheDocument();
   });
 
@@ -97,7 +97,7 @@ describe("Sidebar", () => {
       data: { connections: [], totalConnections: 0, healthyConnections: 0, unreachableConnections: 0 },
     } as ReturnType<typeof useQuery>);
 
-    renderWithProviders(<Sidebar />);
+    renderWithProviders(<Sidebar mobileOpen={false} onMobileClose={() => {}} />);
     expect(screen.getByText("Admin")).toBeInTheDocument();
     expect(screen.getByText("Users")).toBeInTheDocument();
     expect(screen.getByText("Audit Logs")).toBeInTheDocument();
@@ -116,7 +116,7 @@ describe("Sidebar", () => {
       data: { connections: [], totalConnections: 0, healthyConnections: 0, unreachableConnections: 0 },
     } as ReturnType<typeof useQuery>);
 
-    renderWithProviders(<Sidebar />);
+    renderWithProviders(<Sidebar mobileOpen={false} onMobileClose={() => {}} />);
     expect(screen.queryByText("Admin")).not.toBeInTheDocument();
   });
 
@@ -138,7 +138,7 @@ describe("Sidebar", () => {
       },
     } as ReturnType<typeof useQuery>);
 
-    renderWithProviders(<Sidebar />);
+    renderWithProviders(<Sidebar mobileOpen={false} onMobileClose={() => {}} />);
     expect(screen.getByText("PG Main")).toBeInTheDocument();
     expect(screen.getByText("MySQL Dev")).toBeInTheDocument();
   });
