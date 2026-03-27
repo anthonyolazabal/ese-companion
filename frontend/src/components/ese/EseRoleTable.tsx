@@ -110,23 +110,24 @@ function ExpandedPermissions({
         <Text fontSize="xs" fontWeight="bold" color="gray.500" mb="2">
           ASSIGNED PERMISSIONS ({assigned.length})
         </Text>
-        <Flex gap="2" flexWrap="wrap">
+        <Box>
           {assigned.map((perm) => (
-            <Box
+            <Flex
               key={perm.id}
+              align="center"
+              gap="3"
+              py="2"
               px="3"
-              py="1.5"
-              borderRadius="md"
-              border="1px solid"
-              borderColor={{ base: "green.200", _dark: "green.700" }}
-              bg={{ base: "green.50", _dark: "green.900" }}
+              borderBottom="1px solid"
+              borderColor={{ base: "gray.100", _dark: "gray.800" }}
+              _last={{ borderBottom: "none" }}
               fontSize="xs"
             >
-              <Text fontWeight="medium">
+              <Text fontWeight="medium" flex="1">
                 {isMqttPermission(perm) ? perm.topic : perm.permissionString}
               </Text>
               {isMqttPermission(perm) && (
-                <HStack gap="1" mt="1" flexWrap="wrap">
+                <HStack gap="1" flexWrap="wrap">
                   {perm.publishAllowed && <Badge size="sm" colorPalette="blue">PUB</Badge>}
                   {perm.subscribeAllowed && <Badge size="sm" colorPalette="green">SUB</Badge>}
                   {perm.qos0Allowed && <Badge size="sm" colorPalette="gray">QoS0</Badge>}
@@ -137,11 +138,11 @@ function ExpandedPermissions({
                 </HStack>
               )}
               {!isMqttPermission(perm) && perm.description && (
-                <Text color="gray.500" mt="0.5">{perm.description}</Text>
+                <Text color="gray.500">{perm.description}</Text>
               )}
-            </Box>
+            </Flex>
           ))}
-        </Flex>
+        </Box>
       </Table.Cell>
     </Table.Row>
   );

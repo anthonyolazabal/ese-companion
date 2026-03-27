@@ -376,6 +376,8 @@ function ConnectionDetailPage() {
                 name: user.username,
               })
             }
+            connId={connId}
+            domain={activeDomain}
           />
         )}
 
