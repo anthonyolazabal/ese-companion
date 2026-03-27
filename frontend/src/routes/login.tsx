@@ -4,12 +4,14 @@ import {
   Box,
   Flex,
   Heading,
+  Image,
   Input,
   Button,
   Text,
   VStack,
 } from "@chakra-ui/react";
 import { useAuth } from "../auth/useAuth";
+import logo from "../assets/logo.png";
 
 function LoginPage() {
   const { login, isAuthenticated } = useAuth();
@@ -62,6 +64,7 @@ function LoginPage() {
         boxShadow="lg"
       >
         <VStack gap="6">
+          <Image src={logo} alt="ESE Companion" w="80px" h="80px" mx="auto" />
           <Heading size="lg" textAlign="center">
             ESE Companion
           </Heading>
