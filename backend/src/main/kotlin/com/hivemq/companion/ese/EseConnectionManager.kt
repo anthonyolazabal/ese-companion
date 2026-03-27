@@ -7,6 +7,7 @@ import com.hivemq.companion.db.tables.DatabaseConnections
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.DatabaseConfig
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.UUID
@@ -69,7 +70,16 @@ open class EseConnectionManager(
 
         val dataSource = HikariDataSource(hikariConfig)
         pools[connectionId] = dataSource
-        val db = Database.connect(dataSource)
+        val db = Database.connect(
+            datasource = dataSource,
+            databaseConfig = DatabaseConfig {
+                explicitDialect = when (dbType) {
+                    DatabaseType.SQLSERVER -> org.jetbrains.exposed.sql.vendors.SQLServerDialect()
+                    DatabaseType.MYSQL -> org.jetbrains.exposed.sql.vendors.MysqlDialect()
+                    DatabaseType.POSTGRESQL -> org.jetbrains.exposed.sql.vendors.PostgreSQLDialect()
+                }
+            }
+        )
         databases[connectionId] = db
         lastAccessed[connectionId] = System.currentTimeMillis()
 
