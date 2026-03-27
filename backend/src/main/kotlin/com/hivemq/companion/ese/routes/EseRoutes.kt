@@ -34,7 +34,7 @@ fun Route.eseRoutes(eseService: EseService, auditLogService: AuditLogService? = 
             // ---------------------------------------------------------------
             route("/users") {
                 get {
-                    val (db, domain) = resolveConnAndDomain(call, eseService) ?: return@get
+                    val (db, domain, connName) = resolveConnAndDomain(call, eseService) ?: return@get
                     val page = call.request.queryParameters["page"]?.toIntOrNull() ?: 1
                     val size = call.request.queryParameters["size"]?.toIntOrNull() ?: 20
                     val search = call.request.queryParameters["search"]
@@ -43,7 +43,7 @@ fun Route.eseRoutes(eseService: EseService, auditLogService: AuditLogService? = 
                 }
 
                 get("/{id}") {
-                    val (db, domain) = resolveConnAndDomain(call, eseService) ?: return@get
+                    val (db, domain, connName) = resolveConnAndDomain(call, eseService) ?: return@get
                     val userId = call.parameters["id"]?.toIntOrNull()
                     if (userId == null) {
                         call.respond(HttpStatusCode.BadRequest, ErrorResponse("Invalid user ID"))
@@ -60,7 +60,7 @@ fun Route.eseRoutes(eseService: EseService, auditLogService: AuditLogService? = 
                 post {
                     val principal = call.principal<UserPrincipal>()!!
                     requireReadWrite(principal)
-                    val (db, domain) = resolveConnAndDomain(call, eseService) ?: return@post
+                    val (db, domain, connName) = resolveConnAndDomain(call, eseService) ?: return@post
                     val connId = call.parameters["connId"]!!
                     val request = call.receive<CreateEseUserRequest>()
                     val user = eseService.createUser(db, domain, request)
@@ -69,7 +69,7 @@ fun Route.eseRoutes(eseService: EseService, auditLogService: AuditLogService? = 
                         actorId = principal.userId,
                         actorName = principal.username,
                         connectionId = UUID.fromString(connId),
-                        connectionName = connId,
+                        connectionName = connName,
                         domain = mapDomainForAudit(domain),
                         action = "create",
                         resourceType = "user",
@@ -84,7 +84,7 @@ fun Route.eseRoutes(eseService: EseService, auditLogService: AuditLogService? = 
                 put("/{id}") {
                     val principal = call.principal<UserPrincipal>()!!
                     requireReadWrite(principal)
-                    val (db, domain) = resolveConnAndDomain(call, eseService) ?: return@put
+                    val (db, domain, connName) = resolveConnAndDomain(call, eseService) ?: return@put
                     val connId = call.parameters["connId"]!!
                     val userId = call.parameters["id"]?.toIntOrNull()
                     if (userId == null) {
@@ -102,7 +102,7 @@ fun Route.eseRoutes(eseService: EseService, auditLogService: AuditLogService? = 
                         actorId = principal.userId,
                         actorName = principal.username,
                         connectionId = UUID.fromString(connId),
-                        connectionName = connId,
+                        connectionName = connName,
                         domain = mapDomainForAudit(domain),
                         action = "update",
                         resourceType = "user",
@@ -117,7 +117,7 @@ fun Route.eseRoutes(eseService: EseService, auditLogService: AuditLogService? = 
                 delete("/{id}") {
                     val principal = call.principal<UserPrincipal>()!!
                     requireReadWrite(principal)
-                    val (db, domain) = resolveConnAndDomain(call, eseService) ?: return@delete
+                    val (db, domain, connName) = resolveConnAndDomain(call, eseService) ?: return@delete
                     val connId = call.parameters["connId"]!!
                     val userId = call.parameters["id"]?.toIntOrNull()
                     if (userId == null) {
@@ -134,7 +134,7 @@ fun Route.eseRoutes(eseService: EseService, auditLogService: AuditLogService? = 
                         actorId = principal.userId,
                         actorName = principal.username,
                         connectionId = UUID.fromString(connId),
-                        connectionName = connId,
+                        connectionName = connName,
                         domain = mapDomainForAudit(domain),
                         action = "delete",
                         resourceType = "user",
@@ -148,7 +148,7 @@ fun Route.eseRoutes(eseService: EseService, auditLogService: AuditLogService? = 
                 // Get role IDs assigned to a user
                 get("/{id}/roles") {
                     call.principal<UserPrincipal>()!!
-                    val (db, domain) = resolveConnAndDomain(call, eseService) ?: return@get
+                    val (db, domain, connName) = resolveConnAndDomain(call, eseService) ?: return@get
                     val userId = call.parameters["id"]?.toIntOrNull()
                     if (userId == null) {
                         call.respond(HttpStatusCode.BadRequest, ErrorResponse("Invalid user ID"))
@@ -162,7 +162,7 @@ fun Route.eseRoutes(eseService: EseService, auditLogService: AuditLogService? = 
                 post("/{id}/roles/{roleId}") {
                     val principal = call.principal<UserPrincipal>()!!
                     requireReadWrite(principal)
-                    val (db, domain) = resolveConnAndDomain(call, eseService) ?: return@post
+                    val (db, domain, connName) = resolveConnAndDomain(call, eseService) ?: return@post
                     val connId = call.parameters["connId"]!!
                     val userId = call.parameters["id"]?.toIntOrNull()
                     val roleId = call.parameters["roleId"]?.toIntOrNull()
@@ -180,7 +180,7 @@ fun Route.eseRoutes(eseService: EseService, auditLogService: AuditLogService? = 
                         actorId = principal.userId,
                         actorName = principal.username,
                         connectionId = UUID.fromString(connId),
-                        connectionName = connId,
+                        connectionName = connName,
                         domain = mapDomainForAudit(domain),
                         action = "create",
                         resourceType = "user_role",
@@ -194,7 +194,7 @@ fun Route.eseRoutes(eseService: EseService, auditLogService: AuditLogService? = 
                 delete("/{id}/roles/{roleId}") {
                     val principal = call.principal<UserPrincipal>()!!
                     requireReadWrite(principal)
-                    val (db, domain) = resolveConnAndDomain(call, eseService) ?: return@delete
+                    val (db, domain, connName) = resolveConnAndDomain(call, eseService) ?: return@delete
                     val connId = call.parameters["connId"]!!
                     val userId = call.parameters["id"]?.toIntOrNull()
                     val roleId = call.parameters["roleId"]?.toIntOrNull()
@@ -212,7 +212,7 @@ fun Route.eseRoutes(eseService: EseService, auditLogService: AuditLogService? = 
                         actorId = principal.userId,
                         actorName = principal.username,
                         connectionId = UUID.fromString(connId),
-                        connectionName = connId,
+                        connectionName = connName,
                         domain = mapDomainForAudit(domain),
                         action = "delete",
                         resourceType = "user_role",
@@ -227,7 +227,7 @@ fun Route.eseRoutes(eseService: EseService, auditLogService: AuditLogService? = 
                 post("/{id}/permissions/{permId}") {
                     val principal = call.principal<UserPrincipal>()!!
                     requireReadWrite(principal)
-                    val (db, domain) = resolveConnAndDomain(call, eseService) ?: return@post
+                    val (db, domain, connName) = resolveConnAndDomain(call, eseService) ?: return@post
                     val connId = call.parameters["connId"]!!
                     val userId = call.parameters["id"]?.toIntOrNull()
                     val permId = call.parameters["permId"]?.toIntOrNull()
@@ -245,7 +245,7 @@ fun Route.eseRoutes(eseService: EseService, auditLogService: AuditLogService? = 
                         actorId = principal.userId,
                         actorName = principal.username,
                         connectionId = UUID.fromString(connId),
-                        connectionName = connId,
+                        connectionName = connName,
                         domain = mapDomainForAudit(domain),
                         action = "create",
                         resourceType = "user_permission",
@@ -259,7 +259,7 @@ fun Route.eseRoutes(eseService: EseService, auditLogService: AuditLogService? = 
                 delete("/{id}/permissions/{permId}") {
                     val principal = call.principal<UserPrincipal>()!!
                     requireReadWrite(principal)
-                    val (db, domain) = resolveConnAndDomain(call, eseService) ?: return@delete
+                    val (db, domain, connName) = resolveConnAndDomain(call, eseService) ?: return@delete
                     val connId = call.parameters["connId"]!!
                     val userId = call.parameters["id"]?.toIntOrNull()
                     val permId = call.parameters["permId"]?.toIntOrNull()
@@ -277,7 +277,7 @@ fun Route.eseRoutes(eseService: EseService, auditLogService: AuditLogService? = 
                         actorId = principal.userId,
                         actorName = principal.username,
                         connectionId = UUID.fromString(connId),
-                        connectionName = connId,
+                        connectionName = connName,
                         domain = mapDomainForAudit(domain),
                         action = "delete",
                         resourceType = "user_permission",
@@ -294,7 +294,7 @@ fun Route.eseRoutes(eseService: EseService, auditLogService: AuditLogService? = 
             // ---------------------------------------------------------------
             route("/roles") {
                 get {
-                    val (db, domain) = resolveConnAndDomain(call, eseService) ?: return@get
+                    val (db, domain, connName) = resolveConnAndDomain(call, eseService) ?: return@get
                     val page = call.request.queryParameters["page"]?.toIntOrNull() ?: 1
                     val size = call.request.queryParameters["size"]?.toIntOrNull() ?: 20
                     val result = eseService.listRoles(db, domain, page, size)
@@ -304,7 +304,7 @@ fun Route.eseRoutes(eseService: EseService, auditLogService: AuditLogService? = 
                 post {
                     val principal = call.principal<UserPrincipal>()!!
                     requireReadWrite(principal)
-                    val (db, domain) = resolveConnAndDomain(call, eseService) ?: return@post
+                    val (db, domain, connName) = resolveConnAndDomain(call, eseService) ?: return@post
                     val connId = call.parameters["connId"]!!
                     val request = call.receive<CreateEseRoleRequest>()
                     val role = eseService.createRole(db, domain, request)
@@ -313,7 +313,7 @@ fun Route.eseRoutes(eseService: EseService, auditLogService: AuditLogService? = 
                         actorId = principal.userId,
                         actorName = principal.username,
                         connectionId = UUID.fromString(connId),
-                        connectionName = connId,
+                        connectionName = connName,
                         domain = mapDomainForAudit(domain),
                         action = "create",
                         resourceType = "role",
@@ -328,7 +328,7 @@ fun Route.eseRoutes(eseService: EseService, auditLogService: AuditLogService? = 
                 put("/{id}") {
                     val principal = call.principal<UserPrincipal>()!!
                     requireReadWrite(principal)
-                    val (db, domain) = resolveConnAndDomain(call, eseService) ?: return@put
+                    val (db, domain, connName) = resolveConnAndDomain(call, eseService) ?: return@put
                     val connId = call.parameters["connId"]!!
                     val roleId = call.parameters["id"]?.toIntOrNull()
                     if (roleId == null) {
@@ -346,7 +346,7 @@ fun Route.eseRoutes(eseService: EseService, auditLogService: AuditLogService? = 
                         actorId = principal.userId,
                         actorName = principal.username,
                         connectionId = UUID.fromString(connId),
-                        connectionName = connId,
+                        connectionName = connName,
                         domain = mapDomainForAudit(domain),
                         action = "update",
                         resourceType = "role",
@@ -361,7 +361,7 @@ fun Route.eseRoutes(eseService: EseService, auditLogService: AuditLogService? = 
                 delete("/{id}") {
                     val principal = call.principal<UserPrincipal>()!!
                     requireReadWrite(principal)
-                    val (db, domain) = resolveConnAndDomain(call, eseService) ?: return@delete
+                    val (db, domain, connName) = resolveConnAndDomain(call, eseService) ?: return@delete
                     val connId = call.parameters["connId"]!!
                     val roleId = call.parameters["id"]?.toIntOrNull()
                     if (roleId == null) {
@@ -378,7 +378,7 @@ fun Route.eseRoutes(eseService: EseService, auditLogService: AuditLogService? = 
                         actorId = principal.userId,
                         actorName = principal.username,
                         connectionId = UUID.fromString(connId),
-                        connectionName = connId,
+                        connectionName = connName,
                         domain = mapDomainForAudit(domain),
                         action = "delete",
                         resourceType = "role",
@@ -392,7 +392,7 @@ fun Route.eseRoutes(eseService: EseService, auditLogService: AuditLogService? = 
                 // Get permission IDs assigned to a role
                 get("/{id}/permissions") {
                     call.principal<UserPrincipal>()!!
-                    val (db, domain) = resolveConnAndDomain(call, eseService) ?: return@get
+                    val (db, domain, connName) = resolveConnAndDomain(call, eseService) ?: return@get
                     val roleId = call.parameters["id"]?.toIntOrNull()
                     if (roleId == null) {
                         call.respond(HttpStatusCode.BadRequest, ErrorResponse("Invalid role ID"))
@@ -406,7 +406,7 @@ fun Route.eseRoutes(eseService: EseService, auditLogService: AuditLogService? = 
                 post("/{id}/permissions/{permId}") {
                     val principal = call.principal<UserPrincipal>()!!
                     requireReadWrite(principal)
-                    val (db, domain) = resolveConnAndDomain(call, eseService) ?: return@post
+                    val (db, domain, connName) = resolveConnAndDomain(call, eseService) ?: return@post
                     val connId = call.parameters["connId"]!!
                     val roleId = call.parameters["id"]?.toIntOrNull()
                     val permId = call.parameters["permId"]?.toIntOrNull()
@@ -424,7 +424,7 @@ fun Route.eseRoutes(eseService: EseService, auditLogService: AuditLogService? = 
                         actorId = principal.userId,
                         actorName = principal.username,
                         connectionId = UUID.fromString(connId),
-                        connectionName = connId,
+                        connectionName = connName,
                         domain = mapDomainForAudit(domain),
                         action = "create",
                         resourceType = "role_permission",
@@ -438,7 +438,7 @@ fun Route.eseRoutes(eseService: EseService, auditLogService: AuditLogService? = 
                 delete("/{id}/permissions/{permId}") {
                     val principal = call.principal<UserPrincipal>()!!
                     requireReadWrite(principal)
-                    val (db, domain) = resolveConnAndDomain(call, eseService) ?: return@delete
+                    val (db, domain, connName) = resolveConnAndDomain(call, eseService) ?: return@delete
                     val connId = call.parameters["connId"]!!
                     val roleId = call.parameters["id"]?.toIntOrNull()
                     val permId = call.parameters["permId"]?.toIntOrNull()
@@ -456,7 +456,7 @@ fun Route.eseRoutes(eseService: EseService, auditLogService: AuditLogService? = 
                         actorId = principal.userId,
                         actorName = principal.username,
                         connectionId = UUID.fromString(connId),
-                        connectionName = connId,
+                        connectionName = connName,
                         domain = mapDomainForAudit(domain),
                         action = "delete",
                         resourceType = "role_permission",
@@ -473,7 +473,7 @@ fun Route.eseRoutes(eseService: EseService, auditLogService: AuditLogService? = 
             // ---------------------------------------------------------------
             route("/permissions") {
                 get {
-                    val (db, domain) = resolveConnAndDomain(call, eseService) ?: return@get
+                    val (db, domain, connName) = resolveConnAndDomain(call, eseService) ?: return@get
                     val page = call.request.queryParameters["page"]?.toIntOrNull() ?: 1
                     val size = call.request.queryParameters["size"]?.toIntOrNull() ?: 20
                     val result = eseService.listPermissions(db, domain, page, size)
@@ -483,7 +483,7 @@ fun Route.eseRoutes(eseService: EseService, auditLogService: AuditLogService? = 
                 post {
                     val principal = call.principal<UserPrincipal>()!!
                     requireReadWrite(principal)
-                    val (db, domain) = resolveConnAndDomain(call, eseService) ?: return@post
+                    val (db, domain, connName) = resolveConnAndDomain(call, eseService) ?: return@post
                     val connId = call.parameters["connId"]!!
                     val perm = if (domain == "mqtt") {
                         val request = call.receive<CreateMqttPermissionRequest>()
@@ -497,7 +497,7 @@ fun Route.eseRoutes(eseService: EseService, auditLogService: AuditLogService? = 
                         actorId = principal.userId,
                         actorName = principal.username,
                         connectionId = UUID.fromString(connId),
-                        connectionName = connId,
+                        connectionName = connName,
                         domain = mapDomainForAudit(domain),
                         action = "create",
                         resourceType = "permission",
@@ -511,7 +511,7 @@ fun Route.eseRoutes(eseService: EseService, auditLogService: AuditLogService? = 
                 put("/{id}") {
                     val principal = call.principal<UserPrincipal>()!!
                     requireReadWrite(principal)
-                    val (db, domain) = resolveConnAndDomain(call, eseService) ?: return@put
+                    val (db, domain, connName) = resolveConnAndDomain(call, eseService) ?: return@put
                     val connId = call.parameters["connId"]!!
                     val permId = call.parameters["id"]?.toIntOrNull()
                     if (permId == null) {
@@ -534,7 +534,7 @@ fun Route.eseRoutes(eseService: EseService, auditLogService: AuditLogService? = 
                         actorId = principal.userId,
                         actorName = principal.username,
                         connectionId = UUID.fromString(connId),
-                        connectionName = connId,
+                        connectionName = connName,
                         domain = mapDomainForAudit(domain),
                         action = "update",
                         resourceType = "permission",
@@ -548,7 +548,7 @@ fun Route.eseRoutes(eseService: EseService, auditLogService: AuditLogService? = 
                 delete("/{id}") {
                     val principal = call.principal<UserPrincipal>()!!
                     requireReadWrite(principal)
-                    val (db, domain) = resolveConnAndDomain(call, eseService) ?: return@delete
+                    val (db, domain, connName) = resolveConnAndDomain(call, eseService) ?: return@delete
                     val connId = call.parameters["connId"]!!
                     val permId = call.parameters["id"]?.toIntOrNull()
                     if (permId == null) {
@@ -565,7 +565,7 @@ fun Route.eseRoutes(eseService: EseService, auditLogService: AuditLogService? = 
                         actorId = principal.userId,
                         actorName = principal.username,
                         connectionId = UUID.fromString(connId),
-                        connectionName = connId,
+                        connectionName = connName,
                         domain = mapDomainForAudit(domain),
                         action = "delete",
                         resourceType = "permission",
@@ -580,7 +580,7 @@ fun Route.eseRoutes(eseService: EseService, auditLogService: AuditLogService? = 
     }
 }
 
-private data class ConnDomain(val db: org.jetbrains.exposed.sql.Database, val domain: String)
+private data class ConnDomain(val db: org.jetbrains.exposed.sql.Database, val domain: String, val connectionName: String)
 
 private suspend fun resolveConnAndDomain(
     call: io.ktor.server.application.ApplicationCall,
@@ -608,5 +608,7 @@ private suspend fun resolveConnAndDomain(
         return null
     }
 
-    return ConnDomain(db, domain)
+    val connectionName = eseService.getConnectionName(connId) ?: connIdStr ?: "unknown"
+
+    return ConnDomain(db, domain, connectionName)
 }

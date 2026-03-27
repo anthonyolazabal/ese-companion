@@ -15,7 +15,7 @@ import java.util.concurrent.ConcurrentHashMap
 
 open class EseConnectionManager(
     private val poolConfig: PoolConfig,
-    private val companionDatabase: Database,
+    val companionDatabase: Database,
     private val aesEncryption: AesEncryption
 ) {
     private val pools = ConcurrentHashMap<UUID, HikariDataSource>()

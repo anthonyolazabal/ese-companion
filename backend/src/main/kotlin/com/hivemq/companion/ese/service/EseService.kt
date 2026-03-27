@@ -1,6 +1,7 @@
 package com.hivemq.companion.ese.service
 
 import com.hivemq.companion.crypto.CryptoService
+import com.hivemq.companion.db.tables.DatabaseConnections
 import com.hivemq.companion.dto.PaginatedResponse
 import com.hivemq.companion.ese.EseConnectionManager
 import com.hivemq.companion.ese.dto.*
@@ -19,6 +20,15 @@ class EseService(
     private fun now(): Instant = Clock.System.now()
 
     fun getDatabase(connId: UUID): Database = eseConnectionManager.getDatabase(connId)
+
+    fun getConnectionName(connId: UUID): String? {
+        return transaction(eseConnectionManager.companionDatabase) {
+            DatabaseConnections.selectAll()
+                .where { DatabaseConnections.id eq connId }
+                .singleOrNull()
+                ?.get(DatabaseConnections.name)
+        }
+    }
 
     // -----------------------------------------------------------------------
     // Users
