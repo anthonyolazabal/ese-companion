@@ -164,11 +164,6 @@ export function EseUserTable({
         ),
         size: 40,
       }),
-      columnHelper.accessor("id", {
-        header: "ID",
-        cell: (info) => info.getValue(),
-        size: 60,
-      }),
       columnHelper.accessor("username", {
         header: "Username",
         cell: (info) => (

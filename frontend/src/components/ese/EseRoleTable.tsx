@@ -182,11 +182,6 @@ export function EseRoleTable({
         ),
         size: 40,
       }),
-      columnHelper.accessor("id", {
-        header: "ID",
-        cell: (info) => info.getValue(),
-        size: 60,
-      }),
       columnHelper.accessor("name", {
         header: "Name",
         cell: (info) => (
