@@ -41,11 +41,17 @@ function RootLayout() {
   }
 
   return (
-    <Flex h="100vh">
+    <Flex h="100vh" bg={{ base: "gray.50", _dark: "gray.950" }}>
       <Sidebar />
 
       {/* Main area */}
-      <Box flex="1" overflow="auto" p="6" pt={{ base: "14", md: "6" }}>
+      <Box
+        flex="1"
+        overflow="auto"
+        p="6"
+        pt={{ base: "14", md: "6" }}
+        bg={{ base: "gray.50", _dark: "gray.950" }}
+      >
         <Outlet />
       </Box>
     </Flex>
