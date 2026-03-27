@@ -220,7 +220,7 @@ function ConnectionsPage() {
       <Flex justify="space-between" align="center" mb="6">
         <Heading size="lg">Connections</Heading>
         <Button
-          colorPalette="purple"
+          colorPalette="yellow"
           size="sm"
           onClick={() => {
             setEditingConnection(null);

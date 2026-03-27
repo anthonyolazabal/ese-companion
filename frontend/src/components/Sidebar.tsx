@@ -60,15 +60,15 @@ function SidebarContent({ onNavigate }: SidebarContentProps) {
     cursor: "pointer" as const,
     transition: "all 0.15s ease",
     bg: isActive(path)
-      ? { base: "purple.50", _dark: "purple.950" }
+      ? { base: "yellow.50", _dark: "yellow.950" }
       : "transparent",
     color: isActive(path)
-      ? { base: "purple.700", _dark: "purple.200" }
+      ? { base: "yellow.700", _dark: "yellow.200" }
       : undefined,
     fontWeight: isActive(path) ? "semibold" : "normal",
     _hover: {
       bg: isActive(path)
-        ? { base: "purple.50", _dark: "purple.950" }
+        ? { base: "yellow.50", _dark: "yellow.950" }
         : { base: "gray.200", _dark: "gray.800" },
     },
   });

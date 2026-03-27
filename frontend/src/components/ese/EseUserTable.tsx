@@ -86,7 +86,7 @@ export function EseUserTable({
           return (
             <HStack gap="1" flexWrap="wrap">
               {roles.map((role) => (
-                <Badge key={role} colorPalette="purple" variant="subtle" size="sm">
+                <Badge key={role} colorPalette="yellow" variant="subtle" size="sm">
                   {role}
                 </Badge>
               ))}
@@ -107,7 +107,7 @@ export function EseUserTable({
               aria-label="Manage roles"
               variant="ghost"
               size="sm"
-              colorPalette="purple"
+              colorPalette="yellow"
               onClick={(e) => {
                 e.stopPropagation();
                 onManageRoles(info.row.original);

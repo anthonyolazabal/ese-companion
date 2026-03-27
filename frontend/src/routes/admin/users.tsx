@@ -24,7 +24,7 @@ const columnHelper = createColumnHelper<CompanionUser>();
 
 function RoleBadge({ role }: { role: string }) {
   const colorMap: Record<string, string> = {
-    admin: "purple",
+    admin: "yellow",
     readwrite: "blue",
     readonly: "gray",
   };
@@ -170,7 +170,7 @@ function UsersPage() {
       <Flex justify="space-between" align="center" mb="6">
         <Heading size="lg">Users</Heading>
         <Button
-          colorPalette="purple"
+          colorPalette="yellow"
           size="sm"
           onClick={() => {
             setEditingUser(null);

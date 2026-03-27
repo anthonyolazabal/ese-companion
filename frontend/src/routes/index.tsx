@@ -27,7 +27,7 @@ function DashboardPage() {
   if (isLoading) {
     return (
       <Flex justify="center" align="center" minH="200px">
-        <Spinner size="lg" colorPalette="purple" />
+        <Spinner size="lg" colorPalette="yellow" />
       </Flex>
     );
   }
@@ -51,7 +51,7 @@ function DashboardPage() {
         <Heading size="lg">Dashboard</Heading>
         {isAdmin && (
           <Button
-            colorPalette="purple"
+            colorPalette="yellow"
             size="sm"
             onClick={() => navigate({ to: "/admin/connections" as string })}
           >
@@ -106,7 +106,7 @@ function DashboardPage() {
           </Text>
           {isAdmin && (
             <Button
-              colorPalette="purple"
+              colorPalette="yellow"
               size="sm"
               onClick={() => navigate({ to: "/admin/connections" as string })}
             >

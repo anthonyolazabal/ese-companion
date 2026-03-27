@@ -154,7 +154,7 @@ export function CompanionUserDrawer({
                     type="button"
                     size="sm"
                     variant={role === r ? "solid" : "outline"}
-                    colorPalette={role === r ? "purple" : "gray"}
+                    colorPalette={role === r ? "yellow" : "gray"}
                     onClick={() => setRole(r)}
                   >
                     {r}
@@ -166,7 +166,7 @@ export function CompanionUserDrawer({
             <Flex gap="3" mt="4">
               <Button
                 type="submit"
-                colorPalette="purple"
+                colorPalette="yellow"
                 loading={saving}
                 loadingText="Saving..."
                 flex="1"

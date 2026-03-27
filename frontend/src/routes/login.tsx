@@ -122,7 +122,7 @@ function LoginPage() {
           <Button
             type="submit"
             w="full"
-            colorPalette="purple"
+            colorPalette="yellow"
             loading={isSubmitting}
             loadingText="Signing in..."
           >

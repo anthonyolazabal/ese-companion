@@ -73,7 +73,7 @@ export function EseRoleTable({
               aria-label="Manage permissions"
               variant="ghost"
               size="sm"
-              colorPalette="purple"
+              colorPalette="yellow"
               onClick={(e) => {
                 e.stopPropagation();
                 onManagePermissions(info.row.original);

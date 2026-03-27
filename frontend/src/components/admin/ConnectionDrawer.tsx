@@ -178,7 +178,7 @@ export function ConnectionDrawer({
                     type="button"
                     size="sm"
                     variant={dbType === t.value ? "solid" : "outline"}
-                    colorPalette={dbType === t.value ? "purple" : "gray"}
+                    colorPalette={dbType === t.value ? "yellow" : "gray"}
                     onClick={() => {
                       setDbType(t.value);
                       setPort(t.defaultPort);
@@ -288,7 +288,7 @@ export function ConnectionDrawer({
             <Flex gap="3" mt="4">
               <Button
                 type="submit"
-                colorPalette="purple"
+                colorPalette="yellow"
                 loading={saving}
                 loadingText="Saving..."
                 flex="1"
