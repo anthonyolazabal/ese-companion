@@ -104,12 +104,12 @@ function ConnectionDetailPage() {
     staleTime: 30_000,
   });
 
-  // Invalidation helper
+  // Invalidation helper — refetchType "all" forces refetch even if not stale
   const invalidateAll = useCallback(() => {
-    queryClient.invalidateQueries({ queryKey: ["ese-users", connId, activeDomain] });
-    queryClient.invalidateQueries({ queryKey: ["ese-roles", connId, activeDomain] });
-    queryClient.invalidateQueries({ queryKey: ["ese-permissions", connId, activeDomain] });
-    queryClient.invalidateQueries({ queryKey: ["connection-stats", connId] });
+    queryClient.invalidateQueries({ queryKey: ["ese-users", connId, activeDomain], refetchType: "all" });
+    queryClient.invalidateQueries({ queryKey: ["ese-roles", connId, activeDomain], refetchType: "all" });
+    queryClient.invalidateQueries({ queryKey: ["ese-permissions", connId, activeDomain], refetchType: "all" });
+    queryClient.invalidateQueries({ queryKey: ["connection-stats", connId], refetchType: "all" });
   }, [queryClient, connId, activeDomain]);
 
   // Mutations
