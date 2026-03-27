@@ -256,13 +256,19 @@ export function EseUserDrawer({
               <AlgorithmPicker value={algorithm} onChange={handleAlgorithmChange} />
 
               <Box>
-                <Text fontWeight="medium" fontSize="sm" mb="1">Iterations</Text>
+                <Text fontWeight="medium" fontSize="sm" mb="1">
+                  {algorithm === "BCRYPT" ? "Cost Factor" : "Iterations"}
+                </Text>
                 <Input
                   type="number"
                   value={iterations}
                   onChange={(e) => setIterations(Number(e.target.value))}
-                  min={0}
+                  min={algorithm === "BCRYPT" ? 4 : 0}
+                  max={algorithm === "BCRYPT" ? 31 : undefined}
                 />
+                {algorithm === "BCRYPT" && (
+                  <Text fontSize="xs" color="gray.500" mt="1">BCrypt cost factor must be between 4 and 31</Text>
+                )}
               </Box>
 
               {algorithm === "ARGON2ID" && (

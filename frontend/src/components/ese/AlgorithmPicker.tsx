@@ -17,7 +17,7 @@ const DEFAULT_ITERATIONS: Record<Algorithm, number> = {
   MD5: 100,
   SHA512: 100,
   PKCS5S2: 100,
-  BCRYPT: 100,
+  BCRYPT: 10,    // BCrypt cost factor (4-31)
   ARGON2ID: 3,
 };
 
