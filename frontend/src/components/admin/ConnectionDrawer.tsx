@@ -4,7 +4,9 @@ import {
   Button,
   Flex,
   Heading,
+  HStack,
   Input,
+  Switch,
   Text,
   VStack,
 } from "@chakra-ui/react";
@@ -244,17 +246,20 @@ export function ConnectionDrawer({
               />
             </Box>
 
-            <Flex align="center" gap="3">
-              <Button
-                type="button"
+            <HStack justify="space-between">
+              <Text fontSize="sm" fontWeight="medium">SSL</Text>
+              <Switch.Root
+                checked={sslEnabled}
+                onCheckedChange={(e) => setSslEnabled(e.checked)}
+                colorPalette="yellow"
                 size="sm"
-                variant={sslEnabled ? "solid" : "outline"}
-                colorPalette={sslEnabled ? "green" : "gray"}
-                onClick={() => setSslEnabled(!sslEnabled)}
               >
-                SSL {sslEnabled ? "Enabled" : "Disabled"}
-              </Button>
-            </Flex>
+                <Switch.HiddenInput />
+                <Switch.Control>
+                  <Switch.Thumb />
+                </Switch.Control>
+              </Switch.Root>
+            </HStack>
 
             {isEdit && (
               <Box>

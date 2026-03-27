@@ -8,6 +8,7 @@ import {
   Text,
   VStack,
   HStack,
+  Switch,
 } from "@chakra-ui/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { X, Copy, Check } from "lucide-react";
@@ -222,12 +223,17 @@ export function ApiKeyCreateDrawer({ isOpen, onClose }: ApiKeyCreateDrawerProps)
                         }}
                         transition="all 0.15s"
                       >
-                        <input
-                          type="checkbox"
+                        <Switch.Root
                           checked={scopes.includes(scope)}
-                          onChange={() => toggleScope(scope)}
-                          style={{ accentColor: "var(--chakra-colors-blue-500)" }}
-                        />
+                          onCheckedChange={() => toggleScope(scope)}
+                          colorPalette="yellow"
+                          size="sm"
+                        >
+                          <Switch.HiddenInput />
+                          <Switch.Control>
+                            <Switch.Thumb />
+                          </Switch.Control>
+                        </Switch.Root>
                         <Text fontSize="sm">{scope}</Text>
                       </HStack>
                     ))}

@@ -7,6 +7,8 @@ import {
   Text,
   Textarea,
   VStack,
+  HStack,
+  Switch,
 } from "@chakra-ui/react";
 import {
   DrawerRoot,
@@ -42,7 +44,7 @@ interface EsePermissionDrawerProps {
   permission?: AnyPermission | null;
 }
 
-function CheckboxField({
+function SwitchField({
   label,
   checked,
   onChange,
@@ -52,14 +54,20 @@ function CheckboxField({
   onChange: (v: boolean) => void;
 }) {
   return (
-    <Flex as="label" align="center" gap="2" cursor="pointer" userSelect="none">
-      <input
-        type="checkbox"
-        checked={checked}
-        onChange={(e) => onChange(e.target.checked)}
-      />
+    <HStack justify="space-between">
       <Text fontSize="sm">{label}</Text>
-    </Flex>
+      <Switch.Root
+        checked={checked}
+        onCheckedChange={(e) => onChange(e.checked)}
+        colorPalette="yellow"
+        size="sm"
+      >
+        <Switch.HiddenInput />
+        <Switch.Control>
+          <Switch.Thumb />
+        </Switch.Control>
+      </Switch.Root>
+    </HStack>
   );
 }
 
@@ -169,13 +177,13 @@ export function EsePermissionDrawer({
                 <Box>
                   <Text fontWeight="medium" fontSize="sm" mb="2">Flags</Text>
                   <VStack gap="2" align="stretch">
-                    <CheckboxField label="Publish Allowed" checked={publishAllowed} onChange={setPublishAllowed} />
-                    <CheckboxField label="Subscribe Allowed" checked={subscribeAllowed} onChange={setSubscribeAllowed} />
-                    <CheckboxField label="QoS 0 Allowed" checked={qos0Allowed} onChange={setQos0Allowed} />
-                    <CheckboxField label="QoS 1 Allowed" checked={qos1Allowed} onChange={setQos1Allowed} />
-                    <CheckboxField label="QoS 2 Allowed" checked={qos2Allowed} onChange={setQos2Allowed} />
-                    <CheckboxField label="Retained Messages Allowed" checked={retainedMsgsAllowed} onChange={setRetainedMsgsAllowed} />
-                    <CheckboxField label="Shared Subscription Allowed" checked={sharedSubAllowed} onChange={setSharedSubAllowed} />
+                    <SwitchField label="Publish Allowed" checked={publishAllowed} onChange={setPublishAllowed} />
+                    <SwitchField label="Subscribe Allowed" checked={subscribeAllowed} onChange={setSubscribeAllowed} />
+                    <SwitchField label="QoS 0 Allowed" checked={qos0Allowed} onChange={setQos0Allowed} />
+                    <SwitchField label="QoS 1 Allowed" checked={qos1Allowed} onChange={setQos1Allowed} />
+                    <SwitchField label="QoS 2 Allowed" checked={qos2Allowed} onChange={setQos2Allowed} />
+                    <SwitchField label="Retained Messages Allowed" checked={retainedMsgsAllowed} onChange={setRetainedMsgsAllowed} />
+                    <SwitchField label="Shared Subscription Allowed" checked={sharedSubAllowed} onChange={setSharedSubAllowed} />
                   </VStack>
                 </Box>
 
