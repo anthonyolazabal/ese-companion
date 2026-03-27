@@ -142,6 +142,11 @@ export function EseUserTable({
   const [globalFilter, setGlobalFilter] = useState("");
   const [expanded, setExpanded] = useState<ExpandedState>({});
 
+  // Collapse all expanded rows when data refreshes
+  useEffect(() => {
+    setExpanded({});
+  }, [users]);
+
   const columns = useMemo(
     () => [
       columnHelper.display({

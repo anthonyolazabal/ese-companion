@@ -160,6 +160,11 @@ export function EseRoleTable({
   const [globalFilter, setGlobalFilter] = useState("");
   const [expanded, setExpanded] = useState<ExpandedState>({});
 
+  // Collapse all expanded rows when data refreshes
+  useEffect(() => {
+    setExpanded({});
+  }, [roles]);
+
   const columns = useMemo(
     () => [
       columnHelper.display({
