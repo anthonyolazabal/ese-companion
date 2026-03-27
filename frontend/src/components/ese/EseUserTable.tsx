@@ -117,7 +117,8 @@ function ExpandedRoles({
               _last={{ borderBottom: "none" }}
               fontSize="xs"
             >
-              <Text fontWeight="medium" flex="1">{role.name}</Text>
+              <Badge colorPalette="yellow" variant="subtle" size="sm">{role.name}</Badge>
+              <Box flex="1" />
               {role.description && (
                 <Text color="gray.500">{role.description}</Text>
               )}
