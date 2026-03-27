@@ -538,6 +538,7 @@ function ConnectionDetailPage() {
         onClose={() => {
           setUserDrawerOpen(false);
           setEditingUser(null);
+          invalidateAll();
         }}
         onSave={handleUserSave}
         user={editingUser}
@@ -551,6 +552,7 @@ function ConnectionDetailPage() {
         onClose={() => {
           setRoleDrawerOpen(false);
           setEditingRole(null);
+          invalidateAll();
         }}
         onSave={handleRoleSave}
         role={editingRole}
@@ -564,6 +566,7 @@ function ConnectionDetailPage() {
         onClose={() => {
           setPermDrawerOpen(false);
           setEditingPermission(null);
+          invalidateAll();
         }}
         domain={activeDomain}
         permission={editingPermission}
