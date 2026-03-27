@@ -136,6 +136,10 @@ function ConnectionDetailPage() {
     onSuccess: () => {
       invalidateAll();
       setDeleteTarget(null);
+      toaster.create({ title: "User deleted", type: "success" });
+    },
+    onError: (err) => {
+      toaster.create({ title: "Failed to delete user", description: err instanceof Error ? err.message : "An error occurred", type: "error" });
     },
   });
 
@@ -165,6 +169,10 @@ function ConnectionDetailPage() {
     onSuccess: () => {
       invalidateAll();
       setDeleteTarget(null);
+      toaster.create({ title: "Role deleted", type: "success" });
+    },
+    onError: (err) => {
+      toaster.create({ title: "Failed to delete role", description: err instanceof Error ? err.message : "An error occurred", type: "error" });
     },
   });
 
@@ -201,6 +209,10 @@ function ConnectionDetailPage() {
     onSuccess: () => {
       invalidateAll();
       setDeleteTarget(null);
+      toaster.create({ title: "Permission deleted", type: "success" });
+    },
+    onError: (err) => {
+      toaster.create({ title: "Failed to delete permission", description: err instanceof Error ? err.message : "An error occurred", type: "error" });
     },
   });
 
