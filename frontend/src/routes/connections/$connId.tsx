@@ -149,6 +149,10 @@ function ConnectionDetailPage() {
     onSuccess: () => {
       invalidateAll();
       setRoleDrawerOpen(false);
+      toaster.create({ title: "Role created", type: "success" });
+    },
+    onError: (err) => {
+      toaster.create({ title: "Failed to create role", description: err instanceof Error ? err.message : "An error occurred", type: "error" });
     },
   });
 
@@ -161,6 +165,10 @@ function ConnectionDetailPage() {
       invalidateAll();
       setRoleDrawerOpen(false);
       setEditingRole(null);
+      toaster.create({ title: "Role updated", type: "success" });
+    },
+    onError: (err) => {
+      toaster.create({ title: "Failed to update role", description: err instanceof Error ? err.message : "An error occurred", type: "error" });
     },
   });
 
@@ -231,12 +239,21 @@ function ConnectionDetailPage() {
           password: data.password || undefined,
           algorithm: data.algorithm,
           iterations: data.iterations,
-        }, { onSuccess: () => resolve(), onError: (err) => reject(err) });
+        }, {
+          onSuccess: () => {
+            invalidateAll();
+            resolve();
+          },
+          onError: (err) => reject(err),
+        });
       });
     } else {
       const created = await new Promise<{ id: number }>((resolve, reject) => {
         createUserMutation.mutate(data, {
-          onSuccess: (result) => resolve(result as { id: number }),
+          onSuccess: (result) => {
+            invalidateAll();
+            resolve(result as { id: number });
+          },
           onError: (err) => reject(err),
         });
       });
