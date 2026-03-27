@@ -238,7 +238,7 @@ export function EsePermissionDrawer({
                 Cancel
               </Button>
               <Button
-                colorPalette="blue"
+                colorPalette="yellow"
                 onClick={handleSubmit}
                 disabled={!canSave}
                 loading={isSaving}

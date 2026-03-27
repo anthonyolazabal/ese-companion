@@ -127,7 +127,7 @@ export function ProfileForm() {
           )}
 
           <Flex justify="flex-end">
-            <Button type="submit" colorPalette="blue" loading={isLoading}>
+            <Button type="submit" colorPalette="yellow" loading={isLoading}>
               Save Password
             </Button>
           </Flex>

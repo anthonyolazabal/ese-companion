@@ -225,7 +225,7 @@ function ConnectionSettingsPage() {
             Delete Connection
           </Button>
           <Button
-            colorPalette="blue"
+            colorPalette="yellow"
             onClick={handleSave}
             loading={updateMutation.isPending}
           >

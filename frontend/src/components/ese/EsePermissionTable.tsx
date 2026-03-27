@@ -208,7 +208,7 @@ export function EsePermissionTable({
           maxW="300px"
           size="sm"
         />
-        <Button size="sm" colorPalette="blue" onClick={onAdd}>
+        <Button size="sm" colorPalette="yellow" onClick={onAdd}>
           <Plus size={16} />
           Add Permission
         </Button>

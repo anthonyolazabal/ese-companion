@@ -130,7 +130,7 @@ export function ApiKeyTable() {
         <Heading size="md">API Keys</Heading>
         <Button
           size="sm"
-          colorPalette="blue"
+          colorPalette="yellow"
           onClick={() => setIsDrawerOpen(true)}
         >
           <Plus size={16} />

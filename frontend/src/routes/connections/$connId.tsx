@@ -347,7 +347,7 @@ function ConnectionDetailPage() {
             key={tab}
             size="sm"
             variant={activeEntity === tab ? "solid" : "outline"}
-            colorPalette={activeEntity === tab ? "blue" : "gray"}
+            colorPalette={activeEntity === tab ? "yellow" : "gray"}
             onClick={() => setActiveEntity(tab)}
             textTransform="capitalize"
           >

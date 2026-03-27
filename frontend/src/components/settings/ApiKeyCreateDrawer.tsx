@@ -264,7 +264,7 @@ export function ApiKeyCreateDrawer({ isOpen, onClose }: ApiKeyCreateDrawerProps)
                   </Button>
                   <Button
                     type="submit"
-                    colorPalette="blue"
+                    colorPalette="yellow"
                     loading={createMutation.isPending}
                   >
                     Create
