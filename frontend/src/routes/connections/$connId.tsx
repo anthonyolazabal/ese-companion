@@ -273,12 +273,41 @@ function ConnectionDetailPage() {
     setEditingUser(null);
   };
 
-  const handleRoleSave = (data: { name: string; description?: string }) => {
+  const handleRoleSave = async (data: { name: string; description?: string; permissionIds?: number[] }) => {
     if (editingRole) {
-      updateRoleMutation.mutate({ roleId: editingRole.id, ...data });
+      await new Promise<void>((resolve, reject) => {
+        updateRoleMutation.mutate({ roleId: editingRole.id, ...data }, {
+          onSuccess: () => {
+            invalidateAll();
+            resolve();
+          },
+          onError: (err) => reject(err),
+        });
+      });
     } else {
-      createRoleMutation.mutate(data);
+      const created = await new Promise<{ id: number }>((resolve, reject) => {
+        createRoleMutation.mutate(data, {
+          onSuccess: (result) => {
+            invalidateAll();
+            resolve(result as { id: number });
+          },
+          onError: (err) => reject(err),
+        });
+      });
+      // Assign selected permissions after creation
+      if (data.permissionIds && data.permissionIds.length > 0 && created?.id) {
+        for (const permId of data.permissionIds) {
+          try {
+            await eseApi.assignPermissionToRole(connId, activeDomain, created.id, permId);
+          } catch {
+            // continue with other permissions even if one fails
+          }
+        }
+        invalidateAll();
+      }
     }
+    setRoleDrawerOpen(false);
+    setEditingRole(null);
   };
 
   const handleDeleteConfirm = () => {
@@ -525,7 +554,6 @@ function ConnectionDetailPage() {
         }}
         onSave={handleRoleSave}
         role={editingRole}
-        isSaving={createRoleMutation.isPending || updateRoleMutation.isPending}
         connId={connId}
         domain={activeDomain}
         onPermissionsChanged={invalidateAll}
