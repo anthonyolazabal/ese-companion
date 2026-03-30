@@ -10,7 +10,6 @@ postgresql = "42.7.7"
 mysql = "9.3.0"
 mssql = "12.8.2.jre11"
 jbcrypt = "0.4"
-flyway = "11.3.4"
 kotlinx-serialization = "1.8.0"
 kotlinx-datetime = "0.6.1"
 
@@ -41,10 +40,6 @@ postgresql = { module = "org.postgresql:postgresql", version.ref = "postgresql" 
 mysql = { module = "com.mysql:mysql-connector-j", version.ref = "mysql" }
 mssql = { module = "com.microsoft.sqlserver:mssql-jdbc", version.ref = "mssql" }
 jbcrypt = { module = "org.mindrot:jbcrypt", version.ref = "jbcrypt" }
-flyway-core = { module = "org.flywaydb:flyway-core", version.ref = "flyway" }
-flyway-postgresql = { module = "org.flywaydb:flyway-database-postgresql", version.ref = "flyway" }
-flyway-mysql = { module = "org.flywaydb:flyway-mysql", version.ref = "flyway" }
-flyway-sqlserver = { module = "org.flywaydb:flyway-sqlserver", version.ref = "flyway" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
