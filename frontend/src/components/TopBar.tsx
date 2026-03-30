@@ -1,8 +1,9 @@
 import { Link } from "@tanstack/react-router";
-import { Flex, Text, IconButton, HStack } from "@chakra-ui/react";
+import { Flex, Text, IconButton, HStack, Image } from "@chakra-ui/react";
 import { useTheme } from "next-themes";
 import { Settings, Sun, Moon, LogOut, Menu } from "lucide-react";
 import { useAuth } from "../auth/useAuth";
+import logo from "../assets/logo.png";
 
 interface TopBarProps {
   onMenuClick?: () => void;
@@ -43,6 +44,7 @@ export function TopBar({ onMenuClick }: TopBarProps) {
             <Menu size={18} />
           </IconButton>
         )}
+        <Image src={logo} alt="ESE Companion" w="24px" h="24px" />
         <Text fontWeight="bold" fontSize="sm" letterSpacing="wide">
           ESE Companion
         </Text>
