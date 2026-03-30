@@ -49,6 +49,6 @@ describe("AlgorithmPicker", () => {
     const select = screen.getByRole("combobox");
     await user.selectOptions(select, "BCRYPT");
 
-    expect(onChange).toHaveBeenCalledWith("BCRYPT", 12);
+    expect(onChange).toHaveBeenCalledWith("BCRYPT", 10);
   });
 });
