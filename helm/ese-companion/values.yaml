@@ -1,0 +1,93 @@
+replicaCount: 1
+
+image:
+  repository: anthonyolazabal/ese-companion
+  tag: "2.0.0"
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+database:
+  type: postgresql
+  host: ""
+  port: 5432
+  name: companion
+  user: companion
+  password: ""
+  existingSecret: ""
+  existingSecretKey: password
+
+admin:
+  user: admin
+  password: ""
+  email: admin@example.com
+  existingSecret: ""
+
+security:
+  jwtSecret: ""
+  encryptionKey: ""
+  existingSecret: ""
+
+https:
+  enabled: false
+  jksPath: ""
+  password: ""
+  pkPassword: ""
+  existingSecret: ""
+
+service:
+  type: ClusterIP
+  httpPort: 8989
+  httpsPort: 9090
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: ese-companion.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+
+resources:
+  requests:
+    cpu: 250m
+    memory: 512Mi
+  limits:
+    cpu: 1000m
+    memory: 1Gi
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 80
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+pool:
+  maxPerDb: 10
+  maxTotal: 50
+  idleTimeoutMinutes: 10
+  acquireTimeoutSeconds: 5
+
+healthCheck:
+  intervalSeconds: 60
+
+audit:
+  retentionDays: 90
+
+rateLimit: 100
+corsOrigins: ""
+maxRequestSize: "1MB"

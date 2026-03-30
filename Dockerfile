@@ -1,23 +1,22 @@
-FROM node:22-slim
+# Stage 1: Build backend
+FROM gradle:8-jdk21 AS backend-build
+WORKDIR /app
+COPY backend/ .
+RUN gradle shadowJar --no-daemon
 
-WORKDIR /usr/src/app
+# Stage 2: Build frontend
+FROM node:22-slim AS frontend-build
+RUN corepack enable
+WORKDIR /app
+COPY frontend/package.json frontend/pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile
+COPY frontend/ .
+RUN pnpm build
 
-# Install app and dependencies (Java for ESEHelper to generate passwords)
-RUN apt-get update
-RUN apt-get upgrade -y
-RUN apt-get -y install default-jre
-RUN apt-get clean
-
-# Copy sources
-COPY . .
-
-# Build the source inside docker (this ensure the compatibility inside the docker image when you work for example on ARM (M2))
-RUN npm ci
-RUN npm run build-client
-RUN npm cache clean --force
-RUN npm cache verify
-
-EXPOSE 3001
-EXPOSE 4001
-CMD [ "npm", "start" ]
-
+# Stage 3: Runtime
+FROM eclipse-temurin:21-jre-alpine
+WORKDIR /app
+COPY --from=backend-build /app/build/libs/*-all.jar app.jar
+COPY --from=frontend-build /app/dist/ public/
+EXPOSE 8989 9090
+ENTRYPOINT ["java", "-jar", "app.jar"]

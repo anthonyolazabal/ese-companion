@@ -1,219 +1,150 @@
-# ESE Companion
-## Introduction 
-This project was born out of a simple need: to have an API to manipulate the database of the [HiveMQ Enterprise broker](https://www.hivemq.com/products/hivemq-self-managed/) [Enterprise Security Extension](https://www.hivemq.com/extension/enterprise-security-extension/). The UI provided is the chery on the cake.
+# ESE Companion v2
 
-The project is release has Open Source and is currently still in development. It is fully working but there is still work in progress, see Roadmap for more details.
+A centralized management tool for [HiveMQ Enterprise Security Extension (ESE)](https://www.hivemq.com/docs/ese/latest/) databases. Manage multiple ESE databases from a single interface with full CRUD support for MQTT, Control Center, and REST API security domains.
 
-![Home](./images/home.png)
+## Features
 
-## Account interactions
-The database is split in three sections, MQTT, Control Panel and Rest Api. Each section allow to control the authentication and authorization on a specific part of the enterprise broker.
+- **Multi-database management** — connect to multiple PostgreSQL, MySQL, and SQL Server ESE databases simultaneously
+- **Three ESE domains** — manage users, roles, and permissions for MQTT, Control Center, and REST API
+- **6 hash algorithms** — PLAIN, MD5, SHA512, PKCS5S2, BCrypt, Argon2id (compatible with HiveMQ ESE)
+- **Local user management** — admin, readwrite, and readonly roles
+- **API keys** — scoped and expiring keys for programmatic access
+- **Audit logging** — track every action with filterable logs and configurable retention
+- **Live health monitoring** — periodic connection checks with dashboard overview
+- **OpenAPI documentation** — Swagger UI at `/api/v1/docs`
+- **Dark/light mode** — responsive UI with Chakra UI design system
+- **Kubernetes-ready** — Helm chart, health probes, graceful shutdown
 
-UI for accounts : 
-List
-![Accounts](./images/accounts.png)
+## Tech Stack
 
-Account details
-![Account Details](./images/account_details.png)
+| Layer | Technology |
+|---|---|
+| Backend | Kotlin, Ktor, Exposed ORM, BouncyCastle |
+| Frontend | React 19, Chakra UI 3, TanStack Router/Query/Table |
+| Build | Gradle (backend), Vite + pnpm (frontend) |
+| Runtime | JDK 21, Docker |
+| Databases | PostgreSQL, MySQL, SQL Server |
 
-UI for roles :
-List
-![Roles](./images/roles.png)
+## Quick Start
 
-Account details
-![Role details](./images/role_details.png)
+### Using Docker
 
-UI for permissions :
-List
-![Permissions](./images/permissions.png)
-
-## Project structure
-The project host the API and the UI. 
-```
-├── src
-│   ├── ... (all API related files)
-├── prisma
-│   ├── ... (all Prisma related files)
-├── public
-│   ├── ... (UI packed files)
-├── ui
-│   ├── ... (all UI related files)
-└── 
-```
-
-The ui folder include all the frontend project that can be run alone by adding in the 'main.ts' the following code to connect to a backend API. 
-```
-// Local dev instance
-app.use(axios, {
-    baseUrl: 'http://localhost:3001',
-})
+```bash
+docker run \
+  -e ESE_COMPANION_DB_TYPE=postgresql \
+  -e ESE_COMPANION_DB_HOST=your-db-host \
+  -e ESE_COMPANION_DB_PORT=5432 \
+  -e ESE_COMPANION_DB_NAME=companion \
+  -e ESE_COMPANION_DB_USER=companion \
+  -e ESE_COMPANION_DB_PASSWORD=your-password \
+  -e ESE_COMPANION_JWT_SECRET=your-jwt-secret-min-16-chars \
+  -e ESE_COMPANION_ENCRYPTION_KEY=your-aes-key-min-16-chars \
+  -e ESE_COMPANION_ADMIN_USER=admin \
+  -e ESE_COMPANION_ADMIN_PASSWORD=admin \
+  -e ESE_COMPANION_ADMIN_EMAIL=admin@example.com \
+  -p 8989:8989 -p 9090:9090 \
+  anthonyolazabal/ese-companion:latest
 ```
 
-## Technologies
-The API is built with NodeJS and include some third parties components to facilitate the development and the compatibility with multiple database engines.
-- [Prisma ORM](https://www.prisma.io/)
-- [Helmet](https://helmetjs.github.io/) to protect the API
-- [Cors](https://expressjs.com/en/resources/middleware/cors.html) to handle Cross Origin
+Open http://localhost:8989 and log in with the admin credentials.
 
-The UI is built with :
-- [Vite](https://vitejs.dev/) 
-- [VueJS](https://vuejs.org/)
-- [Vuetify](https://vuetifyjs.com/en/)
+### Local Development
 
-## UI Routing 
-The UI is generating routes dynamically based on the name of the page. 
+```bash
+# Start databases
+docker compose up -d
 
-## Working with Prisma
-Initialize prisma
-```
-npx prisma generate
+# Backend (terminal 1)
+cd backend && ./gradlew run
+
+# Frontend (terminal 2)
+cd frontend && pnpm install && pnpm dev
 ```
 
-Import DB Schema (need to have a valid connection string in the DATABASE_URL environment variable).
-```
-npx prisma db pull
-```
+Open http://localhost:5173 — login: `admin` / `admin`
 
-Sync dev to DB (need to have a valid connection string in the DATABASE_URL environment variable).
-```
-npx prisma migrate dev
-```
+## Configuration
 
-Based on the database needed, the good prisma schema as to be used (renamed): 
-- schema.prisma.mysql
-- schema.prisma.postgres
+All configuration is done via environment variables:
 
-## Database compatibility
-Thanks to Prisma, we can connect to several types of database engine with the same code. Here is the status of tests and validations carried out on the various engines compatible with the security extension.
-[Full list of supported version](https://docs.hivemq.com/ese/4.20/enterprise-security-extension/ese#sql-db-versions)
+| Variable | Required | Default | Description |
+|---|---|---|---|
+| `ESE_COMPANION_DB_TYPE` | yes | — | `postgresql`, `mysql`, or `sqlserver` |
+| `ESE_COMPANION_DB_HOST` | yes | — | Companion database hostname |
+| `ESE_COMPANION_DB_PORT` | yes | — | Companion database port |
+| `ESE_COMPANION_DB_NAME` | yes | — | Companion database name |
+| `ESE_COMPANION_DB_USER` | yes | — | Companion database username |
+| `ESE_COMPANION_DB_PASSWORD` | yes | — | Companion database password |
+| `ESE_COMPANION_JWT_SECRET` | yes | — | JWT signing key (min 16 chars) |
+| `ESE_COMPANION_ENCRYPTION_KEY` | yes | — | AES key for stored passwords (min 16 chars) |
+| `ESE_COMPANION_ADMIN_USER` | first run | — | Initial admin username |
+| `ESE_COMPANION_ADMIN_PASSWORD` | first run | — | Initial admin password |
+| `ESE_COMPANION_ADMIN_EMAIL` | first run | — | Initial admin email |
+| `ESE_COMPANION_PORT` | no | 8989 | HTTP port |
+| `ESE_COMPANION_HTTPS_PORT` | no | 9090 | HTTPS port |
+| `ESE_COMPANION_RATE_LIMIT` | no | 500 | Global rate limit (requests/min) |
+| `ESE_COMPANION_AUDIT_RETENTION_DAYS` | no | 90 | Audit log retention |
+| `ESE_COMPANION_HEALTH_CHECK_INTERVAL` | no | 60 | Health check interval (seconds) |
 
-| DB            | Tested | Validated |                                               Connection string format                                               | 
-|---------------|:------:|:---------:|:--------------------------------------------------------------------------------------------------------------------:|
-| PostgreSQL    |  YES   |    YES    |                        postgresql://username:password@server:port/database_name?schema=public                        |
-| MariaDB       |   YES   |    YES     |             mysql://USER:PASSWORD@HOST:PORT/DATABASE                                                                                                         |
-| MySQL         |   YES   |    YES     |                                       mysql://USER:PASSWORD@HOST:PORT/DATABASE                                       |
-| SQL Server    |   NO   |    NO     |                   sqlserver://HOST:PORT;database=DATABASE;user=USER;password=PASSWORD;encrypt=true                   |
-| Azure SQL     |   NO   |    NO     |                   sqlserver://HOST:PORT;database=DATABASE;user=USER;password=PASSWORD;encrypt=true                   |
-| Amazon Aurora |   NO   |    NO     |                                       mysql://USER:PASSWORD@HOST:PORT/DATABASE                                       |
+See the [full configuration reference](docs/USER-GUIDE.md) for all options.
 
-[More details on configuring Prisma connection string](https://www.prisma.io/docs/concepts/database-connectors)
+## Kubernetes
 
-
-## Database preparation
-The schema of the Enterprise Security Extension remain untouched. The authentication on the API and the UI is done with the accounts that are in the resp_api_users table. 
-To be able to access the user needs to have the eseapi_admin role assigned which has himself the eseapiadmin permission.
-
-For more information on the structure of the database, please refer to the official documentation : [Link](https://docs.hivemq.com/ese/4.20/enterprise-security-extension/ese-intro)
-
-To create all the needed entries in the database, just execute the following commands on top of the database (also available in Prisma folder > updateDb.sql).
-By default the user created is **eseapiadmin** with the password **supersecurepassword**.
-```
--- Create special permission in ESE DB for additionnal API
-insert into rest_api_permissions (permission_string, description)
-values ('HIVEMQ_ESEAPI_ADMIN', 'special rest_api_permission, that allows access to ESE API');
-
--- Create special role in ESE DB for additionnal API
-insert into rest_api_roles (name, description)
-values ('eseapi_admin', 'has the HIVEMQ_ESEAPI_ADMIN permission');
-
--- Map role and permission
-insert into rest_api_role_permissions (role, permission)
-select rest_api_roles.id, rest_api_permissions.id
-from rest_api_roles,
-     rest_api_permissions
-where rest_api_roles.name = 'eseapi_admin'
-  AND rest_api_permissions.permission_string = 'HIVEMQ_ESEAPI_ADMIN';
-
--- Create the first user with eseapi admin permission
-insert into rest_api_users (username, password, password_iterations, password_salt, algorithm)
-values ('eseapiadmin', 'nOgr9xVnkt51Lr68KS/rAKm/LqxAt8oEki7vCerRod3qDbyMFfDBGT8obnkw+AGygxCQDWdaA2sQnXXoAbVK6Q==', 100, 'wxw+3diCV4bWXQHb6LLniA==', 'SHA512');
-
--- Map user to eseapi_admin role
-INSERT INTO rest_api_user_roles (user_id, role_id)
-select rest_api_users.id, rest_api_roles.id
-from rest_api_users,
-     rest_api_roles
-where rest_api_users.username = 'eseapiadmin'
-  AND rest_api_roles.name = 'eseapi_admin'
-;
+```bash
+helm install ese-companion ./helm/ese-companion \
+  --set database.host=your-db-host \
+  --set database.password=your-password \
+  --set security.jwtSecret=your-jwt-secret \
+  --set security.encryptionKey=your-aes-key
 ```
 
-## Build Docker Image
-```
-docker build -t ese-companion-dbflavor --platform linux/amd64 .
-```
-(Platform is specified when other CPU than AMD64 are used like ARM)
-
-## Run Docker image
-
-At the moment two DB flavors are available (later on SQL Server is in the roadmap) :
-- [PostgreSQL version](https://hub.docker.com/repository/docker/anthonyolazabal/ese-companion-postgresql/general) 
-- [MySQL version](https://hub.docker.com/repository/docker/anthonyolazabal/ese-companion-mysql/general)
+## Project Structure
 
 ```
-docker run --env=TOKEN_KEY=@JwTT0k3nK3y!!!@JwTT0k3nK3y!!! --env=DATABASE_URL=postgresql://hivemq:hivemq@192.168.69.230:5432/hivemq-ese-dev?schema=public -p 3301:3001 -d ese-companion-dbflavor:latest
+ese-companion/
+  backend/         Kotlin/Ktor backend
+  frontend/        React/Chakra UI frontend
+  helm/            Kubernetes Helm chart
+  references/      ESE database schemas (PostgreSQL, MySQL, SQL Server)
+  docs/            Documentation (PRD, user guide, release notes)
+  ArchiveVersion1/ Archived v1 application
 ```
 
-Two important environment variables are needed :
-1. DATABASE_URL which give the connection string to the database (Using Prisma format)
+## Documentation
+
+- [Quick Start Guide](docs/QUICKSTART.md)
+- [User Guide](docs/USER-GUIDE.md)
+- [Release Notes v2.0](docs/RELEASE-NOTES-v2.0.md)
+- [PRD](docs/PRD.md)
+- [CVE Report](docs/CVE-REPORT.md)
+
+## Building
+
+```bash
+# Build backend JAR
+cd backend && ./gradlew shadowJar
+
+# Build frontend
+cd frontend && pnpm build
+
+# Build Docker image
+./build-and-push.sh
 ```
-DATABASE_URL="postgresql://username:password@server:port/database_name?schema=public"
+
+## Testing
+
+```bash
+# Backend tests (123 tests)
+cd backend && ./gradlew test
+
+# Frontend tests (34 tests)
+cd frontend && pnpm test
 ```
-2. TOKEN_KEY any token with multiple characters that will we used by the API to create JWT tokens
-```
-TOKEN_KEY="@lsirfgjoirnkk!!"
-```
 
-## Run the API and UI locally on a server
-If you prefer to run the API and the UI on a server, you will need to have :
-- NodeJS 18 or more (Docker image is actually running with NodeJS 20)
-- Npm 
-- Java Runtime
+## License
 
-Local execution has been tested on MacOS and Linux, this should also works under Windows.
+ISC
 
-Once you have the prerequisites, you can clone the repository, install dependencies and build the local instance.
-(Be sure to have you local environment variables to point to the database or at least a .env file otherwise the prisma generation will not work)
-```
-git clone https://github.com/anthonyolazabal/ese-companion.git
-npm install
-npx prisma generate
-npm run build-app
-```
-This will build the UI and embedded it with the API.
+---
 
-## Access ports
-If you plan to use the tool on your computer with Doccker, you will be able to access it with localhost on port 3001 without any problem on the web browser. 
-If you plan to access it remotly, you have two options : 
-- Use the self signed certificate in the container and access port 4001 (You will need to approve the untrusted certificate)
-- Use a reverse proxy solution to manage the HTTPS access and offload it to HTTP on the container. (Client (HTTPS) --> (HTTPS) PROXY (HTTP) --> (HTTP) Container)
-
-Mostly all the new web browsers are preventing API access on HTTP (unsecure) this is why you need to access it with HTTPS.
-
-## Interact with ESE Companion API
-Before being able to interact with the API, you first need to get a valid JWT Token by calling the /login endpoint.
-
-After getting the token, just pass it to any API call via the x-access-token header. Here is a sample call :
-````
-curl --location 'http://localhost:3001/api/users' \
---header 'x-access-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJ1c2VybmFtZSI6ImVzZWFwaWFkbWluIiwiaWF0IjoxNjk1MDMxMjA0LCJleHAiOjE2OTUwMzg0MDR9.VoZWjjmIhgf0kkyb-XjqLyl_UCUxFth7EpCNsQACu2g'
-````
-A postman collection is available in the postman folder.
-
-## Roadmap
-- UI : Transition all pages from options to compositions
-- API : Add OpenApi description
-- API : Add force delete on delete methods (actually, before being able to delete an entry, you need to delete all relations to other tables before. Example, you want to delete a user, you need first to clean role and permissions assignments)
-
-## Collaboration
-If you'd like to help with development, you can contribute by working on bugs and feature requests. You can't commit to the main branch, you have to pull a branch (identify the branch in relation to the bug/feature request you're working on). The merge will then take place on the main branch, with a code review.
-
-## Open a bug 
-To declare a bug, use the GitHub Issue tracking and fill the template with all the informations needed to reproduce it.
-[Here is the link](https://github.com/anthonyolazabal/ese-companion/issues/new?assignees=&labels=&projects=&template=bug_report.md&title=)
-
-## Open a feature request
-To ask for a new feature, use the GitHub Issue tracking and fill the template for the feature request with all the informations needed.
-[Here is the link](https://github.com/anthonyolazabal/ese-companion/issues/new?assignees=&labels=&projects=&template=feature_request.md&title=)
-
-
+Built by the community for the community.
