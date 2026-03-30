@@ -14,6 +14,7 @@ object DatabaseConnections : Table("database_connections") {
     val username = varchar("username", 255)
     val password = text("password") // AES-encrypted
     val sslEnabled = bool("ssl_enabled").default(false)
+    val sslIgnoreCertificate = bool("ssl_ignore_certificate").default(false)
     val connectionParams = text("connection_params").nullable() // JSON string
     val healthStatus = varchar("health_status", 20).default("UNKNOWN") // HEALTHY, UNREACHABLE, UNKNOWN
     val lastHealthCheck = timestamp("last_health_check").nullable()

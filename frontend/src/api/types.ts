@@ -35,6 +35,7 @@ export interface Connection {
   databaseName: string;
   username: string;
   sslEnabled: boolean;
+  sslIgnoreCertificate: boolean;
   connectionParams: string | null;
   healthStatus: string;
   lastHealthCheck: string | null;
@@ -52,6 +53,7 @@ export interface CreateConnectionRequest {
   username: string;
   password: string;
   sslEnabled?: boolean;
+  sslIgnoreCertificate?: boolean;
   connectionParams?: string;
 }
 
@@ -64,6 +66,7 @@ export interface UpdateConnectionRequest {
   username?: string;
   password?: string;
   sslEnabled?: boolean;
+  sslIgnoreCertificate?: boolean;
   connectionParams?: string;
 }
 

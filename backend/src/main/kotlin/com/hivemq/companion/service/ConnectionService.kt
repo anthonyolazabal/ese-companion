@@ -26,6 +26,7 @@ class ConnectionService(private val database: Database, private val aesEncryptio
         databaseName = this[DatabaseConnections.databaseName],
         username = this[DatabaseConnections.username],
         sslEnabled = this[DatabaseConnections.sslEnabled],
+        sslIgnoreCertificate = this[DatabaseConnections.sslIgnoreCertificate],
         connectionParams = this[DatabaseConnections.connectionParams],
         healthStatus = this[DatabaseConnections.healthStatus],
         lastHealthCheck = this[DatabaseConnections.lastHealthCheck]?.toString(),
@@ -49,6 +50,7 @@ class ConnectionService(private val database: Database, private val aesEncryptio
             it[username] = request.username
             it[password] = encryptedPassword
             it[sslEnabled] = request.sslEnabled
+            it[sslIgnoreCertificate] = request.sslIgnoreCertificate
             it[connectionParams] = request.connectionParams
             it[healthStatus] = "UNKNOWN"
             it[lastHealthCheck] = null
@@ -71,6 +73,7 @@ class ConnectionService(private val database: Database, private val aesEncryptio
                 request.username?.let { user -> it[DatabaseConnections.username] = user }
                 request.password?.let { pass -> it[DatabaseConnections.password] = aesEncryption.encrypt(pass) }
                 request.sslEnabled?.let { ssl -> it[DatabaseConnections.sslEnabled] = ssl }
+                request.sslIgnoreCertificate?.let { v -> it[DatabaseConnections.sslIgnoreCertificate] = v }
                 request.connectionParams?.let { params -> it[DatabaseConnections.connectionParams] = params }
                 it[DatabaseConnections.updatedAt] = now
             }
@@ -111,8 +114,10 @@ class ConnectionService(private val database: Database, private val aesEncryptio
         val username = row[DatabaseConnections.username]
         val encryptedPassword = row[DatabaseConnections.password]
         val password = aesEncryption.decrypt(encryptedPassword)
+        val sslEnabled = row[DatabaseConnections.sslEnabled]
+        val sslIgnoreCert = row[DatabaseConnections.sslIgnoreCertificate]
 
-        val jdbcUrl = buildJdbcUrl(dbType, host, port, dbName)
+        val jdbcUrl = buildJdbcUrl(dbType, host, port, dbName, sslEnabled, sslIgnoreCert)
 
         try {
             DriverManager.setLoginTimeout(5)
@@ -155,11 +160,43 @@ class ConnectionService(private val database: Database, private val aesEncryptio
             }
     }
 
-    private fun buildJdbcUrl(dbType: String, host: String, port: Int, databaseName: String): String =
+    private fun buildJdbcUrl(dbType: String, host: String, port: Int, databaseName: String, sslEnabled: Boolean, sslIgnoreCert: Boolean): String =
         when (dbType.uppercase()) {
-            "POSTGRESQL" -> "jdbc:postgresql://$host:$port/$databaseName"
-            "MYSQL" -> "jdbc:mysql://$host:$port/$databaseName"
-            "SQLSERVER" -> "jdbc:sqlserver://$host:$port;databaseName=$databaseName;encrypt=true;trustServerCertificate=true"
+            "POSTGRESQL" -> {
+                val base = "jdbc:postgresql://$host:$port/$databaseName"
+                val params = mutableListOf<String>()
+                if (sslEnabled) {
+                    params.add("ssl=true")
+                    if (sslIgnoreCert) {
+                        params.add("sslmode=require")
+                        params.add("sslfactory=org.postgresql.ssl.NonValidatingFactory")
+                    }
+                }
+                if (params.isNotEmpty()) "$base?${params.joinToString("&")}" else base
+            }
+            "MYSQL" -> {
+                val base = "jdbc:mysql://$host:$port/$databaseName"
+                val params = mutableListOf<String>()
+                if (sslEnabled) {
+                    params.add("useSSL=true")
+                    params.add("requireSSL=true")
+                    if (sslIgnoreCert) {
+                        params.add("verifyServerCertificate=false")
+                    }
+                }
+                if (params.isNotEmpty()) "$base?${params.joinToString("&")}" else base
+            }
+            "SQLSERVER" -> {
+                val base = "jdbc:sqlserver://$host:$port;databaseName=$databaseName"
+                val params = mutableListOf<String>()
+                if (sslEnabled) {
+                    params.add("encrypt=true")
+                    if (sslIgnoreCert) params.add("trustServerCertificate=true")
+                } else {
+                    params.add("encrypt=false")
+                }
+                "$base;${params.joinToString(";")}"
+            }
             else -> throw IllegalArgumentException("Unsupported database type: $dbType")
         }
 }

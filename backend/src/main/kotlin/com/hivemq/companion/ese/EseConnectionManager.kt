@@ -54,8 +54,10 @@ open class EseConnectionManager(
         val username = config[DatabaseConnections.username]
         val encryptedPassword = config[DatabaseConnections.password]
         val password = aesEncryption.decrypt(encryptedPassword)
+        val sslEnabled = config[DatabaseConnections.sslEnabled]
+        val sslIgnoreCertificate = config[DatabaseConnections.sslIgnoreCertificate]
 
-        val jdbcUrl = buildJdbcUrl(dbType, host, port, databaseName)
+        val jdbcUrl = buildJdbcUrl(dbType, host, port, databaseName, sslEnabled, sslIgnoreCertificate)
 
         val hikariConfig = HikariConfig().apply {
             this.jdbcUrl = jdbcUrl
@@ -119,10 +121,44 @@ open class EseConnectionManager(
         }
     }
 
-    private fun buildJdbcUrl(dbType: DatabaseType, host: String, port: Int, name: String): String =
+    private fun buildJdbcUrl(dbType: DatabaseType, host: String, port: Int, name: String, sslEnabled: Boolean, sslIgnoreCertificate: Boolean): String =
         when (dbType) {
-            DatabaseType.POSTGRESQL -> "jdbc:postgresql://$host:$port/$name"
-            DatabaseType.MYSQL -> "jdbc:mysql://$host:$port/$name"
-            DatabaseType.SQLSERVER -> "jdbc:sqlserver://$host:$port;databaseName=$name;encrypt=true;trustServerCertificate=true"
+            DatabaseType.POSTGRESQL -> {
+                val base = "jdbc:postgresql://$host:$port/$name"
+                val params = mutableListOf<String>()
+                if (sslEnabled) {
+                    params.add("ssl=true")
+                    if (sslIgnoreCertificate) {
+                        params.add("sslmode=require")
+                        params.add("sslfactory=org.postgresql.ssl.NonValidatingFactory")
+                    }
+                }
+                if (params.isNotEmpty()) "$base?${params.joinToString("&")}" else base
+            }
+            DatabaseType.MYSQL -> {
+                val base = "jdbc:mysql://$host:$port/$name"
+                val params = mutableListOf<String>()
+                if (sslEnabled) {
+                    params.add("useSSL=true")
+                    params.add("requireSSL=true")
+                    if (sslIgnoreCertificate) {
+                        params.add("verifyServerCertificate=false")
+                    }
+                }
+                if (params.isNotEmpty()) "$base?${params.joinToString("&")}" else base
+            }
+            DatabaseType.SQLSERVER -> {
+                val base = "jdbc:sqlserver://$host:$port;databaseName=$name"
+                val params = mutableListOf<String>()
+                if (sslEnabled) {
+                    params.add("encrypt=true")
+                    if (sslIgnoreCertificate) {
+                        params.add("trustServerCertificate=true")
+                    }
+                } else {
+                    params.add("encrypt=false")
+                }
+                "$base;${params.joinToString(";")}"
+            }
         }
 }

@@ -13,6 +13,7 @@ data class CreateConnectionRequest(
     val username: String,
     val password: String,
     val sslEnabled: Boolean = false,
+    val sslIgnoreCertificate: Boolean = false,
     val connectionParams: String? = null,
 )
 
@@ -26,6 +27,7 @@ data class UpdateConnectionRequest(
     val username: String? = null,
     val password: String? = null,
     val sslEnabled: Boolean? = null,
+    val sslIgnoreCertificate: Boolean? = null,
     val connectionParams: String? = null,
 )
 
@@ -40,6 +42,7 @@ data class ConnectionResponse(
     val databaseName: String,
     val username: String,
     val sslEnabled: Boolean,
+    val sslIgnoreCertificate: Boolean,
     val connectionParams: String?,
     val healthStatus: String,
     val lastHealthCheck: String?,

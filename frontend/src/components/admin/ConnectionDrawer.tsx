@@ -27,6 +27,7 @@ interface ConnectionDrawerProps {
     username: string;
     password: string;
     sslEnabled: boolean;
+    sslIgnoreCertificate: boolean;
   }) => Promise<void>;
 }
 
@@ -52,6 +53,7 @@ export function ConnectionDrawer({
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [sslEnabled, setSslEnabled] = useState(false);
+  const [sslIgnoreCertificate, setSslIgnoreCertificate] = useState(false);
   const [saving, setSaving] = useState(false);
   const [testing, setTesting] = useState(false);
   const [testResult, setTestResult] = useState<{ success: boolean; message: string } | null>(null);
@@ -68,6 +70,7 @@ export function ConnectionDrawer({
       setUsername(connection.username);
       setPassword("");
       setSslEnabled(connection.sslEnabled);
+      setSslIgnoreCertificate(connection.sslIgnoreCertificate);
     } else {
       setName("");
       setDescription("");
@@ -78,6 +81,7 @@ export function ConnectionDrawer({
       setUsername("");
       setPassword("");
       setSslEnabled(false);
+      setSslIgnoreCertificate(false);
     }
     setError("");
     setTestResult(null);
@@ -88,7 +92,7 @@ export function ConnectionDrawer({
     setError("");
     setSaving(true);
     try {
-      await onSave({ name, description, dbType, host, port, databaseName, username, password, sslEnabled });
+      await onSave({ name, description, dbType, host, port, databaseName, username, password, sslEnabled, sslIgnoreCertificate });
       onClose();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save connection");
@@ -260,6 +264,26 @@ export function ConnectionDrawer({
                 </Switch.Control>
               </Switch.Root>
             </HStack>
+
+            {sslEnabled && (
+              <HStack justify="space-between">
+                <Box>
+                  <Text fontSize="sm" fontWeight="medium">Ignore Certificate Validation</Text>
+                  <Text fontSize="xs" color="gray.500">Use when the server has a self-signed certificate</Text>
+                </Box>
+                <Switch.Root
+                  checked={sslIgnoreCertificate}
+                  onCheckedChange={(e) => setSslIgnoreCertificate(e.checked)}
+                  colorPalette="yellow"
+                  size="sm"
+                >
+                  <Switch.HiddenInput />
+                  <Switch.Control>
+                    <Switch.Thumb />
+                  </Switch.Control>
+                </Switch.Root>
+              </HStack>
+            )}
 
             {isEdit && (
               <Box>
