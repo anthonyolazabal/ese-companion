@@ -1,7 +1,7 @@
 replicaCount: 1
 
 image:
-  repository: ghcr.io/guinp1n/ese-companion
+  repository: anthonyolazabal/ese-companion
   tag: "2.0.0"
   pullPolicy: IfNotPresent
 

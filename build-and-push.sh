@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-REPO="ghcr.io/guinp1n/ese-companion"
+REPO="anthonyolazabal/ese-companion"
 
 # Ask for version
 read -p "Enter the version tag (e.g. 2.0.0): " VERSION
