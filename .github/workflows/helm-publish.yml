@@ -50,7 +50,7 @@ jobs:
       - name: Update Helm repository index
         run: |
           cp .helm-packages/*.tgz gh-pages/
-          helm repo index gh-pages --url https://guinp1n.github.io/ese-companion
+          helm repo index gh-pages --url https://anthonyolazabal.github.io/ese-companion
 
       - name: Push to gh-pages
         env:
