@@ -106,8 +106,12 @@ data class AppConfig(
             )
 
             val security = SecurityConfig(
-                jwtSecret = required("ESE_COMPANION_JWT_SECRET"),
-                encryptionKey = required("ESE_COMPANION_ENCRYPTION_KEY"),
+                jwtSecret = required("ESE_COMPANION_JWT_SECRET").also {
+                    require(it.length >= 16) { "ESE_COMPANION_JWT_SECRET must be at least 16 characters" }
+                },
+                encryptionKey = required("ESE_COMPANION_ENCRYPTION_KEY").also {
+                    require(it.length >= 16) { "ESE_COMPANION_ENCRYPTION_KEY must be at least 16 characters" }
+                },
                 rateLimitPerMinute = optionalInt("ESE_COMPANION_RATE_LIMIT", 500),
                 corsOrigins = optional("ESE_COMPANION_CORS_ORIGINS")
                     ?.split(",")

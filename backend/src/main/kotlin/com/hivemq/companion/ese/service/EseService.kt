@@ -48,7 +48,8 @@ class EseService(
         return transaction(db) {
             var query = u.table.selectAll()
             if (!search.isNullOrBlank()) {
-                query = query.where { u.username like "%$search%" }
+                val sanitized = search.replace("%", "").replace("_", "").replace("[", "")
+                query = query.where { u.username like "%$sanitized%" }
             }
             val total = query.count()
             val users = query

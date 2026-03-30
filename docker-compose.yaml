@@ -65,6 +65,8 @@ services:
 
   # ──────────────────────────────────────────────
   # ESE Database — SQL Server
+  # NOTE: Azure SQL Edge is used for local dev on ARM (Apple Silicon).
+  # For production on x86, use mcr.microsoft.com/mssql/server:2022-latest
   # ──────────────────────────────────────────────
   ese-mssql:
     image: mcr.microsoft.com/azure-sql-edge:latest

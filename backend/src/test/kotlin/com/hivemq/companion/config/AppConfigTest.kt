@@ -14,7 +14,7 @@ class AppConfigTest {
             "ESE_COMPANION_DB_NAME" to "companion",
             "ESE_COMPANION_DB_USER" to "admin",
             "ESE_COMPANION_DB_PASSWORD" to "secret",
-            "ESE_COMPANION_JWT_SECRET" to "jwt-key",
+            "ESE_COMPANION_JWT_SECRET" to "jwt-key-at-least-16ch",
             "ESE_COMPANION_ENCRYPTION_KEY" to "aes-key-1234567890123456"
         )
         val config = AppConfig.fromEnv(env)
@@ -70,7 +70,7 @@ class AppConfigTest {
         "ESE_COMPANION_DB_NAME" to "companion",
         "ESE_COMPANION_DB_USER" to "user",
         "ESE_COMPANION_DB_PASSWORD" to "pass",
-        "ESE_COMPANION_JWT_SECRET" to "secret",
+        "ESE_COMPANION_JWT_SECRET" to "secret-at-least-16chars",
         "ESE_COMPANION_ENCRYPTION_KEY" to "0123456789abcdef"
     )
 }
