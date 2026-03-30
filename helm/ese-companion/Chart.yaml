@@ -1,6 +1,0 @@
-apiVersion: v2
-name: ese-companion
-description: HiveMQ ESE Companion — centralized ESE database management
-type: application
-version: 1.0.0
-appVersion: "2.0.0"
