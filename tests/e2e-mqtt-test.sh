@@ -2,15 +2,18 @@
 set -e
 
 # ============================================================================
-# ESE Companion E2E Test — MQTT Broker Connection with ESE Credentials
+# ESE Companion E2E Test — MQTT Broker Connection with All Algorithms
 #
 # This script:
 # 1. Logs into ESE Companion
-# 2. Creates an MQTT user with a known password via the API
-# 3. Creates a role and permission, assigns them to the user
-# 4. Tests MQTT connection to a HiveMQ broker using those credentials
-# 5. Publishes and subscribes to verify authorization
-# 6. Cleans up created entities
+# 2. Creates a shared role + permission for a test topic
+# 3. For each of the 6 ESE hash algorithms:
+#    a. Creates an MQTT user with that algorithm
+#    b. Assigns the role to the user
+#    c. Tests MQTT publish + subscribe with those credentials
+#    d. Tests wrong password is rejected
+#    e. Cleans up the user
+# 4. Cleans up role + permission
 #
 # Prerequisites:
 #   - ESE Companion running (default: http://localhost:8989)
@@ -20,7 +23,7 @@ set -e
 #   - curl, jq
 #
 # Usage:
-#   ./tests/e2e-mqtt-test.sh [OPTIONS]
+#   CONNECTION_ID="your-uuid" ./tests/e2e-mqtt-test.sh
 #
 # Options (via environment variables):
 #   COMPANION_URL       ESE Companion base URL (default: http://localhost:8989)
@@ -30,6 +33,7 @@ set -e
 #   BROKER_HOST         MQTT broker hostname (default: localhost)
 #   BROKER_PORT         MQTT broker port (default: 1883)
 #   CLEANUP             Set to "false" to skip cleanup (default: true)
+#   ESE_SYNC_WAIT       Seconds to wait for ESE to sync after user creation (default: 3)
 # ============================================================================
 
 COMPANION_URL="${COMPANION_URL:-http://localhost:8989}"
@@ -38,23 +42,39 @@ COMPANION_PASS="${COMPANION_PASS:-admin}"
 BROKER_HOST="${BROKER_HOST:-localhost}"
 BROKER_PORT="${BROKER_PORT:-1883}"
 CLEANUP="${CLEANUP:-true}"
+ESE_SYNC_WAIT="${ESE_SYNC_WAIT:-3}"
 
 # Colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
+CYAN='\033[0;36m'
 NC='\033[0m'
 
-pass() { echo -e "${GREEN}PASS${NC} $1"; }
-fail() { echo -e "${RED}FAIL${NC} $1"; FAILURES=$((FAILURES + 1)); }
-info() { echo -e "${YELLOW}INFO${NC} $1"; }
+pass() { echo -e "  ${GREEN}PASS${NC} $1"; PASSES=$((PASSES + 1)); }
+fail() { echo -e "  ${RED}FAIL${NC} $1"; FAILURES=$((FAILURES + 1)); }
+info() { echo -e "  ${YELLOW}INFO${NC} $1"; }
+section() { echo -e "\n${CYAN}=== $1 ===${NC}"; }
 
 FAILURES=0
-TEST_USER="e2e-test-user-$(date +%s)"
+PASSES=0
+TIMESTAMP=$(date +%s)
 TEST_PASS="E2eTestP@ss123"
-TEST_ROLE="e2e-test-role-$(date +%s)"
-TEST_TOPIC="e2e/test/$(date +%s)"
-CREATED_USER_ID=""
+TEST_TOPIC="e2e/test/${TIMESTAMP}"
+TEST_ROLE="e2e-role-${TIMESTAMP}"
+
+# Algorithm definitions: name, iterations, extra JSON fields
+ALGORITHMS=(
+  "PLAIN:0:"
+  "MD5:100:"
+  "SHA512:100:"
+  "PKCS5S2:100:"
+  "BCRYPT:10:"
+  "ARGON2ID:3:,\"memory\":65536"
+)
+
+# Track created entity IDs for cleanup
+CREATED_USER_IDS=()
 CREATED_ROLE_ID=""
 CREATED_PERM_ID=""
 
@@ -71,49 +91,45 @@ if [ -z "$CONNECTION_ID" ]; then
   echo ""
   echo "Get your connection IDs with:"
   echo "  curl -s ${COMPANION_URL}/api/v1/connections -H 'Authorization: Bearer <token>' | jq '.items[] | {id, name}'"
-  echo ""
   exit 1
 fi
 
 echo "============================================"
 echo " ESE Companion E2E MQTT Test"
+echo " All 6 Hash Algorithms"
 echo "============================================"
 echo "Companion:   ${COMPANION_URL}"
 echo "Connection:  ${CONNECTION_ID}"
 echo "Broker:      ${BROKER_HOST}:${BROKER_PORT}"
-echo "Test user:   ${TEST_USER}"
 echo "Test topic:  ${TEST_TOPIC}"
+echo "Algorithms:  PLAIN, MD5, SHA512, PKCS5S2, BCRYPT, ARGON2ID"
 echo "============================================"
-echo ""
 
 # --------------------------------------------------------------------------
-# Step 1: Login to ESE Companion
+# Login
 # --------------------------------------------------------------------------
-info "Logging in to ESE Companion..."
+section "Authentication"
 LOGIN_RESPONSE=$(curl -sf -X POST "${COMPANION_URL}/api/v1/auth/login" \
   -H "Content-Type: application/json" \
-  -d "{\"username\":\"${COMPANION_USER}\",\"password\":\"${COMPANION_PASS}\"}")
-
-if [ $? -ne 0 ]; then
-  fail "Login failed"
+  -d "{\"username\":\"${COMPANION_USER}\",\"password\":\"${COMPANION_PASS}\"}" 2>&1) || {
+  fail "Login failed — is ESE Companion running at ${COMPANION_URL}?"
   exit 1
-fi
+}
 
 TOKEN=$(echo "$LOGIN_RESPONSE" | jq -r '.accessToken')
 if [ -z "$TOKEN" ] || [ "$TOKEN" = "null" ]; then
-  fail "Failed to extract token from login response"
+  fail "Failed to extract token"
   exit 1
 fi
-pass "Logged in successfully"
-
-AUTH_HEADER="Authorization: Bearer ${TOKEN}"
+pass "Logged in as '${COMPANION_USER}'"
+AUTH="Authorization: Bearer ${TOKEN}"
 
 # --------------------------------------------------------------------------
-# Step 2: Create MQTT permission (topic-based)
+# Create shared permission
 # --------------------------------------------------------------------------
-info "Creating MQTT permission for topic '${TEST_TOPIC}'..."
+section "Setup — Permission"
 PERM_RESPONSE=$(curl -sf -X POST "${COMPANION_URL}/api/v1/ese/${CONNECTION_ID}/mqtt/permissions" \
-  -H "${AUTH_HEADER}" \
+  -H "${AUTH}" \
   -H "Content-Type: application/json" \
   -d "{
     \"topic\": \"${TEST_TOPIC}\",
@@ -124,219 +140,208 @@ PERM_RESPONSE=$(curl -sf -X POST "${COMPANION_URL}/api/v1/ese/${CONNECTION_ID}/m
     \"qos2Allowed\": false,
     \"retainedMsgsAllowed\": false,
     \"sharedSubAllowed\": false
-  }")
-
-if [ $? -ne 0 ]; then
-  fail "Failed to create permission"
-  exit 1
-fi
+  }" 2>&1) || { fail "Failed to create permission"; exit 1; }
 
 CREATED_PERM_ID=$(echo "$PERM_RESPONSE" | jq -r '.id')
-pass "Permission created (ID: ${CREATED_PERM_ID})"
+pass "Permission created for topic '${TEST_TOPIC}' (ID: ${CREATED_PERM_ID})"
 
 # --------------------------------------------------------------------------
-# Step 3: Create MQTT role
+# Create shared role + assign permission
 # --------------------------------------------------------------------------
-info "Creating MQTT role '${TEST_ROLE}'..."
+section "Setup — Role"
 ROLE_RESPONSE=$(curl -sf -X POST "${COMPANION_URL}/api/v1/ese/${CONNECTION_ID}/mqtt/roles" \
-  -H "${AUTH_HEADER}" \
+  -H "${AUTH}" \
   -H "Content-Type: application/json" \
-  -d "{\"name\": \"${TEST_ROLE}\", \"description\": \"E2E test role\"}")
-
-if [ $? -ne 0 ]; then
-  fail "Failed to create role"
-  exit 1
-fi
+  -d "{\"name\": \"${TEST_ROLE}\", \"description\": \"E2E test role for all algorithms\"}" 2>&1) || {
+  fail "Failed to create role"; exit 1;
+}
 
 CREATED_ROLE_ID=$(echo "$ROLE_RESPONSE" | jq -r '.id')
-pass "Role created (ID: ${CREATED_ROLE_ID})"
+pass "Role '${TEST_ROLE}' created (ID: ${CREATED_ROLE_ID})"
 
-# --------------------------------------------------------------------------
-# Step 4: Assign permission to role
-# --------------------------------------------------------------------------
-info "Assigning permission to role..."
 curl -sf -X POST "${COMPANION_URL}/api/v1/ese/${CONNECTION_ID}/mqtt/roles/${CREATED_ROLE_ID}/permissions/${CREATED_PERM_ID}" \
-  -H "${AUTH_HEADER}" > /dev/null
-
-if [ $? -ne 0 ]; then
-  fail "Failed to assign permission to role"
-else
-  pass "Permission assigned to role"
-fi
+  -H "${AUTH}" > /dev/null 2>&1 || { fail "Failed to assign permission to role"; }
+pass "Permission assigned to role"
 
 # --------------------------------------------------------------------------
-# Step 5: Create MQTT user
+# Test each algorithm
 # --------------------------------------------------------------------------
-info "Creating MQTT user '${TEST_USER}'..."
-USER_RESPONSE=$(curl -sf -X POST "${COMPANION_URL}/api/v1/ese/${CONNECTION_ID}/mqtt/users" \
-  -H "${AUTH_HEADER}" \
-  -H "Content-Type: application/json" \
-  -d "{
-    \"username\": \"${TEST_USER}\",
-    \"password\": \"${TEST_PASS}\",
-    \"algorithm\": \"PKCS5S2\",
-    \"iterations\": 100
-  }")
+test_algorithm() {
+  local ALGO_NAME="$1"
+  local ITERATIONS="$2"
+  local EXTRA_JSON="$3"
+  local USERNAME="e2e-${ALGO_NAME,,}-${TIMESTAMP}"
 
-if [ $? -ne 0 ]; then
-  fail "Failed to create user"
-  exit 1
-fi
+  section "Algorithm: ${ALGO_NAME} (iterations: ${ITERATIONS})"
 
-CREATED_USER_ID=$(echo "$USER_RESPONSE" | jq -r '.id')
-pass "User created (ID: ${CREATED_USER_ID})"
+  # Create user
+  info "Creating user '${USERNAME}' with ${ALGO_NAME}..."
+  USER_RESPONSE=$(curl -sf -X POST "${COMPANION_URL}/api/v1/ese/${CONNECTION_ID}/mqtt/users" \
+    -H "${AUTH}" \
+    -H "Content-Type: application/json" \
+    -d "{
+      \"username\": \"${USERNAME}\",
+      \"password\": \"${TEST_PASS}\",
+      \"algorithm\": \"${ALGO_NAME}\",
+      \"iterations\": ${ITERATIONS}
+      ${EXTRA_JSON}
+    }" 2>&1)
 
-# --------------------------------------------------------------------------
-# Step 6: Assign role to user
-# --------------------------------------------------------------------------
-info "Assigning role to user..."
-curl -sf -X POST "${COMPANION_URL}/api/v1/ese/${CONNECTION_ID}/mqtt/users/${CREATED_USER_ID}/roles/${CREATED_ROLE_ID}" \
-  -H "${AUTH_HEADER}" > /dev/null
-
-if [ $? -ne 0 ]; then
-  fail "Failed to assign role to user"
-else
-  pass "Role assigned to user"
-fi
-
-# --------------------------------------------------------------------------
-# Step 7: Wait for ESE to pick up the changes
-# --------------------------------------------------------------------------
-info "Waiting 3 seconds for ESE to sync..."
-sleep 3
-
-# --------------------------------------------------------------------------
-# Step 8: Test MQTT subscribe + publish
-# --------------------------------------------------------------------------
-info "Testing MQTT connection..."
-
-# Start subscriber in background
-RECEIVED_MSG=""
-mosquitto_sub \
-  -h "${BROKER_HOST}" \
-  -p "${BROKER_PORT}" \
-  -u "${TEST_USER}" \
-  -P "${TEST_PASS}" \
-  -t "${TEST_TOPIC}" \
-  -C 1 \
-  -W 10 \
-  > /tmp/e2e-mqtt-msg.txt 2>/tmp/e2e-mqtt-sub-err.txt &
-SUB_PID=$!
-
-sleep 1
-
-# Publish a message
-TEST_PAYLOAD="e2e-test-$(date +%s)"
-info "Publishing message to '${TEST_TOPIC}'..."
-mosquitto_pub \
-  -h "${BROKER_HOST}" \
-  -p "${BROKER_PORT}" \
-  -u "${TEST_USER}" \
-  -P "${TEST_PASS}" \
-  -t "${TEST_TOPIC}" \
-  -m "${TEST_PAYLOAD}" \
-  -q 1 2>/tmp/e2e-mqtt-pub-err.txt
-
-if [ $? -ne 0 ]; then
-  fail "MQTT publish failed: $(cat /tmp/e2e-mqtt-pub-err.txt)"
-else
-  pass "MQTT publish succeeded"
-fi
-
-# Wait for subscriber
-wait $SUB_PID 2>/dev/null
-RECEIVED_MSG=$(cat /tmp/e2e-mqtt-msg.txt 2>/dev/null)
-
-if [ "$RECEIVED_MSG" = "$TEST_PAYLOAD" ]; then
-  pass "MQTT subscribe received correct message: '${RECEIVED_MSG}'"
-else
-  if [ -z "$RECEIVED_MSG" ]; then
-    fail "MQTT subscribe timed out — no message received"
-    info "Subscriber error: $(cat /tmp/e2e-mqtt-sub-err.txt 2>/dev/null)"
-  else
-    fail "MQTT subscribe received unexpected message: '${RECEIVED_MSG}' (expected '${TEST_PAYLOAD}')"
+  if [ $? -ne 0 ]; then
+    fail "Failed to create user with ${ALGO_NAME}"
+    return
   fi
-fi
+
+  USER_ID=$(echo "$USER_RESPONSE" | jq -r '.id')
+  STORED_ALGO=$(echo "$USER_RESPONSE" | jq -r '.algorithm')
+  CREATED_USER_IDS+=("$USER_ID")
+  pass "User created (ID: ${USER_ID}, stored algorithm: ${STORED_ALGO})"
+
+  # Assign role
+  curl -sf -X POST "${COMPANION_URL}/api/v1/ese/${CONNECTION_ID}/mqtt/users/${USER_ID}/roles/${CREATED_ROLE_ID}" \
+    -H "${AUTH}" > /dev/null 2>&1
+  if [ $? -ne 0 ]; then
+    fail "Failed to assign role to user"
+    return
+  fi
+  pass "Role assigned"
+
+  # Wait for ESE sync
+  info "Waiting ${ESE_SYNC_WAIT}s for ESE to sync..."
+  sleep "$ESE_SYNC_WAIT"
+
+  # Test publish
+  info "Testing MQTT publish..."
+  mosquitto_pub \
+    -h "${BROKER_HOST}" \
+    -p "${BROKER_PORT}" \
+    -u "${USERNAME}" \
+    -P "${TEST_PASS}" \
+    -t "${TEST_TOPIC}" \
+    -m "${ALGO_NAME}-test-${TIMESTAMP}" \
+    -q 1 2>/tmp/e2e-pub-err.txt
+
+  if [ $? -eq 0 ]; then
+    pass "MQTT publish succeeded with ${ALGO_NAME}"
+  else
+    fail "MQTT publish failed with ${ALGO_NAME}: $(cat /tmp/e2e-pub-err.txt 2>/dev/null)"
+  fi
+
+  # Test subscribe (with timeout)
+  info "Testing MQTT subscribe..."
+  EXPECTED_MSG="${ALGO_NAME}-sub-${TIMESTAMP}"
+
+  mosquitto_sub \
+    -h "${BROKER_HOST}" \
+    -p "${BROKER_PORT}" \
+    -u "${USERNAME}" \
+    -P "${TEST_PASS}" \
+    -t "${TEST_TOPIC}" \
+    -C 1 \
+    -W 5 \
+    > /tmp/e2e-sub-msg.txt 2>/tmp/e2e-sub-err.txt &
+  SUB_PID=$!
+
+  sleep 1
+
+  mosquitto_pub \
+    -h "${BROKER_HOST}" \
+    -p "${BROKER_PORT}" \
+    -u "${USERNAME}" \
+    -P "${TEST_PASS}" \
+    -t "${TEST_TOPIC}" \
+    -m "${EXPECTED_MSG}" \
+    -q 1 2>/dev/null
+
+  wait $SUB_PID 2>/dev/null
+  RECEIVED=$(cat /tmp/e2e-sub-msg.txt 2>/dev/null)
+
+  if [ "$RECEIVED" = "$EXPECTED_MSG" ]; then
+    pass "MQTT subscribe received correct message with ${ALGO_NAME}"
+  else
+    if [ -z "$RECEIVED" ]; then
+      fail "MQTT subscribe timed out with ${ALGO_NAME}"
+    else
+      fail "MQTT subscribe got '${RECEIVED}', expected '${EXPECTED_MSG}'"
+    fi
+  fi
+
+  # Test wrong password
+  info "Testing wrong password..."
+  mosquitto_pub \
+    -h "${BROKER_HOST}" \
+    -p "${BROKER_PORT}" \
+    -u "${USERNAME}" \
+    -P "wrong-password-123" \
+    -t "${TEST_TOPIC}" \
+    -m "should-fail" \
+    -q 1 2>/tmp/e2e-wrongpw-err.txt
+
+  if [ $? -ne 0 ]; then
+    pass "Wrong password correctly rejected for ${ALGO_NAME}"
+  else
+    fail "Wrong password was NOT rejected for ${ALGO_NAME}"
+  fi
+}
+
+# Run tests for each algorithm
+for ALGO_DEF in "${ALGORITHMS[@]}"; do
+  IFS=':' read -r ALGO_NAME ITERATIONS EXTRA_JSON <<< "$ALGO_DEF"
+  test_algorithm "$ALGO_NAME" "$ITERATIONS" "$EXTRA_JSON"
+done
 
 # --------------------------------------------------------------------------
-# Step 9: Test unauthorized topic (should fail)
-# --------------------------------------------------------------------------
-info "Testing unauthorized topic (should be rejected)..."
-mosquitto_pub \
-  -h "${BROKER_HOST}" \
-  -p "${BROKER_PORT}" \
-  -u "${TEST_USER}" \
-  -P "${TEST_PASS}" \
-  -t "unauthorized/topic" \
-  -m "should-fail" \
-  -q 1 2>/tmp/e2e-mqtt-unauth-err.txt
-
-# Note: Whether this fails depends on the broker's ESE configuration
-# Some brokers disconnect, others silently drop the message
-info "Unauthorized publish completed (check broker logs for rejection)"
-
-# --------------------------------------------------------------------------
-# Step 10: Test wrong password (should fail)
-# --------------------------------------------------------------------------
-info "Testing wrong password (should be rejected)..."
-mosquitto_pub \
-  -h "${BROKER_HOST}" \
-  -p "${BROKER_PORT}" \
-  -u "${TEST_USER}" \
-  -P "wrong-password" \
-  -t "${TEST_TOPIC}" \
-  -m "should-fail" \
-  -q 1 2>/tmp/e2e-mqtt-wrongpw-err.txt
-
-if [ $? -ne 0 ]; then
-  pass "Wrong password correctly rejected"
-else
-  fail "Wrong password was not rejected"
-fi
-
-# --------------------------------------------------------------------------
-# Step 11: Cleanup
+# Cleanup
 # --------------------------------------------------------------------------
 if [ "$CLEANUP" = "true" ]; then
-  info "Cleaning up test entities..."
+  section "Cleanup"
 
-  # Remove role from user
-  curl -sf -X DELETE "${COMPANION_URL}/api/v1/ese/${CONNECTION_ID}/mqtt/users/${CREATED_USER_ID}/roles/${CREATED_ROLE_ID}" \
-    -H "${AUTH_HEADER}" > /dev/null 2>&1
+  for UID in "${CREATED_USER_IDS[@]}"; do
+    # Remove role from user
+    curl -sf -X DELETE "${COMPANION_URL}/api/v1/ese/${CONNECTION_ID}/mqtt/users/${UID}/roles/${CREATED_ROLE_ID}" \
+      -H "${AUTH}" > /dev/null 2>&1
+    # Delete user
+    curl -sf -X DELETE "${COMPANION_URL}/api/v1/ese/${CONNECTION_ID}/mqtt/users/${UID}" \
+      -H "${AUTH}" > /dev/null 2>&1
+  done
+  info "Deleted ${#CREATED_USER_IDS[@]} test users"
 
   # Remove permission from role
   curl -sf -X DELETE "${COMPANION_URL}/api/v1/ese/${CONNECTION_ID}/mqtt/roles/${CREATED_ROLE_ID}/permissions/${CREATED_PERM_ID}" \
-    -H "${AUTH_HEADER}" > /dev/null 2>&1
-
-  # Delete user
-  curl -sf -X DELETE "${COMPANION_URL}/api/v1/ese/${CONNECTION_ID}/mqtt/users/${CREATED_USER_ID}" \
-    -H "${AUTH_HEADER}" > /dev/null 2>&1
+    -H "${AUTH}" > /dev/null 2>&1
 
   # Delete role
   curl -sf -X DELETE "${COMPANION_URL}/api/v1/ese/${CONNECTION_ID}/mqtt/roles/${CREATED_ROLE_ID}" \
-    -H "${AUTH_HEADER}" > /dev/null 2>&1
+    -H "${AUTH}" > /dev/null 2>&1
+  info "Deleted role '${TEST_ROLE}'"
 
   # Delete permission
   curl -sf -X DELETE "${COMPANION_URL}/api/v1/ese/${CONNECTION_ID}/mqtt/permissions/${CREATED_PERM_ID}" \
-    -H "${AUTH_HEADER}" > /dev/null 2>&1
+    -H "${AUTH}" > /dev/null 2>&1
+  info "Deleted permission for '${TEST_TOPIC}'"
 
   pass "Cleanup complete"
 else
-  info "Skipping cleanup (CLEANUP=false)"
-  info "Created entities:"
-  info "  User: ${CREATED_USER_ID} (${TEST_USER})"
-  info "  Role: ${CREATED_ROLE_ID} (${TEST_ROLE})"
-  info "  Permission: ${CREATED_PERM_ID} (${TEST_TOPIC})"
+  section "Skipping Cleanup"
+  info "Created entities still in database:"
+  for i in "${!CREATED_USER_IDS[@]}"; do
+    info "  User ID: ${CREATED_USER_IDS[$i]}"
+  done
+  info "  Role ID: ${CREATED_ROLE_ID}"
+  info "  Permission ID: ${CREATED_PERM_ID}"
 fi
 
 # Clean temp files
-rm -f /tmp/e2e-mqtt-msg.txt /tmp/e2e-mqtt-sub-err.txt /tmp/e2e-mqtt-pub-err.txt /tmp/e2e-mqtt-unauth-err.txt /tmp/e2e-mqtt-wrongpw-err.txt
+rm -f /tmp/e2e-pub-err.txt /tmp/e2e-sub-msg.txt /tmp/e2e-sub-err.txt /tmp/e2e-wrongpw-err.txt
 
 # --------------------------------------------------------------------------
 # Summary
 # --------------------------------------------------------------------------
+TOTAL=$((PASSES + FAILURES))
 echo ""
 echo "============================================"
+echo " Results: ${PASSES} passed, ${FAILURES} failed (${TOTAL} total)"
+echo " Algorithms tested: PLAIN, MD5, SHA512, PKCS5S2, BCRYPT, ARGON2ID"
 if [ $FAILURES -eq 0 ]; then
   echo -e " ${GREEN}ALL TESTS PASSED${NC}"
 else
