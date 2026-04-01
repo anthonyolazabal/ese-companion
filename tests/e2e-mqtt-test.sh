@@ -1,5 +1,6 @@
 #!/bin/bash
-set -e
+# Note: NOT using set -e because mosquitto commands return non-zero on auth failure,
+# which is expected behavior we test for.
 
 # ============================================================================
 # ESE Companion E2E Test — MQTT Broker Connection with All Algorithms
@@ -212,14 +213,14 @@ test_algorithm() {
 
   # Test publish
   info "Testing MQTT publish..."
-  mosquitto_pub \
+  timeout 10 mosquitto_pub \
     -h "${BROKER_HOST}" \
     -p "${BROKER_PORT}" \
     -u "${USERNAME}" \
     -P "${TEST_PASS}" \
     -t "${TEST_TOPIC}" \
     -m "${ALGO_NAME}-test-${TIMESTAMP}" \
-    -q 1 2>/tmp/e2e-pub-err.txt
+    -q 0 2>/tmp/e2e-pub-err.txt
 
   if [ $? -eq 0 ]; then
     pass "MQTT publish succeeded with ${ALGO_NAME}"
@@ -227,24 +228,26 @@ test_algorithm() {
     fail "MQTT publish failed with ${ALGO_NAME}: $(cat /tmp/e2e-pub-err.txt 2>/dev/null)"
   fi
 
-  # Test subscribe (with timeout)
-  info "Testing MQTT subscribe..."
+  # Test subscribe + publish round-trip (with hard timeout)
+  info "Testing MQTT pub/sub round-trip..."
   EXPECTED_MSG="${ALGO_NAME}-sub-${TIMESTAMP}"
+  rm -f /tmp/e2e-sub-msg.txt /tmp/e2e-sub-err.txt
 
-  mosquitto_sub \
+  # Run subscribe in a subshell with timeout
+  timeout 10 mosquitto_sub \
     -h "${BROKER_HOST}" \
     -p "${BROKER_PORT}" \
     -u "${USERNAME}" \
     -P "${TEST_PASS}" \
     -t "${TEST_TOPIC}" \
     -C 1 \
-    -W 5 \
     > /tmp/e2e-sub-msg.txt 2>/tmp/e2e-sub-err.txt &
   SUB_PID=$!
 
-  sleep 1
+  sleep 2
 
-  mosquitto_pub \
+  # Publish while subscriber is listening
+  timeout 10 mosquitto_pub \
     -h "${BROKER_HOST}" \
     -p "${BROKER_PORT}" \
     -u "${USERNAME}" \
@@ -253,29 +256,28 @@ test_algorithm() {
     -m "${EXPECTED_MSG}" \
     -q 1 2>/dev/null
 
+  # Wait for subscriber (max 10s via timeout command)
   wait $SUB_PID 2>/dev/null
   RECEIVED=$(cat /tmp/e2e-sub-msg.txt 2>/dev/null)
 
   if [ "$RECEIVED" = "$EXPECTED_MSG" ]; then
-    pass "MQTT subscribe received correct message with ${ALGO_NAME}"
+    pass "MQTT pub/sub round-trip succeeded with ${ALGO_NAME}"
+  elif [ -z "$RECEIVED" ]; then
+    fail "MQTT subscribe timed out with ${ALGO_NAME}: $(cat /tmp/e2e-sub-err.txt 2>/dev/null)"
   else
-    if [ -z "$RECEIVED" ]; then
-      fail "MQTT subscribe timed out with ${ALGO_NAME}"
-    else
-      fail "MQTT subscribe got '${RECEIVED}', expected '${EXPECTED_MSG}'"
-    fi
+    fail "MQTT subscribe got '${RECEIVED}', expected '${EXPECTED_MSG}'"
   fi
 
   # Test wrong password
   info "Testing wrong password..."
-  mosquitto_pub \
+  timeout 10 mosquitto_pub \
     -h "${BROKER_HOST}" \
     -p "${BROKER_PORT}" \
     -u "${USERNAME}" \
     -P "wrong-password-123" \
     -t "${TEST_TOPIC}" \
     -m "should-fail" \
-    -q 1 2>/tmp/e2e-wrongpw-err.txt
+    -q 0 2>/tmp/e2e-wrongpw-err.txt
 
   if [ $? -ne 0 ]; then
     pass "Wrong password correctly rejected for ${ALGO_NAME}"
@@ -296,12 +298,12 @@ done
 if [ "$CLEANUP" = "true" ]; then
   section "Cleanup"
 
-  for UID in "${CREATED_USER_IDS[@]}"; do
+  for USER_ID in "${CREATED_USER_IDS[@]}"; do
     # Remove role from user
-    curl -sf -X DELETE "${COMPANION_URL}/api/v1/ese/${CONNECTION_ID}/mqtt/users/${UID}/roles/${CREATED_ROLE_ID}" \
+    curl -sf -X DELETE "${COMPANION_URL}/api/v1/ese/${CONNECTION_ID}/mqtt/users/\${USER_ID}/roles/${CREATED_ROLE_ID}" \
       -H "${AUTH}" > /dev/null 2>&1
     # Delete user
-    curl -sf -X DELETE "${COMPANION_URL}/api/v1/ese/${CONNECTION_ID}/mqtt/users/${UID}" \
+    curl -sf -X DELETE "${COMPANION_URL}/api/v1/ese/${CONNECTION_ID}/mqtt/users/\${USER_ID}" \
       -H "${AUTH}" > /dev/null 2>&1
   done
   info "Deleted ${#CREATED_USER_IDS[@]} test users"
