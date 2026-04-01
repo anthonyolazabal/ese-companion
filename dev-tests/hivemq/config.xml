@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hivemq>
+
+    <!-- Listener for PostgreSQL-backed ESE (port 1883) -->
+    <listeners>
+        <tcp-listener>
+            <port>1883</port>
+            <bind-address>0.0.0.0</bind-address>
+            <name>postgresql-listener</name>
+        </tcp-listener>
+
+        <!-- Listener for MySQL-backed ESE (port 1884) -->
+        <tcp-listener>
+            <port>1884</port>
+            <bind-address>0.0.0.0</bind-address>
+            <name>mysql-listener</name>
+        </tcp-listener>
+
+        <!-- Listener for SQL Server-backed ESE (port 1885) -->
+        <tcp-listener>
+            <port>1885</port>
+            <bind-address>0.0.0.0</bind-address>
+            <name>sqlserver-listener</name>
+        </tcp-listener>
+    </listeners>
+
+    <control-center>
+        <listeners>
+            <http>
+                <port>8080</port>
+                <bind-address>0.0.0.0</bind-address>
+            </http>
+        </listeners>
+    </control-center>
+
+    <anonymous-usage-statistics>
+        <enabled>false</enabled>
+    </anonymous-usage-statistics>
+
+</hivemq>
