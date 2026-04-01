@@ -1,1 +1,262 @@
-# ESE Companion Helm Repository
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ESE Companion — Quick Start</title>
+  <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/anthonyolazabal/ese-companion/main/frontend/public/favicon.png">
+  <style>
+    :root {
+      --bg: #0a0a0c;
+      --bg-card: #141416;
+      --bg-code: #1a1a1e;
+      --border: #2a2a2e;
+      --text: #e4e4e7;
+      --text-muted: #9ca3af;
+      --accent: #eab308;
+      --accent-dim: rgba(234,179,8,0.12);
+      --green: #22c55e;
+      --blue: #3b82f6;
+      --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      --mono: 'SF Mono', 'Fira Code', Consolas, monospace;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.7; font-size: 15px; }
+
+    .topbar {
+      position: sticky; top: 0; z-index: 100;
+      background: #1f1f23; border-bottom: 1px solid var(--border);
+      padding: 0 24px; height: 48px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .topbar img { width: 24px; height: 24px; }
+    .topbar .title { font-weight: 700; font-size: 14px; letter-spacing: 0.5px; }
+    .topbar .version { font-size: 11px; color: var(--text-muted); }
+    .topbar .links { margin-left: auto; display: flex; gap: 16px; }
+    .topbar .links a { color: var(--text-muted); text-decoration: none; font-size: 13px; transition: color 0.15s; }
+    .topbar .links a:hover { color: var(--accent); }
+
+    .hero { text-align: center; padding: 64px 24px 48px; border-bottom: 1px solid var(--border); }
+    .hero h1 { font-size: 40px; font-weight: 800; margin-bottom: 16px; }
+    .hero h1 span { color: var(--accent); }
+    .hero p { color: var(--text-muted); font-size: 18px; max-width: 600px; margin: 0 auto 32px; }
+    .hero .badges { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 999px; font-size: 12px; font-weight: 600; border: 1px solid var(--border); background: var(--bg-card); }
+    .badge .dot { width: 8px; height: 8px; border-radius: 50%; }
+    .badge .dot.green { background: var(--green); }
+    .badge .dot.blue { background: var(--blue); }
+    .badge .dot.yellow { background: var(--accent); }
+
+    .container { max-width: 860px; margin: 0 auto; padding: 48px 24px 96px; }
+
+    h2 { font-size: 24px; font-weight: 700; margin: 48px 0 16px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    h2 .step { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: #000; font-size: 14px; font-weight: 700; margin-right: 10px; }
+    h3 { font-size: 17px; font-weight: 600; margin: 24px 0 8px; color: var(--accent); }
+
+    p { margin: 8px 0 16px; color: var(--text-muted); }
+    strong { color: var(--text); }
+    ul, ol { margin: 8px 0 16px 24px; color: var(--text-muted); }
+    li { margin: 4px 0; }
+    li strong { color: var(--text); }
+
+    pre { background: var(--bg-code); border: 1px solid var(--border); border-radius: 8px; padding: 16px 20px; overflow-x: auto; margin: 12px 0 20px; font-size: 13px; line-height: 1.6; }
+    code { font-family: var(--mono); font-size: 13px; }
+    pre code { color: var(--text); }
+    p code, li code, td code { background: var(--bg-code); padding: 2px 7px; border-radius: 4px; font-size: 12.5px; color: var(--accent); }
+
+    table { width: 100%; border-collapse: collapse; margin: 12px 0 20px; font-size: 13.5px; }
+    th, td { padding: 10px 14px; text-align: left; border: 1px solid var(--border); }
+    th { background: var(--bg-code); font-weight: 600; color: var(--text); font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+    td { color: var(--text-muted); }
+
+    .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 20px 24px; margin: 16px 0; }
+    .card h4 { font-size: 15px; font-weight: 600; margin-bottom: 8px; }
+    .card p { margin: 4px 0; font-size: 14px; }
+
+    .info { background: var(--accent-dim); border: 1px solid rgba(234,179,8,0.25); border-radius: 8px; padding: 14px 18px; margin: 16px 0; font-size: 14px; color: var(--text); }
+    .info strong { color: var(--accent); }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .footer { text-align: center; padding: 24px; background: #1f1f23; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 13px; }
+
+    @media (max-width: 640px) {
+      .hero h1 { font-size: 28px; }
+      .hero p { font-size: 15px; }
+      .topbar .links { display: none; }
+      pre { font-size: 12px; padding: 12px 14px; }
+      table { font-size: 12px; }
+      th, td { padding: 8px 10px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <img src="https://raw.githubusercontent.com/anthonyolazabal/ese-companion/main/frontend/public/favicon.png" alt="Logo">
+    <span class="title">ESE Companion</span>
+    <span class="version">v2.0</span>
+    <div class="links">
+      <a href="https://github.com/anthonyolazabal/ese-companion">GitHub</a>
+      <a href="https://hub.docker.com/r/anthonyolazabal/ese-companion">Docker Hub</a>
+      <a href="https://github.com/anthonyolazabal/ese-companion/blob/main/docs/USER-GUIDE.md">User Guide</a>
+      <a href="https://github.com/anthonyolazabal/ese-companion/blob/main/docs/RELEASE-NOTES-v2.0.md">Release Notes</a>
+    </div>
+  </div>
+
+  <div class="hero">
+    <h1>ESE <span>Companion</span> v2</h1>
+    <p>Centralized management for HiveMQ Enterprise Security Extension databases. Manage multiple databases from a single interface.</p>
+    <div class="badges">
+      <span class="badge"><span class="dot green"></span> PostgreSQL</span>
+      <span class="badge"><span class="dot blue"></span> MySQL</span>
+      <span class="badge"><span class="dot yellow"></span> SQL Server</span>
+    </div>
+  </div>
+
+  <div class="container">
+
+    <h2><span class="step">0</span> Prerequisites</h2>
+    <ul>
+      <li><a href="https://docs.docker.com/get-docker/">Docker</a> and <a href="https://docs.docker.com/compose/install/">Docker Compose</a> installed</li>
+      <li>Git installed</li>
+      <li>Ports <code>5432</code>, <code>5433</code>, <code>3306</code>, <code>1433</code>, <code>8989</code>, and <code>9090</code> available</li>
+    </ul>
+
+    <h2><span class="step">1</span> Clone the Repository</h2>
+    <pre><code>git clone https://github.com/anthonyolazabal/ese-companion.git
+cd ese-companion</code></pre>
+
+    <h2><span class="step">2</span> Start the Databases</h2>
+    <p>The included <code>docker-compose.yaml</code> starts four database containers:</p>
+    <ul>
+      <li><strong>companion-db</strong> — PostgreSQL 16 for ESE Companion app data (port 5432)</li>
+      <li><strong>ese-postgresql</strong> — PostgreSQL 16 as a sample ESE database (port 5433)</li>
+      <li><strong>ese-mysql</strong> — MySQL 8.4 as a sample ESE database (port 3306)</li>
+      <li><strong>ese-mssql</strong> — Azure SQL Edge as a sample ESE database (port 1433)</li>
+    </ul>
+    <pre><code>docker compose up -d</code></pre>
+    <p>Wait for all containers to be healthy:</p>
+    <pre><code>docker compose ps</code></pre>
+
+    <h2><span class="step">3</span> Start ESE Companion</h2>
+
+    <h3>Option A: Docker Image (Recommended)</h3>
+    <pre><code>docker run -d --name ese-companion \
+  --network host \
+  -e ESE_COMPANION_DB_TYPE=postgresql \
+  -e ESE_COMPANION_DB_HOST=localhost \
+  -e ESE_COMPANION_DB_PORT=5432 \
+  -e ESE_COMPANION_DB_NAME=companion \
+  -e ESE_COMPANION_DB_USER=companion \
+  -e ESE_COMPANION_DB_PASSWORD=companion \
+  -e ESE_COMPANION_JWT_SECRET=change-me-min-16-chars \
+  -e ESE_COMPANION_ENCRYPTION_KEY=change-me-min-16-chars \
+  -e ESE_COMPANION_ADMIN_USER=admin \
+  -e ESE_COMPANION_ADMIN_PASSWORD=admin \
+  -e ESE_COMPANION_ADMIN_EMAIL=admin@example.com \
+  anthonyolazabal/ese-companion:latest</code></pre>
+
+    <div class="info">
+      <strong>Access the application:</strong><br>
+      HTTP: <a href="http://localhost:8989">http://localhost:8989</a> &nbsp;|&nbsp;
+      HTTPS: <a href="https://localhost:9090">https://localhost:9090</a> (self-signed certificate)
+    </div>
+
+    <h3>Option B: Local Development</h3>
+    <div class="card">
+      <h4>Terminal 1 — Backend</h4>
+      <pre><code>cd backend
+export ESE_COMPANION_DB_TYPE=postgresql
+export ESE_COMPANION_DB_HOST=localhost
+export ESE_COMPANION_DB_PORT=5432
+export ESE_COMPANION_DB_NAME=companion
+export ESE_COMPANION_DB_USER=companion
+export ESE_COMPANION_DB_PASSWORD=companion
+export ESE_COMPANION_JWT_SECRET=change-me-min-16-chars
+export ESE_COMPANION_ENCRYPTION_KEY=change-me-min-16-chars
+export ESE_COMPANION_ADMIN_USER=admin
+export ESE_COMPANION_ADMIN_PASSWORD=admin
+export ESE_COMPANION_ADMIN_EMAIL=admin@example.com
+./gradlew run</code></pre>
+    </div>
+    <div class="card">
+      <h4>Terminal 2 — Frontend</h4>
+      <pre><code>cd frontend
+pnpm install
+pnpm dev</code></pre>
+      <p>Frontend dev server at <a href="http://localhost:5173">http://localhost:5173</a></p>
+    </div>
+
+    <h2><span class="step">4</span> Log In</h2>
+    <p>Open your browser and navigate to the application. Use the default credentials:</p>
+    <table>
+      <tr><th>Field</th><th>Value</th></tr>
+      <tr><td>Username</td><td><code>admin</code></td></tr>
+      <tr><td>Password</td><td><code>admin</code></td></tr>
+    </table>
+
+    <h2><span class="step">5</span> Add Your First Connection</h2>
+    <ol>
+      <li>Navigate to <strong>Admin &gt; Connections</strong> in the sidebar</li>
+      <li>Click <strong>Add Connection</strong></li>
+      <li>Fill in the connection details:</li>
+    </ol>
+    <table>
+      <tr><th>Field</th><th>Value</th></tr>
+      <tr><td>Name</td><td>My ESE PostgreSQL</td></tr>
+      <tr><td>Database Type</td><td>PostgreSQL</td></tr>
+      <tr><td>Host</td><td><code>localhost</code></td></tr>
+      <tr><td>Port</td><td><code>5433</code></td></tr>
+      <tr><td>Database Name</td><td><code>hivemq_ese</code></td></tr>
+      <tr><td>Username</td><td><code>ese</code></td></tr>
+      <tr><td>Password</td><td><code>ese</code></td></tr>
+    </table>
+    <p>You can also add the MySQL and SQL Server databases:</p>
+    <table>
+      <tr><th>Database</th><th>Host</th><th>Port</th><th>DB Name</th><th>User</th><th>Password</th></tr>
+      <tr><td>PostgreSQL</td><td>localhost</td><td>5433</td><td>hivemq_ese</td><td>ese</td><td>ese</td></tr>
+      <tr><td>MySQL</td><td>localhost</td><td>3306</td><td>hivemq_ese</td><td>ese</td><td>ese</td></tr>
+      <tr><td>SQL Server</td><td>localhost</td><td>1433</td><td>hivemq_ese</td><td>sa</td><td>Ese_Comp@nion_2026!</td></tr>
+    </table>
+
+    <h2><span class="step">6</span> Browse ESE Entities</h2>
+    <p>Click on a connection to see its ESE entities. Three domain tabs are available:</p>
+    <ul>
+      <li><strong>MQTT</strong> — Users, roles, and topic-based permissions</li>
+      <li><strong>Control Center</strong> — Users, roles, and 49 pre-loaded HiveMQ CC permissions</li>
+      <li><strong>REST API</strong> — Users, roles, and 47 pre-loaded HiveMQ REST API permissions</li>
+    </ul>
+
+    <h2><span class="step">7</span> Next Steps</h2>
+    <ul>
+      <li><strong>Create ESE users</strong> — 6 hash algorithm options (PLAIN, MD5, SHA512, PKCS5S2, BCrypt, Argon2id)</li>
+      <li><strong>Set up roles &amp; permissions</strong> — define roles, assign permissions, then assign roles to users</li>
+      <li><strong>Manage companion users</strong> — Admin &gt; Users for additional users with admin/readwrite/readonly roles</li>
+      <li><strong>Generate API keys</strong> — Settings &gt; API Keys for scoped, expiring programmatic access</li>
+      <li><strong>Explore the API</strong> — <code>/api/v1/docs</code> for interactive Swagger UI</li>
+      <li><strong>Review audit logs</strong> — Admin &gt; Audit Logs for a record of all actions</li>
+    </ul>
+
+    <h2>Helm Chart</h2>
+    <pre><code>helm repo add ese-companion https://anthonyolazabal.github.io/ese-companion
+helm repo update
+helm install ese-companion ese-companion/ese-companion</code></pre>
+
+    <h2>Stopping Everything</h2>
+    <pre><code># Stop ESE Companion (if running via Docker)
+docker stop ese-companion && docker rm ese-companion
+
+# Stop the databases
+docker compose down
+
+# Remove all data
+docker compose down -v</code></pre>
+
+  </div>
+
+  <div class="footer">Built by the community for the community</div>
+
+</body>
+</html>
