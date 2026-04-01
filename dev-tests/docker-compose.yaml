@@ -1,0 +1,157 @@
+services:
+
+  # ──────────────────────────────────────────────
+  # ESE Companion — Application Database
+  # ──────────────────────────────────────────────
+  companion-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: companion
+      POSTGRES_USER: companion
+      POSTGRES_PASSWORD: companion
+    ports:
+      - "5432:5432"
+    volumes:
+      - companion-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U companion"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ──────────────────────────────────────────────
+  # ESE Database — PostgreSQL
+  # ──────────────────────────────────────────────
+  ese-postgresql:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: hivemq_ese
+      POSTGRES_USER: ese
+      POSTGRES_PASSWORD: ese
+    ports:
+      - "5433:5432"
+    volumes:
+      - ese-pg-data:/var/lib/postgresql/data
+      - ../references/postgresql_create.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ../references/insert/default_permissions_insert.sql:/docker-entrypoint-initdb.d/02-permissions.sql
+      - ../references/insert/default_roles_insert.sql:/docker-entrypoint-initdb.d/03-roles.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ese"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ──────────────────────────────────────────────
+  # ESE Database — MySQL
+  # ──────────────────────────────────────────────
+  ese-mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: hivemq_ese
+      MYSQL_USER: ese
+      MYSQL_PASSWORD: ese
+    ports:
+      - "3306:3306"
+    volumes:
+      - ese-mysql-data:/var/lib/mysql
+      - ../references/mysql_create.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ../references/insert/default_permissions_insert.sql:/docker-entrypoint-initdb.d/02-permissions.sql
+      - ../references/insert/default_roles_insert.sql:/docker-entrypoint-initdb.d/03-roles.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "ese", "-pese"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # ──────────────────────────────────────────────
+  # ESE Database — SQL Server (Azure SQL Edge for ARM)
+  # ──────────────────────────────────────────────
+  ese-mssql:
+    image: mcr.microsoft.com/azure-sql-edge:latest
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "Ese_Comp@nion_2026!"
+    ports:
+      - "1433:1433"
+    volumes:
+      - ese-mssql-data:/var/opt/mssql
+    healthcheck:
+      test: ["CMD-SHELL", "python3 -c \"import socket; s=socket.socket(); s.settimeout(2); s.connect(('localhost',1433)); s.close()\" || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  ese-mssql-init:
+    image: mcr.microsoft.com/mssql-tools:latest
+    depends_on:
+      ese-mssql:
+        condition: service_healthy
+    volumes:
+      - ../references/mssql_create.sql:/init/01-schema.sql
+      - ../references/insert/default_permissions_insert.sql:/init/02-permissions.sql
+      - ../references/insert/default_roles_insert.sql:/init/03-roles.sql
+    entrypoint: /bin/bash
+    command: >
+      -c "
+      echo 'Creating database...' &&
+      /opt/mssql-tools/bin/sqlcmd -S ese-mssql -U sa -P 'Ese_Comp@nion_2026!' -C -Q \"IF NOT EXISTS (SELECT * FROM sys.databases WHERE name='hivemq_ese') CREATE DATABASE hivemq_ese;\" &&
+      echo 'Loading schema...' &&
+      /opt/mssql-tools/bin/sqlcmd -S ese-mssql -U sa -P 'Ese_Comp@nion_2026!' -C -d hivemq_ese -i /init/01-schema.sql &&
+      echo 'Loading permissions...' &&
+      /opt/mssql-tools/bin/sqlcmd -S ese-mssql -U sa -P 'Ese_Comp@nion_2026!' -C -d hivemq_ese -i /init/02-permissions.sql &&
+      echo 'Loading roles...' &&
+      /opt/mssql-tools/bin/sqlcmd -S ese-mssql -U sa -P 'Ese_Comp@nion_2026!' -C -d hivemq_ese -i /init/03-roles.sql &&
+      echo 'SQL Server initialization complete.'
+      "
+
+  # ──────────────────────────────────────────────
+  # HiveMQ Enterprise Broker with ESE
+  # ──────────────────────────────────────────────
+  hivemq:
+    image: hivemq/hivemq4:latest
+    ports:
+      - "1883:1883"   # PostgreSQL listener
+      - "1884:1884"   # MySQL listener
+      - "1885:1885"   # SQL Server listener
+      - "8080:8080"   # Control Center
+    volumes:
+      - ./hivemq/config.xml:/opt/hivemq/conf/config.xml
+      - ./hivemq/extensions/hivemq-enterprise-security-extension:/opt/hivemq/extensions/hivemq-enterprise-security-extension
+    depends_on:
+      ese-postgresql:
+        condition: service_healthy
+      ese-mysql:
+        condition: service_healthy
+      ese-mssql:
+        condition: service_healthy
+
+  # ──────────────────────────────────────────────
+  # ESE Companion Application
+  # ──────────────────────────────────────────────
+  ese-companion:
+    image: anthonyolazabal/ese-companion:latest
+    ports:
+      - "8989:8989"
+      - "9090:9090"
+    environment:
+      ESE_COMPANION_DB_TYPE: postgresql
+      ESE_COMPANION_DB_HOST: companion-db
+      ESE_COMPANION_DB_PORT: "5432"
+      ESE_COMPANION_DB_NAME: companion
+      ESE_COMPANION_DB_USER: companion
+      ESE_COMPANION_DB_PASSWORD: companion
+      ESE_COMPANION_JWT_SECRET: dev-test-jwt-secret-key
+      ESE_COMPANION_ENCRYPTION_KEY: dev-test-encryption-key
+      ESE_COMPANION_ADMIN_USER: admin
+      ESE_COMPANION_ADMIN_PASSWORD: admin
+      ESE_COMPANION_ADMIN_EMAIL: admin@local.dev
+    depends_on:
+      companion-db:
+        condition: service_healthy
+
+volumes:
+  companion-data:
+  ese-pg-data:
+  ese-mysql-data:
+  ese-mssql-data:

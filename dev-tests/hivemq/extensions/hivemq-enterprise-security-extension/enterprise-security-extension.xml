@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<enterprise-security-extension
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="config.xsd"
+        version="1">
+
+    <!-- ================================================================== -->
+    <!-- Realm 1: PostgreSQL Database                                       -->
+    <!-- ================================================================== -->
+    <realms>
+        <sql-realm>
+            <name>postgresql-realm</name>
+            <enabled>true</enabled>
+            <configuration>
+                <db-type>POSTGRES</db-type>
+                <db-host>ese-postgresql</db-host>
+                <db-port>5432</db-port>
+                <db-name>hivemq_ese</db-name>
+                <db-username>ese</db-username>
+                <db-password>ese</db-password>
+            </configuration>
+        </sql-realm>
+
+        <!-- ================================================================== -->
+        <!-- Realm 2: MySQL Database                                            -->
+        <!-- ================================================================== -->
+        <sql-realm>
+            <name>mysql-realm</name>
+            <enabled>true</enabled>
+            <configuration>
+                <db-type>MYSQL</db-type>
+                <db-host>ese-mysql</db-host>
+                <db-port>3306</db-port>
+                <db-name>hivemq_ese</db-name>
+                <db-username>ese</db-username>
+                <db-password>ese</db-password>
+            </configuration>
+        </sql-realm>
+
+        <!-- ================================================================== -->
+        <!-- Realm 3: SQL Server Database                                       -->
+        <!-- ================================================================== -->
+        <sql-realm>
+            <name>sqlserver-realm</name>
+            <enabled>true</enabled>
+            <configuration>
+                <db-type>MSSQL</db-type>
+                <db-host>ese-mssql</db-host>
+                <db-port>1433</db-port>
+                <db-name>hivemq_ese</db-name>
+                <db-username>sa</db-username>
+                <db-password>Ese_Comp@nion_2026!</db-password>
+            </configuration>
+        </sql-realm>
+    </realms>
+
+    <!-- ================================================================== -->
+    <!-- Pipelines: one per listener, each using a different realm           -->
+    <!-- ================================================================== -->
+    <pipelines>
+
+        <!-- PostgreSQL pipeline (listener port 1883) -->
+        <listener-pipeline listener="postgresql-listener">
+            <sql-authentication-manager>
+                <realm>postgresql-realm</realm>
+            </sql-authentication-manager>
+            <sql-authorization-manager>
+                <realm>postgresql-realm</realm>
+            </sql-authorization-manager>
+        </listener-pipeline>
+
+        <!-- MySQL pipeline (listener port 1884) -->
+        <listener-pipeline listener="mysql-listener">
+            <sql-authentication-manager>
+                <realm>mysql-realm</realm>
+            </sql-authentication-manager>
+            <sql-authorization-manager>
+                <realm>mysql-realm</realm>
+            </sql-authorization-manager>
+        </listener-pipeline>
+
+        <!-- SQL Server pipeline (listener port 1885) -->
+        <listener-pipeline listener="sqlserver-listener">
+            <sql-authentication-manager>
+                <realm>sqlserver-realm</realm>
+            </sql-authentication-manager>
+            <sql-authorization-manager>
+                <realm>sqlserver-realm</realm>
+            </sql-authorization-manager>
+        </listener-pipeline>
+
+    </pipelines>
+
+</enterprise-security-extension>
