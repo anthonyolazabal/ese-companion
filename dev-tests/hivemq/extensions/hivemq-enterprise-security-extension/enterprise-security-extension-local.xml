@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Local development version — uses localhost instead of Docker service names.
+  Copy this file to your HiveMQ installation:
+    cp enterprise-security-extension-local.xml /path/to/hivemq/extensions/hivemq-enterprise-security-extension/conf/config.xml
+-->
+<enterprise-security-extension
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="config.xsd"
+        version="1">
+
+    <realms>
+        <!-- PostgreSQL on port 5433 (from docker-compose) -->
+        <sql-realm>
+            <name>postgresql-realm</name>
+            <enabled>true</enabled>
+            <configuration>
+                <db-type>POSTGRES</db-type>
+                <db-host>localhost</db-host>
+                <db-port>5433</db-port>
+                <db-name>hivemq_ese</db-name>
+                <db-username>ese</db-username>
+                <db-password>ese</db-password>
+            </configuration>
+        </sql-realm>
+
+        <!-- MySQL on port 3306 (from docker-compose) -->
+        <sql-realm>
+            <name>mysql-realm</name>
+            <enabled>true</enabled>
+            <configuration>
+                <db-type>MYSQL</db-type>
+                <db-host>localhost</db-host>
+                <db-port>3306</db-port>
+                <db-name>hivemq_ese</db-name>
+                <db-username>ese</db-username>
+                <db-password>ese</db-password>
+            </configuration>
+        </sql-realm>
+
+        <!-- SQL Server on port 1433 (from docker-compose) -->
+        <sql-realm>
+            <name>sqlserver-realm</name>
+            <enabled>true</enabled>
+            <configuration>
+                <db-type>MSSQL</db-type>
+                <db-host>localhost</db-host>
+                <db-port>1433</db-port>
+                <db-name>hivemq_ese</db-name>
+                <db-username>sa</db-username>
+                <db-password>Ese_Comp@nion_2026!</db-password>
+            </configuration>
+        </sql-realm>
+    </realms>
+
+    <pipelines>
+        <listener-pipeline listener="postgresql-listener">
+            <sql-authentication-manager>
+                <realm>postgresql-realm</realm>
+            </sql-authentication-manager>
+            <sql-authorization-manager>
+                <realm>postgresql-realm</realm>
+            </sql-authorization-manager>
+        </listener-pipeline>
+
+        <listener-pipeline listener="mysql-listener">
+            <sql-authentication-manager>
+                <realm>mysql-realm</realm>
+            </sql-authentication-manager>
+            <sql-authorization-manager>
+                <realm>mysql-realm</realm>
+            </sql-authorization-manager>
+        </listener-pipeline>
+
+        <listener-pipeline listener="sqlserver-listener">
+            <sql-authentication-manager>
+                <realm>sqlserver-realm</realm>
+            </sql-authentication-manager>
+            <sql-authorization-manager>
+                <realm>sqlserver-realm</realm>
+            </sql-authorization-manager>
+        </listener-pipeline>
+    </pipelines>
+
+</enterprise-security-extension>

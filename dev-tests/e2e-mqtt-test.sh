@@ -170,7 +170,7 @@ test_algorithm() {
   local ALGO_NAME="$1"
   local ITERATIONS="$2"
   local EXTRA_JSON="$3"
-  local USERNAME="e2e-${ALGO_NAME,,}-${TIMESTAMP}"
+  local USERNAME="e2e-$(echo "$ALGO_NAME" | tr '[:upper:]' '[:lower:]')-${TIMESTAMP}"
 
   section "Algorithm: ${ALGO_NAME} (iterations: ${ITERATIONS})"
 
