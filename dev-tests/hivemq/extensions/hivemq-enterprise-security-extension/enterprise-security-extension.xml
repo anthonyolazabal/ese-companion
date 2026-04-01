@@ -12,11 +12,11 @@
             <name>postgresql-realm</name>
             <enabled>true</enabled>
             <configuration>
-                <db-type>POSTGRESQL</db-type>
+                <db-type>POSTGRES</db-type>
                 <db-host>ese-postgresql</db-host>
                 <db-port>5432</db-port>
                 <db-name>hivemq_ese</db-name>
-                <db-user>ese</db-user>
+                <db-username>ese</db-username>
                 <db-password>ese</db-password>
             </configuration>
         </sql-realm>
@@ -32,7 +32,7 @@
                 <db-host>ese-mysql</db-host>
                 <db-port>3306</db-port>
                 <db-name>hivemq_ese</db-name>
-                <db-user>ese</db-user>
+                <db-username>ese</db-username>
                 <db-password>ese</db-password>
             </configuration>
         </sql-realm>
@@ -48,7 +48,7 @@
                 <db-host>ese-mssql</db-host>
                 <db-port>1433</db-port>
                 <db-name>hivemq_ese</db-name>
-                <db-user>sa</db-user>
+                <db-username>sa</db-username>
                 <db-password>Ese_Comp@nion_2026!</db-password>
             </configuration>
         </sql-realm>
@@ -61,44 +61,32 @@
 
         <!-- PostgreSQL pipeline (listener port 1883) -->
         <listener-pipeline listener="postgresql-listener">
-            <authentication-pipeline>
-                <sql-authentication-manager>
-                    <realm>postgresql-realm</realm>
-                </sql-authentication-manager>
-            </authentication-pipeline>
-            <authorization-pipeline>
-                <sql-authorization-manager>
-                    <realm>postgresql-realm</realm>
-                </sql-authorization-manager>
-            </authorization-pipeline>
+            <sql-authentication-manager>
+                <realm>postgresql-realm</realm>
+            </sql-authentication-manager>
+            <sql-authorization-manager>
+                <realm>postgresql-realm</realm>
+            </sql-authorization-manager>
         </listener-pipeline>
 
         <!-- MySQL pipeline (listener port 1884) -->
         <listener-pipeline listener="mysql-listener">
-            <authentication-pipeline>
-                <sql-authentication-manager>
-                    <realm>mysql-realm</realm>
-                </sql-authentication-manager>
-            </authentication-pipeline>
-            <authorization-pipeline>
-                <sql-authorization-manager>
-                    <realm>mysql-realm</realm>
-                </sql-authorization-manager>
-            </authorization-pipeline>
+            <sql-authentication-manager>
+                <realm>mysql-realm</realm>
+            </sql-authentication-manager>
+            <sql-authorization-manager>
+                <realm>mysql-realm</realm>
+            </sql-authorization-manager>
         </listener-pipeline>
 
         <!-- SQL Server pipeline (listener port 1885) -->
         <listener-pipeline listener="sqlserver-listener">
-            <authentication-pipeline>
-                <sql-authentication-manager>
-                    <realm>sqlserver-realm</realm>
-                </sql-authentication-manager>
-            </authentication-pipeline>
-            <authorization-pipeline>
-                <sql-authorization-manager>
-                    <realm>sqlserver-realm</realm>
-                </sql-authorization-manager>
-            </authorization-pipeline>
+            <sql-authentication-manager>
+                <realm>sqlserver-realm</realm>
+            </sql-authentication-manager>
+            <sql-authorization-manager>
+                <realm>sqlserver-realm</realm>
+            </sql-authorization-manager>
         </listener-pipeline>
 
     </pipelines>
