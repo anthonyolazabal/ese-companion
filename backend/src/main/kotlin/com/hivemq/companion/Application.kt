@@ -220,20 +220,11 @@ fun Application.module(
             auditLogRoutes(auditLogService)
         }
 
-        // Static files from public/ directory (React SPA build output)
-        staticFiles("/", File("public")) {
-            default("index.html")
-        }
-
-        // SPA fallback: any non-API, non-health path returns index.html
-        get("{...}") {
-            val path = call.request.uri
-            if (!path.startsWith("/api/") && !path.startsWith("/health/")) {
-                val indexFile = File("public/index.html")
-                if (indexFile.exists()) {
-                    call.respondFile(indexFile)
-                }
-            }
+        // Serve React SPA: static files with correct MIME types + index.html fallback for client routes
+        singlePageApplication {
+            filesPath = "public"
+            defaultPage = "index.html"
+            useResources = false
         }
     }
 }

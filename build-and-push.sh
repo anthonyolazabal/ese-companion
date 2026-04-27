@@ -17,24 +17,23 @@ echo "  ${REPO}:${VERSION}"
 echo "  ${REPO}:latest"
 echo ""
 
-# Build the image with both tags
-echo "=== Building Docker image ==="
-docker build \
+# Ensure buildx builder exists
+BUILDER="ese-multiplatform"
+if ! docker buildx inspect "$BUILDER" &>/dev/null; then
+  echo "=== Creating buildx builder ==="
+  docker buildx create --name "$BUILDER" --use
+else
+  docker buildx use "$BUILDER"
+fi
+
+# Build and push multi-platform image
+echo "=== Building and pushing multi-platform image (amd64 + arm64) ==="
+docker buildx build \
+  --platform linux/amd64,linux/arm64 \
   -t "${REPO}:${VERSION}" \
   -t "${REPO}:latest" \
+  --push \
   .
-
-echo ""
-echo "=== Build complete ==="
-echo ""
-
-# Push version tag
-echo "=== Pushing ${REPO}:${VERSION} ==="
-docker push "${REPO}:${VERSION}"
-
-# Push latest tag
-echo "=== Pushing ${REPO}:latest ==="
-docker push "${REPO}:latest"
 
 echo ""
 echo "=== Done ==="
